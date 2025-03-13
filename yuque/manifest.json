@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "语雀文章复制助手",
+  "version": "1.0",
+  "description": "一键将语雀文章复制到微信公众号编辑器，支持样式保留和图片处理",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "clipboardWrite",
+    "tabs"
+  ],
+  "host_permissions": [
+    "*://*.yuque.com/*",
+    "*://*.mdnice.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "images/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.yuque.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "icons": {
+    "128": "images/icon128.png"
+  }
+} 
