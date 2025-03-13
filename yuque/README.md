@@ -31,7 +31,7 @@ https://github.com/tyronczt/AI-Exploration/tree/main/yuque
 
 ## 3、加载已解压的扩展程序
 
-![img](https://cdn.nlark.com/yuque/0/2025/png/22165187/1741858327825-4727258a-d913-48b0-a79b-864c248d3a32.png)
+![加载已解压的扩展程序](https://cdn.nlark.com/yuque/0/2025/png/22165187/1741858327825-4727258a-d913-48b0-a79b-864c248d3a32.png?x-oss-process=image%2Fformat%2Cwebp)
 
 将第二步下载的代码加载即可，然后拓展程序列表中就会多出一个拓展程序；
 
@@ -39,8 +39,8 @@ https://github.com/tyronczt/AI-Exploration/tree/main/yuque
 
 语雀官方文章，仅作示例用：https://www.yuque.com/yuque/mgcsc6/sc1leq
 
-![img](https://cdn.nlark.com/yuque/0/2025/png/22165187/1741858552765-056b5e7f-1b40-4b77-98e5-8605b0113dd9.png)
+![打开语雀文章，一键复制](https://cdn.nlark.com/yuque/0/2025/png/22165187/1741858552765-056b5e7f-1b40-4b77-98e5-8605b0113dd9.png)
 
 ## 5、打开公众号后台，一键粘贴
 
-![img](https://cdn.nlark.com/yuque/0/2025/png/22165187/1741858679205-16713206-bd3f-4720-9d38-092424036a37.png)
+![打开公众号后台，一键粘贴](https://cdn.nlark.com/yuque/0/2025/png/22165187/1741858679205-16713206-bd3f-4720-9d38-092424036a37.png)
