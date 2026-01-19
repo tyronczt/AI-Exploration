@@ -1,0 +1,56 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="header">
+    <view class="user-info" wx:if="{{userInfo}}">
+      <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+      <view class="welcome">欢迎回来，{{userInfo.nickName}}</view>
+    </view>
+    <view class="user-info" wx:else>
+      <image class="avatar" src="/images/default-avatar.png" mode="aspectFill"></image>
+      <view class="welcome">欢迎使用英语单词学习</view>
+    </view>
+  </view>
+
+  <view class="stats">
+    <view class="stat-item">
+      <view class="stat-value">{{learnedWords}}</view>
+      <view class="stat-label">已学单词</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{currentStreak}}</view>
+      <view class="stat-label">连续学习</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{totalPoints}}</view>
+      <view class="stat-label">总积分</view>
+    </view>
+  </view>
+
+  <view class="quick-actions">
+    <navigator url="/pages/study/study" class="action-item">
+      <image class="action-icon" src="/images/start-study.png"></image>
+      <view class="action-text">开始学习</view>
+    </navigator>
+    <navigator url="/pages/wordbook/wordbook" class="action-item">
+      <image class="action-icon" src="/images/wordbook.png"></image>
+      <view class="action-text">选择词库</view>
+    </navigator>
+  </view>
+
+  <view class="recommended">
+    <view class="section-title">推荐词库</view>
+    <view class="wordbook-list">
+      <view class="wordbook-item" wx:for="{{recommendedWordbooks}}" wx:key="id">
+        <image class="wordbook-cover" src="{{item.coverImageUrl}}" mode="aspectFill"></image>
+        <view class="wordbook-info">
+          <view class="wordbook-name">{{item.name}}</view>
+          <view class="wordbook-desc">{{item.description}}</view>
+          <view class="wordbook-meta">
+            <text class="word-count">{{item.wordCount}} 个单词</text>
+            <text class="difficulty">难度: {{item.difficultyLevel}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
