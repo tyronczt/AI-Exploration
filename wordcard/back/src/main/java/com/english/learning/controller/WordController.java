@@ -1,5 +1,6 @@
 package com.english.learning.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.english.learning.entity.Word;
 import com.english.learning.service.WordService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,5 +47,13 @@ public class WordController {
     @DeleteMapping("/{id}")
     public boolean deleteWord(@PathVariable Long id) {
         return wordService.removeById(id);
+    }
+    
+    @Operation(summary = "根据词库ID获取单词", description = "根据词库ID获取该词库下的所有单词")
+    @GetMapping("/wordbook/{wordbookId}")
+    public List<Word> getWordsByWordbookId(@PathVariable Long wordbookId) {
+        LambdaQueryWrapper<Word> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Word::getWordbookId, wordbookId);
+        return wordService.list(queryWrapper);
     }
 }

@@ -29,4 +29,16 @@ public class User {
     private LocalDateTime updatedAt;
     
     private LocalDateTime lastLoginAt;
+    
+    // 微信登录相关字段
+    private String openid;
+    private String unionid;
+    private String sessionKey;
+    private String wechatNickname;
+    private String wechatAvatar;
+    private Integer wechatGender;
+    private String wechatCountry;
+    private String wechatProvince;
+    private String wechatCity;
+    private String wechatLanguage;
 }
