@@ -1,0 +1,59 @@
+<!--study.wxml-->
+<view class="container">
+  <view class="study-header">
+    <view class="progress">
+      <view class="progress-text">{{currentWordIndex + 1}}/{{totalWords}}</view>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{(currentWordIndex + 1) / totalWords * 100}}%"></view>
+      </view>
+    </view>
+    <view class="wordbook-info">{{currentWordbook.name}}</view>
+  </view>
+
+  <view class="word-card" wx:if="{{currentWord}}">
+    <view class="word-pronunciation">
+      <view class="word">{{currentWord.word}}</view>
+      <view class="pronunciation">{{currentWord.pronunciation}}</view>
+      <view class="audio-btn" bindtap="playAudio">
+        <image src="/images/audio.png" mode="aspectFit"></image>
+      </view>
+    </view>
+    
+    <view class="word-meaning">
+      <view class="part-of-speech">{{currentWord.partOfSpeech}}</view>
+      <view class="chinese-meaning">{{currentWord.chineseMeaning}}</view>
+      <view class="english-definition">{{currentWord.englishDefinition}}</view>
+    </view>
+    
+    <view class="example-sentence">
+      <view class="sentence-label">例句：</view>
+      <view class="sentence">{{currentWord.exampleSentence}}</view>
+      <view class="sentence-translation">{{currentWord.exampleTranslation}}</view>
+    </view>
+  </view>
+
+  <view class="action-buttons">
+    <view class="action-btn forget-btn" bindtap="markAsForgot">
+      <view class="btn-text">忘记</view>
+      <view class="btn-icon">
+        <image src="/images/forget.png" mode="aspectFit"></image>
+      </view>
+    </view>
+    <view class="action-btn uncertain-btn" bindtap="markAsUncertain">
+      <view class="btn-text">不确定</view>
+      <view class="btn-icon">
+        <image src="/images/uncertain.png" mode="aspectFit"></image>
+      </view>
+    </view>
+    <view class="action-btn remember-btn" bindtap="markAsRemembered">
+      <view class="btn-text">记住</view>
+      <view class="btn-icon">
+        <image src="/images/remember.png" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <view class="loading-text">加载中...</view>
+  </view>
+</view>

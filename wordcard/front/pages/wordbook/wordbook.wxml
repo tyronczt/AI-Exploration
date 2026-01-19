@@ -1,0 +1,41 @@
+<!--wordbook.wxml-->
+<view class="container">
+  <view class="header">
+    <view class="title">选择词库</view>
+  </view>
+
+  <view class="filter">
+    <view class="filter-item {{activeFilter === 'all' ? 'active' : ''}}" bindtap="switchFilter" data-filter="all">全部</view>
+    <view class="filter-item {{activeFilter === 'cet4' ? 'active' : ''}}" bindtap="switchFilter" data-filter="cet4">四级</view>
+    <view class="filter-item {{activeFilter === 'cet6' ? 'active' : ''}}" bindtap="switchFilter" data-filter="cet6">六级</view>
+    <view class="filter-item {{activeFilter === 'ielts' ? 'active' : ''}}" bindtap="switchFilter" data-filter="ielts">雅思</view>
+    <view class="filter-item {{activeFilter === 'toefl' ? 'active' : ''}}" bindtap="switchFilter" data-filter="toefl">托福</view>
+  </view>
+
+  <view class="wordbook-list">
+    <view class="wordbook-item" wx:for="{{wordbooks}}" wx:key="id" bindtap="selectWordbook" data-id="{{item.id}}">
+      <image class="cover" src="{{item.coverImageUrl || '/images/default-wordbook.png'}}" mode="aspectFill"></image>
+      <view class="info">
+        <view class="name">{{item.name}}</view>
+        <view class="desc">{{item.description}}</view>
+        <view class="meta">
+          <text class="count">{{item.wordCount}} 个单词</text>
+          <text class="difficulty">难度: {{item.difficultyLevel}}</text>
+        </view>
+      </view>
+      <view class="action">
+        <view class="btn">开始学习</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <van-loading type="spinner" size="40rpx" />
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && wordbooks.length === 0}}">
+    <image class="empty-icon" src="/images/empty.png" mode="aspectFill"></image>
+    <view class="empty-text">暂无词库</view>
+  </view>
+</view>
