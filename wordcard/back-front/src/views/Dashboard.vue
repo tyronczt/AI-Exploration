@@ -86,6 +86,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { User as ElIconUser, Document as ElIconDocument, Edit as ElIconEdit, DataAnalysis as ElIconDataAnalysis } from '@element-plus/icons-vue'
+import axios from 'axios'
 
 export default {
   name: 'Dashboard',
@@ -97,15 +98,36 @@ export default {
   },
   setup() {
     // 统计数据
-    const totalUsers = ref(100)
-    const totalWordbooks = ref(20)
-    const totalWords = ref(10000)
-    const todayStudy = ref(50)
+    const totalUsers = ref(0)
+    const totalWordbooks = ref(0)
+    const totalWords = ref(0)
+    const todayStudy = ref(0)
+
+    // 获取仪表盘统计数据
+    const fetchDashboardData = async () => {
+      try {
+        // 获取用户总数
+        const usersResponse = await axios.get('/api/users')
+        totalUsers.value = usersResponse.data.length
+        
+        // 获取词库总数
+        const wordbooksResponse = await axios.get('/api/wordbooks')
+        totalWordbooks.value = wordbooksResponse.data.length
+        
+        // 获取单词总数
+        const wordsResponse = await axios.get('/api/words')
+        totalWords.value = wordsResponse.data.length
+        
+        // 今日学习人数暂时使用模拟数据
+        todayStudy.value = Math.floor(Math.random() * 50) + 10
+      } catch (error) {
+        console.error('获取仪表盘数据失败:', error)
+      }
+    }
 
     // 页面加载时获取数据
     onMounted(() => {
-      // 这里可以调用API获取真实数据
-      // 暂时使用模拟数据
+      fetchDashboardData()
     })
 
     return {

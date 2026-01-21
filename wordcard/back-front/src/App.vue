@@ -1,5 +1,6 @@
 <template>
-  <div class="admin-container">
+  <!-- 登录状态下显示管理后台布局 -->
+  <div v-if="isLoggedIn" class="admin-container">
     <!-- 侧边导航栏 -->
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -47,8 +48,8 @@
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>个人中心</el-dropdown-item>
-                <el-dropdown-item>设置</el-dropdown-item>
+                <el-dropdown-item @click="goToPersonalCenter">个人中心</el-dropdown-item>
+                <el-dropdown-item @click="goToSettings">设置</el-dropdown-item>
                 <el-dropdown-item divided @click="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -62,6 +63,8 @@
       </div>
     </main>
   </div>
+  <!-- 未登录状态下只显示登录组件 -->
+  <component v-else :is="Login" />
 </template>
 
 <script>
@@ -79,6 +82,7 @@ import {
   DataLine as ElIconDataLine
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import axios from 'axios'
 
 // 导入页面组件
 import Dashboard from './views/Dashboard.vue'
@@ -88,6 +92,9 @@ import Users from './views/Users.vue'
 import Statistics from './views/Statistics.vue'
 import Permissions from './views/Permissions.vue'
 import Roles from './views/Roles.vue'
+import PersonalCenter from './views/PersonalCenter.vue'
+import Settings from './views/Settings.vue'
+import Login from './views/Login.vue'
 
 export default {
   name: 'App',
@@ -99,6 +106,9 @@ export default {
     Statistics,
     Permissions,
     Roles,
+    PersonalCenter,
+    Settings,
+    Login,
     ElIconLocation,
     ElIconDocument,
     ElIconEdit,
@@ -111,14 +121,17 @@ export default {
     ElIconDataLine
   },
   setup() {
+    // 登录状态
+    const isLoggedIn = ref(false)
     // 当前激活的菜单
     const activeMenu = ref('dashboard')
     // 侧边栏是否折叠
     const isSidebarCollapsed = ref(false)
     // 当前用户信息
     const currentUser = reactive({
-      id: 1,
-      nickname: '管理员',
+      id: 0,
+      username: '',
+      nickname: '',
       avatarUrl: ''
     })
     // 用户权限列表
@@ -145,13 +158,29 @@ export default {
       users: Users,
       statistics: Statistics,
       permissions: Permissions,
-      roles: Roles
+      roles: Roles,
+      personal: PersonalCenter,
+      settings: Settings
     }
 
     // 当前显示的组件
     const currentComponent = computed(() => {
       return componentMap[activeMenu.value] || Dashboard
     })
+
+    // 检查登录状态
+    const checkLoginStatus = () => {
+      const token = localStorage.getItem('token')
+      const userInfo = localStorage.getItem('userInfo')
+      
+      if (token && userInfo) {
+        isLoggedIn.value = true
+        Object.assign(currentUser, JSON.parse(userInfo))
+        getUserMenus()
+      } else {
+        isLoggedIn.value = false
+      }
+    }
 
     // 获取用户菜单
     const getUserMenus = () => {
@@ -266,10 +295,50 @@ export default {
       isSidebarCollapsed.value = !isSidebarCollapsed.value
     }
 
+    // 跳转到个人中心
+    const goToPersonalCenter = () => {
+      activeMenu.value = 'personal'
+    }
+    
+    // 跳转到设置页面
+    const goToSettings = () => {
+      activeMenu.value = 'settings'
+    }
+    
     // 退出登录
-    const logout = () => {
-      ElMessage.success('退出登录成功')
-      // 实际项目中应该清除本地存储并跳转到登录页
+    const logout = async () => {
+      try {
+        // 调用后端退出登录接口
+        await axios.post('/api/logout')
+        
+        // 清除本地存储
+        localStorage.removeItem('token')
+        localStorage.removeItem('userInfo')
+        
+        // 更新登录状态
+        isLoggedIn.value = false
+        
+        // 重置用户信息
+        Object.assign(currentUser, {
+          id: 0,
+          username: '',
+          nickname: '',
+          avatarUrl: ''
+        })
+        
+        // 清空菜单
+        userMenus.value = []
+        
+        ElMessage.success('退出登录成功')
+      } catch (error) {
+        console.error('退出登录失败:', error)
+        ElMessage.error('退出登录失败，请重试')
+        
+        // 即使后端接口失败，也清除本地存储并更新状态
+        localStorage.removeItem('token')
+        localStorage.removeItem('userInfo')
+        isLoggedIn.value = false
+      }
     }
 
     // 检查用户是否有权限
@@ -278,9 +347,9 @@ export default {
       return true
     }
 
-    // 页面加载时获取用户菜单和权限
+    // 页面加载时检查登录状态
     onMounted(() => {
-      getUserMenus()
+      checkLoginStatus()
     })
 
     return {
@@ -291,7 +360,11 @@ export default {
       currentComponent,
       handleMenuSelect,
       toggleSidebar,
-      logout
+      goToPersonalCenter,
+      goToSettings,
+      logout,
+      isLoggedIn,
+      Login
     }
   }
 }

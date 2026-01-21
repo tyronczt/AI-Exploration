@@ -166,6 +166,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { Search as ElIconSearch, Edit as ElIconEdit, Delete as ElIconDelete, RefreshRight as ElIconRefreshRight, User as ElIconUser } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import axios from 'axios'
 
 export default {
   name: 'Users',
@@ -249,60 +250,17 @@ export default {
     })
 
     // 获取用户列表
-    const getUsers = () => {
+    const getUsers = async () => {
       loading.value = true
-      // 调用API获取用户列表
-      // 暂时使用模拟数据
-      setTimeout(() => {
-        users.value = [
-          {
-            id: 1,
-            username: 'user_1',
-            password: '123456',
-            nickname: '张三',
-            avatarUrl: '',
-            gender: 1,
-            city: '北京',
-            country: '中国',
-            openid: 'openid_123456',
-            unionid: 'unionid_123456',
-            status: 1,
-            createdAt: '2026-01-01 10:00:00',
-            updatedAt: '2026-01-01 10:00:00'
-          },
-          {
-            id: 2,
-            username: 'user_2',
-            password: '123456',
-            nickname: '李四',
-            avatarUrl: '',
-            gender: 2,
-            city: '上海',
-            country: '中国',
-            openid: 'openid_789012',
-            unionid: 'unionid_789012',
-            status: 1,
-            createdAt: '2026-01-02 10:00:00',
-            updatedAt: '2026-01-02 10:00:00'
-          },
-          {
-            id: 3,
-            username: 'user_3',
-            password: '123456',
-            nickname: '王五',
-            avatarUrl: '',
-            gender: 1,
-            city: '广州',
-            country: '中国',
-            openid: 'openid_345678',
-            unionid: 'unionid_345678',
-            status: 0,
-            createdAt: '2026-01-03 10:00:00',
-            updatedAt: '2026-01-03 10:00:00'
-          }
-        ]
+      try {
+        const response = await axios.get('/api/users')
+        users.value = response.data
+      } catch (error) {
+        console.error('获取用户列表失败:', error)
+        ElMessage.error('获取用户列表失败')
+      } finally {
         loading.value = false
-      }, 500)
+      }
     }
 
     // 打开编辑对话框
@@ -346,49 +304,55 @@ export default {
     }
 
     // 处理提交
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       if (!userFormRef.value) return
       
-      userFormRef.value.validate((valid) => {
+      userFormRef.value.validate(async (valid) => {
         if (valid) {
-          if (editingId.value) {
-            // 编辑模式
-            const index = users.value.findIndex(item => item.id === editingId.value)
-            if (index !== -1) {
-              // 只更新修改的字段，不更新密码
-              const updatedUser = { ...users.value[index], ...userForm.value }
-              if (!userForm.value.password) {
+          try {
+            if (editingId.value) {
+              // 编辑模式
+              const updateData = { ...userForm.value }
+              if (!updateData.password) {
                 // 不更新密码
-                delete updatedUser.password
+                delete updateData.password
               }
-              users.value[index] = updatedUser
+              await axios.put(`/api/users/${editingId.value}`, updateData)
               ElMessage.success('用户信息更新成功')
             }
+            dialogVisible.value = false
+            getUsers() // 重新获取用户列表
+          } catch (error) {
+            console.error('更新用户信息失败:', error)
+            ElMessage.error('更新用户信息失败')
           }
-          dialogVisible.value = false
         }
       })
     }
 
     // 处理删除
-    const handleDelete = (row) => {
-      ElMessageBox.confirm(
-        `确定要删除用户 "${row.nickname}" 吗？删除后不可恢复。`,
-        '删除确认',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
+    const handleDelete = async (row) => {
+      try {
+        await ElMessageBox.confirm(
+          `确定要删除用户 "${row.nickname}" 吗？删除后不可恢复。`,
+          '删除确认',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        )
+        
+        await axios.delete(`/api/users/${row.id}`)
+        ElMessage.success('用户删除成功')
+        getUsers() // 重新获取用户列表
+      } catch (error) {
+        // 取消删除或操作失败
+        if (error !== 'cancel') {
+          console.error('删除用户失败:', error)
+          ElMessage.error('删除用户失败')
         }
-      ).then(() => {
-        const index = users.value.findIndex(item => item.id === row.id)
-        if (index !== -1) {
-          users.value.splice(index, 1)
-          ElMessage.success('用户删除成功')
-        }
-      }).catch(() => {
-        // 取消删除
-      })
+      }
     }
 
     // 分页相关

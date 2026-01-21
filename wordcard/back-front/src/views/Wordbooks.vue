@@ -166,7 +166,8 @@
 <script>
 import { ref, computed, onMounted } from 'vue'
 import { Plus as ElIconPlus, Search as ElIconSearch, Edit as ElIconEdit, Delete as ElIconDelete, RefreshRight as ElIconRefreshRight } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import axios from 'axios'
 
 export default {
   name: 'Wordbooks',
@@ -240,54 +241,17 @@ export default {
     })
 
     // 获取词库列表
-    const getWordbooks = () => {
+    const getWordbooks = async () => {
       loading.value = true
-      // 调用API获取词库列表
-      // 暂时使用模拟数据
-      setTimeout(() => {
-        wordbooks.value = [
-          {
-            id: 1,
-            name: '大学英语四级',
-            description: '大学英语四级核心词汇，包含高频考点和真题例句',
-            category: 'CET4',
-            difficultyLevel: 3,
-            wordCount: 4500,
-            coverImageUrl: '',
-            isPublic: true,
-            status: 1,
-            createdAt: '2026-01-01 10:00:00',
-            updatedAt: '2026-01-01 10:00:00'
-          },
-          {
-            id: 2,
-            name: '大学英语六级',
-            description: '大学英语六级核心词汇，适合备考六级的学生',
-            category: 'CET6',
-            difficultyLevel: 4,
-            wordCount: 6000,
-            coverImageUrl: '',
-            isPublic: true,
-            status: 1,
-            createdAt: '2026-01-02 10:00:00',
-            updatedAt: '2026-01-02 10:00:00'
-          },
-          {
-            id: 3,
-            name: '雅思核心词汇',
-            description: '雅思考试核心词汇，包含听力、阅读、写作常用词汇',
-            category: 'IELTS',
-            difficultyLevel: 5,
-            wordCount: 5000,
-            coverImageUrl: '',
-            isPublic: true,
-            status: 1,
-            createdAt: '2026-01-03 10:00:00',
-            updatedAt: '2026-01-03 10:00:00'
-          }
-        ]
+      try {
+        const response = await axios.get('/api/wordbooks')
+        wordbooks.value = response.data
+      } catch (error) {
+        console.error('获取词库列表失败:', error)
+        ElMessage.error('获取词库列表失败')
+      } finally {
         loading.value = false
-      }, 500)
+      }
     }
 
     // 打开创建对话框
@@ -337,53 +301,54 @@ export default {
     }
 
     // 处理提交
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       if (!wordbookFormRef.value) return
       
-      wordbookFormRef.value.validate((valid) => {
+      wordbookFormRef.value.validate(async (valid) => {
         if (valid) {
-          if (editingId.value) {
-            // 编辑模式
-            const index = wordbooks.value.findIndex(item => item.id === editingId.value)
-            if (index !== -1) {
-              wordbooks.value[index] = { ...wordbookForm.value, updatedAt: new Date().toLocaleString() }
+          try {
+            if (editingId.value) {
+              // 编辑模式
+              await axios.put(`/api/wordbooks/${editingId.value}`, wordbookForm.value)
               ElMessage.success('词库更新成功')
+            } else {
+              // 创建模式
+              await axios.post('/api/wordbooks', wordbookForm.value)
+              ElMessage.success('词库创建成功')
             }
-          } else {
-            // 创建模式
-            const newWordbook = {
-              ...wordbookForm.value,
-              id: Date.now(),
-              createdAt: new Date().toLocaleString(),
-              updatedAt: new Date().toLocaleString()
-            }
-            wordbooks.value.unshift(newWordbook)
-            ElMessage.success('词库创建成功')
+            dialogVisible.value = false
+            getWordbooks() // 重新获取词库列表
+          } catch (error) {
+            console.error('操作词库失败:', error)
+            ElMessage.error('操作词库失败')
           }
-          dialogVisible.value = false
         }
       })
     }
 
     // 处理删除
-    const handleDelete = (row) => {
-      ElMessageBox.confirm(
-        `确定要删除词库 "${row.name}" 吗？删除后不可恢复。`,
-        '删除确认',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
+    const handleDelete = async (row) => {
+      try {
+        await ElMessageBox.confirm(
+          `确定要删除词库 "${row.name}" 吗？删除后不可恢复。`,
+          '删除确认',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        )
+        
+        await axios.delete(`/api/wordbooks/${row.id}`)
+        ElMessage.success('词库删除成功')
+        getWordbooks() // 重新获取词库列表
+      } catch (error) {
+        // 取消删除或操作失败
+        if (error !== 'cancel') {
+          console.error('删除词库失败:', error)
+          ElMessage.error('删除词库失败')
         }
-      ).then(() => {
-        const index = wordbooks.value.findIndex(item => item.id === row.id)
-        if (index !== -1) {
-          wordbooks.value.splice(index, 1)
-          ElMessage.success('词库删除成功')
-        }
-      }).catch(() => {
-        // 取消删除
-      })
+      }
     }
 
     // 分页相关
