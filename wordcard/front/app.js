@@ -15,7 +15,9 @@ App({
   },
   globalData: {
     userInfo: null,
-    // API基础URL
-    baseUrl: 'http://localhost:8080/api'
+    // API基础URL - 根据 application.yml 配置，context-path 为 /api
+    baseUrl: 'http://localhost:8080/api',
+    // 当前学习的词库ID
+    currentWordbookId: null
   }
 })

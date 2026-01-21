@@ -1,16 +1,19 @@
 <!--index.wxml-->
 <view class="container">
+  <!-- 用户信息区域 -->
   <view class="header">
-    <view class="user-info" wx:if="{{userInfo}}">
-      <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
-      <view class="welcome">欢迎回来，{{userInfo.nickName}}</view>
-    </view>
-    <view class="user-info" wx:else>
-      <image class="avatar" src="/images/default-avatar.png" mode="aspectFill"></image>
-      <view class="welcome">欢迎使用英语单词学习</view>
+    <view class="user-info">
+      <view class="avatar-wrapper">
+        <image class="avatar" src="/images/default-avatar.png" mode="aspectFill"></image>
+      </view>
+      <view class="welcome-wrapper">
+        <view class="welcome-title">你好！</view>
+        <view class="welcome-subtitle">开始今天的学习吧</view>
+      </view>
     </view>
   </view>
 
+  <!-- 学习统计 -->
   <view class="stats">
     <view class="stat-item">
       <view class="stat-value">{{learnedWords}}</view>
@@ -18,38 +21,50 @@
     </view>
     <view class="stat-item">
       <view class="stat-value">{{currentStreak}}</view>
-      <view class="stat-label">连续学习</view>
+      <view class="stat-label">连续打卡</view>
     </view>
     <view class="stat-item">
       <view class="stat-value">{{totalPoints}}</view>
-      <view class="stat-label">总积分</view>
+      <view class="stat-label">学习积分</view>
     </view>
   </view>
 
-  <view class="quick-actions">
-    <navigator url="/pages/study/study" class="action-item">
-      <image class="action-icon" src="/images/start-study.png"></image>
-      <view class="action-text">开始学习</view>
-    </navigator>
-    <navigator url="/pages/wordbook/wordbook" class="action-item">
-      <image class="action-icon" src="/images/wordbook.png"></image>
-      <view class="action-text">选择词库</view>
+  <!-- 开始学习按钮 -->
+  <view class="start-learning">
+    <navigator url="/pages/study/study" class="start-btn">
+      <view class="btn-icon">📖</view>
+      <view class="btn-text">开始学习</view>
     </navigator>
   </view>
 
-  <view class="recommended">
-    <view class="section-title">推荐词库</view>
-    <view class="wordbook-list">
-      <view class="wordbook-item" wx:for="{{recommendedWordbooks}}" wx:key="id">
-        <image class="wordbook-cover" src="{{item.coverImageUrl}}" mode="aspectFill"></image>
-        <view class="wordbook-info">
-          <view class="wordbook-name">{{item.name}}</view>
-          <view class="wordbook-desc">{{item.description}}</view>
-          <view class="wordbook-meta">
-            <text class="word-count">{{item.wordCount}} 个单词</text>
-            <text class="difficulty">难度: {{item.difficultyLevel}}</text>
-          </view>
-        </view>
+  <!-- 每日英语名言 -->
+  <view class="quote-section">
+    <view class="quote-icon">💬</view>
+    <view class="quote-content">
+      <view class="quote-text">"{{dailyQuote.text}}"</view>
+      <view class="quote-translation">{{dailyQuote.translation}}</view>
+      <view class="quote-author">— {{dailyQuote.author}}</view>
+    </view>
+  </view>
+
+  <!-- 学习提示 -->
+  <view class="tips">
+    <view class="tips-header">
+      <view class="tips-icon">💡</view>
+      <view class="tips-title">学习小贴士</view>
+    </view>
+    <view class="tips-content">
+      <view class="tip-item">
+        <view class="tip-dot">•</view>
+        <view class="tip-text">每天坚持学习，养成良好习惯</view>
+      </view>
+      <view class="tip-item">
+        <view class="tip-dot">•</view>
+        <view class="tip-text">重复记忆是掌握单词的关键</view>
+      </view>
+      <view class="tip-item">
+        <view class="tip-dot">•</view>
+        <view class="tip-text">结合例句理解单词用法</view>
       </view>
     </view>
   </view>

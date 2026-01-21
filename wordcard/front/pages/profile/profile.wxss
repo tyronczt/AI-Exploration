@@ -24,6 +24,11 @@
   height: 120rpx;
   border-radius: 50%;
   margin-right: 30rpx;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60rpx;
 }
 
 .user-details {
@@ -122,11 +127,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.menu-icon image {
-  width: 40rpx;
-  height: 40rpx;
+  font-size: 32rpx;
 }
 
 .menu-text {
@@ -155,8 +156,4 @@
 
 .logout-item .menu-text {
   color: #e53935;
-}
-
-.logout-item .menu-icon image {
-  filter: invert(37%) sepia(97%) saturate(3255%) hue-rotate(352deg) brightness(90%) contrast(94%);
 }

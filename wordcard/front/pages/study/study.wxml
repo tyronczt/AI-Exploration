@@ -15,7 +15,7 @@
       <view class="word">{{currentWord.word}}</view>
       <view class="pronunciation">{{currentWord.pronunciation}}</view>
       <view class="audio-btn" bindtap="playAudio">
-        <image src="/images/audio.png" mode="aspectFit"></image>
+        <text>🔊</text>
       </view>
     </view>
     
@@ -32,28 +32,23 @@
     </view>
   </view>
 
-  <view class="action-buttons">
+  <view class="action-buttons" wx:if="{{currentWord}}">
     <view class="action-btn forget-btn" bindtap="markAsForgot">
       <view class="btn-text">忘记</view>
-      <view class="btn-icon">
-        <image src="/images/forget.png" mode="aspectFit"></image>
-      </view>
     </view>
     <view class="action-btn uncertain-btn" bindtap="markAsUncertain">
       <view class="btn-text">不确定</view>
-      <view class="btn-icon">
-        <image src="/images/uncertain.png" mode="aspectFit"></image>
-      </view>
     </view>
     <view class="action-btn remember-btn" bindtap="markAsRemembered">
       <view class="btn-text">记住</view>
-      <view class="btn-icon">
-        <image src="/images/remember.png" mode="aspectFit"></image>
-      </view>
     </view>
   </view>
 
   <view class="loading" wx:if="{{loading}}">
     <view class="loading-text">加载中...</view>
+  </view>
+  
+  <view class="empty" wx:if="{{!loading && !currentWord}}">
+    <view class="empty-text">请先选择词库</view>
   </view>
 </view>

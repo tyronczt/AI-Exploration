@@ -12,18 +12,14 @@
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
-    "color": "#999",
+    "color": "#666666",
     "selectedColor": "#1aad19",
-    "backgroundColor": "#fff",
+    "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
         "text": "首页"
-      },
-      {
-        "pagePath": "pages/wordbook/wordbook",
-        "text": "词库"
       },
       {
         "pagePath": "pages/study/study",
@@ -35,6 +31,8 @@
       }
     ]
   },
+  "subPackages": [],
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
 }

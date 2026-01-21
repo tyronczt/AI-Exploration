@@ -14,7 +14,6 @@
 
   <view class="wordbook-list">
     <view class="wordbook-item" wx:for="{{wordbooks}}" wx:key="id" bindtap="selectWordbook" data-id="{{item.id}}">
-      <image class="cover" src="{{item.coverImageUrl || '/images/default-wordbook.png'}}" mode="aspectFill"></image>
       <view class="info">
         <view class="name">{{item.name}}</view>
         <view class="desc">{{item.description}}</view>
@@ -30,12 +29,10 @@
   </view>
 
   <view class="loading" wx:if="{{loading}}">
-    <van-loading type="spinner" size="40rpx" />
     <view class="loading-text">加载中...</view>
   </view>
 
   <view class="empty" wx:if="{{!loading && wordbooks.length === 0}}">
-    <image class="empty-icon" src="/images/empty.png" mode="aspectFill"></image>
     <view class="empty-text">暂无词库</view>
   </view>
 </view>

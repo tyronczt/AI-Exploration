@@ -2,14 +2,14 @@
 <view class="container">
   <view class="user-section">
     <view class="user-info" wx:if="{{userInfo}}">
-      <image class="avatar" src="{{userInfo.avatarUrl || userInfo.wechatAvatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+      <view class="avatar">👤</view>
       <view class="user-details">
         <view class="nickname">{{userInfo.nickname || userInfo.wechatNickname || '未设置昵称'}}</view>
         <view class="username">{{userInfo.username}}</view>
       </view>
     </view>
     <view class="user-info" wx:else>
-      <image class="avatar" src="/images/default-avatar.png" mode="aspectFill"></image>
+      <view class="avatar">👤</view>
       <view class="user-details">
         <view class="nickname">未登录</view>
         <button class="login-btn" bindtap="login">点击登录</button>
@@ -37,62 +37,46 @@
   </view>
 
   <view class="menu-section">
+    <!-- 词库选择 -->
     <view class="menu-group">
       <view class="menu-item" bindtap="navigateToWordbook">
-        <view class="menu-icon">
-          <image src="/images/book.png" mode="aspectFit"></image>
-        </view>
-        <view class="menu-text">我的词库</view>
-        <view class="menu-arrow">
-          <image src="/images/arrow.png" mode="aspectFit"></image>
-        </view>
-      </view>
-      <view class="menu-item" bindtap="navigateToFavorites">
-        <view class="menu-icon">
-          <image src="/images/favorite.png" mode="aspectFit"></image>
-        </view>
-        <view class="menu-text">我的收藏</view>
-        <view class="menu-arrow">
-          <image src="/images/arrow.png" mode="aspectFit"></image>
-        </view>
-      </view>
-      <view class="menu-item" bindtap="navigateToStudyRecord">
-        <view class="menu-icon">
-          <image src="/images/record.png" mode="aspectFit"></image>
-        </view>
-        <view class="menu-text">学习记录</view>
-        <view class="menu-arrow">
-          <image src="/images/arrow.png" mode="aspectFit"></image>
-        </view>
+        <view class="menu-icon">📚</view>
+        <view class="menu-text">选择词库</view>
+        <view class="menu-arrow">→</view>
       </view>
     </view>
 
+    <!-- 学习管理 -->
+    <view class="menu-group">
+      <view class="menu-item" bindtap="navigateToFavorites">
+        <view class="menu-icon">⭐</view>
+        <view class="menu-text">我的收藏</view>
+        <view class="menu-arrow">→</view>
+      </view>
+      <view class="menu-item" bindtap="navigateToStudyRecord">
+        <view class="menu-icon">📊</view>
+        <view class="menu-text">学习记录</view>
+        <view class="menu-arrow">→</view>
+      </view>
+    </view>
+
+    <!-- 系统设置 -->
     <view class="menu-group">
       <view class="menu-item" bindtap="navigateToSettings">
-        <view class="menu-icon">
-          <image src="/images/settings.png" mode="aspectFit"></image>
-        </view>
+        <view class="menu-icon">⚙️</view>
         <view class="menu-text">设置</view>
-        <view class="menu-arrow">
-          <image src="/images/arrow.png" mode="aspectFit"></image>
-        </view>
+        <view class="menu-arrow">→</view>
       </view>
       <view class="menu-item" bindtap="navigateToAbout">
-        <view class="menu-icon">
-          <image src="/images/about.png" mode="aspectFit"></image>
-        </view>
+        <view class="menu-icon">ℹ️</view>
         <view class="menu-text">关于我们</view>
-        <view class="menu-arrow">
-          <image src="/images/arrow.png" mode="aspectFit"></image>
-        </view>
+        <view class="menu-arrow">→</view>
       </view>
     </view>
 
     <view class="menu-group" wx:if="{{userInfo}}">
       <view class="menu-item logout-item" bindtap="logout">
-        <view class="menu-icon">
-          <image src="/images/logout.png" mode="aspectFit"></image>
-        </view>
+        <view class="menu-icon">🚪</view>
         <view class="menu-text">退出登录</view>
       </view>
     </view>

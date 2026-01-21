@@ -1,5 +1,6 @@
 // profile.js
 const app = getApp()
+import { userApi } from '../../utils/api.js'
 
 Page({
   data: {
@@ -32,26 +33,21 @@ Page({
 
   // 获取学习统计数据
   getStats() {
-    if (this.data.userInfo) {
+    const userInfo = this.data.userInfo
+    
+    if (userInfo && userInfo.id) {
       // 调用后端API获取统计数据
-      wx.request({
-        url: app.globalData.baseUrl + '/users/' + this.data.userInfo.id + '/stats',
-        method: 'GET',
-        success: (res) => {
-          if (res.data) {
-            this.setData({
-              learnedWords: res.data.learnedWords || 0,
-              currentStreak: res.data.currentStreak || 0,
-              totalPoints: res.data.totalPoints || 0,
-              studyDays: res.data.studyDays || 0
-            })
-          }
-        },
-        fail: (err) => {
-          console.error('获取统计数据失败:', err)
-          // 模拟数据
-          this.setDefaultStats()
-        }
+      userApi.getUserById(userInfo.id).then(user => {
+        console.log('获取用户统计成功:', user)
+        this.setData({
+          learnedWords: user.learnedWords || 0,
+          currentStreak: user.currentStreak || 0,
+          totalPoints: user.totalPoints || 0,
+          studyDays: user.studyDays || 0
+        })
+      }).catch(err => {
+        console.error('获取统计数据失败:', err)
+        this.setDefaultStats()
       })
     } else {
       // 未登录状态，显示默认数据
@@ -74,72 +70,103 @@ Page({
     wx.login({
       success: (res) => {
         if (res.code) {
+          console.log('微信登录 code:', res.code)
+          
           // 调用后端微信登录接口
-          wx.request({
-            url: app.globalData.baseUrl + '/users/wechat/login',
-            method: 'POST',
-            data: {
-              code: res.code
-            },
-            success: (loginRes) => {
-              if (loginRes.data) {
-                // 获取用户信息
-                wx.getUserProfile({
-                  desc: '用于完善会员资料',
-                  success: (userProfileRes) => {
-                    // 更新用户信息
-                    const userInfo = {
-                      ...loginRes.data.user,
-                      ...userProfileRes.userInfo
-                    }
-                    
-                    // 保存用户信息到本地和全局
-                    app.globalData.userInfo = userInfo
-                    wx.setStorageSync('userInfo', userInfo)
-                    
-                    // 更新页面数据
-                    this.setData({
-                      userInfo: userInfo
-                    })
-                    
-                    // 更新统计数据
-                    this.getStats()
-                  }
+          userApi.wechatLogin(res.code).then(loginRes => {
+            console.log('后端登录成功:', loginRes)
+            
+            // 获取用户信息
+            wx.getUserProfile({
+              desc: '用于完善会员资料',
+              success: (userProfileRes) => {
+                console.log('获取用户信息成功:', userProfileRes)
+                
+                // 构建用户信息对象
+                const userInfo = {
+                  openid: loginRes.openid,
+                  wechatNickname: userProfileRes.userInfo.nickName,
+                  wechatAvatar: userProfileRes.userInfo.avatarUrl,
+                  wechatGender: userProfileRes.userInfo.gender,
+                  wechatCountry: userProfileRes.userInfo.country,
+                  wechatProvince: userProfileRes.userInfo.province,
+                  wechatCity: userProfileRes.userInfo.city
+                }
+                
+                // 更新用户信息到后端
+                userApi.updateWechatUserInfo(userInfo).then(() => {
+                  // 保存用户信息到本地和全局
+                  app.globalData.userInfo = userInfo
+                  wx.setStorageSync('userInfo', userInfo)
+                  
+                  // 更新页面数据
+                  this.setData({
+                    userInfo: userInfo
+                  })
+                  
+                  // 更新统计数据
+                  this.getStats()
+                  
+                  wx.showToast({
+                    title: '登录成功',
+                    icon: 'success'
+                  })
+                })
+              },
+              fail: (err) => {
+                console.error('获取用户信息失败:', err)
+                wx.showToast({
+                  title: '获取用户信息失败',
+                  icon: 'none'
                 })
               }
-            },
-            fail: (err) => {
-              console.error('微信登录失败:', err)
-            }
+            })
+          }).catch(err => {
+            console.error('微信登录失败:', err)
+            wx.showToast({
+              title: '登录失败',
+              icon: 'none'
+            })
           })
         }
+      },
+      fail: (err) => {
+        console.error('wx.login 失败:', err)
       }
     })
   },
 
   // 退出登录
   logout() {
-    // 清除用户信息
-    app.globalData.userInfo = null
-    wx.removeStorageSync('userInfo')
-    
-    // 更新页面数据
-    this.setData({
-      userInfo: null
-    })
-    
-    // 更新统计数据
-    this.setDefaultStats()
-    
-    wx.showToast({
-      title: '已退出登录',
-      icon: 'success'
+    wx.showModal({
+      title: '确认退出',
+      content: '确定要退出登录吗？',
+      success: (res) => {
+        if (res.confirm) {
+          // 清除用户信息
+          app.globalData.userInfo = null
+          wx.removeStorageSync('userInfo')
+          
+          // 更新页面数据
+          this.setData({
+            userInfo: null
+          })
+          
+          // 更新统计数据
+          this.setDefaultStats()
+          
+          wx.showToast({
+            title: '已退出登录',
+            icon: 'success'
+          })
+        }
+      }
     })
   },
 
-  // 导航到我的词库
+  // 导航到词库页面
   navigateToWordbook() {
-    wx.navigateTo({
+    wx.switchTab({
       url: '/pages/wordbook/wordbook'
     })
   },
@@ -153,8 +180,9 @@ Page({
       })
       return
     }
-    wx.navigateTo({
-      url: '/pages/favorites/favorites' // 假设后续会创建该页面
+    wx.showToast({
+      title: '功能开发中',
+      icon: 'none'
     })
   },
 
@@ -167,22 +195,25 @@ Page({
       })
       return
     }
-    wx.navigateTo({
-      url: '/pages/study-record/study-record' // 假设后续会创建该页面
+    wx.showToast({
+      title: '功能开发中',
+      icon: 'none'
     })
   },
 
   // 导航到设置
   navigateToSettings() {
-    wx.navigateTo({
-      url: '/pages/settings/settings' // 假设后续会创建该页面
+    wx.showToast({
+      title: '功能开发中',
+      icon: 'none'
     })
   },
 
   // 导航到关于我们
   navigateToAbout() {
-    wx.navigateTo({
-      url: '/pages/about/about' // 假设后续会创建该页面
+    wx.showToast({
+      title: '功能开发中',
+      icon: 'none'
     })
   }
 })
