@@ -16,7 +16,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // 完全禁用Spring Security
+        // 完全禁用Spring Security的拦截和重定向
         http
             // 关闭CSRF保护
             .csrf().disable()
@@ -29,10 +29,8 @@ public class SecurityConfig {
             .httpBasic().disable()
             .logout().disable()
             .exceptionHandling().disable()
-            .sessionManagement().disable()
-            // 移除所有过滤器
-            .addFilterBefore((request, response, chain) -> chain.doFilter(request, response), SecurityFilterChain.class);
-
+            .sessionManagement().disable();
+        
         return http.build();
     }
 }
