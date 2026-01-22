@@ -1,53 +1,70 @@
 <!--study.wxml-->
 <view class="container">
-  <view class="study-header">
-    <view class="progress">
-      <view class="progress-text">{{currentWordIndex + 1}}/{{totalWords}}</view>
-      <view class="progress-bar">
-        <view class="progress-fill" style="width: {{(currentWordIndex + 1) / totalWords * 100}}%"></view>
-      </view>
+  <!-- 学习进度信息 -->
+  <view class="study-info">
+    <view class="info-item">
+      <text class="info-label">新学词</text>
+      <text class="info-value">{{newWordsCount}}/{{totalNewWords}}</text>
     </view>
-    <view class="wordbook-info">{{currentWordbook.name}}</view>
+    <view class="info-item">
+      <text class="info-label">待复习</text>
+      <text class="info-value">{{reviewWordsCount}}/{{totalReviewWords}}</text>
+    </view>
   </view>
 
+  <!-- 单词卡片 -->
   <view class="word-card" wx:if="{{currentWord}}">
-    <view class="word-pronunciation">
-      <view class="word">{{currentWord.word}}</view>
-      <view class="pronunciation">{{currentWord.pronunciation}}</view>
-      <view class="audio-btn" bindtap="playAudio">
-        <text>🔊</text>
+    <!-- 单词 -->
+    <view class="word-title">{{currentWord.word}}</view>
+    
+    <!-- 例句 -->
+    <view class="example-sentence">
+      <text>{{currentWord.exampleSentence}}</text>
+    </view>
+    
+    <!-- 正确答案 -->
+    <view class="correct-answer">
+      <text class="answer-text">{{currentWord.chineseMeaning}}</text>
+      <text class="check-icon">✓</text>
+    </view>
+    
+    <!-- 选项按钮 -->
+    <view class="option-buttons">
+      <view class="option-btn" bindtap="selectOption">
+        <text>书屋</text>
+      </view>
+      <view class="option-btn" bindtap="selectOption">
+        <text>随便</text>
+      </view>
+      <view class="option-btn" bindtap="selectOption">
+        <text>随意</text>
       </view>
     </view>
-    
-    <view class="word-meaning">
-      <view class="part-of-speech">{{currentWord.partOfSpeech}}</view>
-      <view class="chinese-meaning">{{currentWord.chineseMeaning}}</view>
-      <view class="english-definition">{{currentWord.englishDefinition}}</view>
+  </view>
+
+  <!-- 功能按钮 -->
+  <view class="function-buttons" wx:if="{{currentWord}}">
+    <view class="func-btn" bindtap="addToWordbook">
+      <text class="func-icon">📚</text>
+      <text class="func-text">加入单词本</text>
     </view>
-    
-    <view class="example-sentence">
-      <view class="sentence-label">例句：</view>
-      <view class="sentence">{{currentWord.exampleSentence}}</view>
-      <view class="sentence-translation">{{currentWord.exampleTranslation}}</view>
+    <view class="func-btn" bindtap="showHint">
+      <text class="func-icon">💡</text>
+      <text class="func-text">提示</text>
     </view>
   </view>
 
-  <view class="action-buttons" wx:if="{{currentWord}}">
-    <view class="action-btn forget-btn" bindtap="markAsForgot">
-      <view class="btn-text">忘记</view>
-    </view>
-    <view class="action-btn uncertain-btn" bindtap="markAsUncertain">
-      <view class="btn-text">不确定</view>
-    </view>
-    <view class="action-btn remember-btn" bindtap="markAsRemembered">
-      <view class="btn-text">记住</view>
-    </view>
+  <!-- 下一个按钮 -->
+  <view class="next-button" wx:if="{{currentWord}}" bindtap="nextWord">
+    <text class="next-text">下一个</text>
   </view>
 
+  <!-- 加载状态 -->
   <view class="loading" wx:if="{{loading}}">
     <view class="loading-text">加载中...</view>
   </view>
   
+  <!-- 空状态 -->
   <view class="empty" wx:if="{{!loading && !currentWord}}">
     <view class="empty-text">请先选择词库</view>
   </view>

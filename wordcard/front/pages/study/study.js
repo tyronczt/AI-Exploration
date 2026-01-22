@@ -9,7 +9,12 @@ Page({
     currentWordIndex: 0,
     currentWord: null,
     totalWords: 0,
-    loading: false
+    loading: false,
+    // 学习进度数据
+    newWordsCount: 6,
+    totalNewWords: 50,
+    reviewWordsCount: 6,
+    totalReviewWords: 10
   },
 
   onLoad(options) {
@@ -172,6 +177,31 @@ Page({
     // 这里需要后端提供学习记录接口
     // 例如：POST /api/study/record
     // 数据：{ userId, wordId, wordbookId, result, timestamp }
+  },
+
+  // 选择选项
+  selectOption() {
+    // TODO: 处理选项选择逻辑
+    wx.showToast({
+      title: '选项已选择',
+      icon: 'success'
+    })
+  },
+
+  // 加入单词本
+  addToWordbook() {
+    wx.showToast({
+      title: '已加入单词本',
+      icon: 'success'
+    })
+  },
+
+  // 显示提示
+  showHint() {
+    wx.showToast({
+      title: '提示功能开发中',
+      icon: 'none'
+    })
   },
 
   // 下一个单词

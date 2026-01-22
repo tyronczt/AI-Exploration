@@ -22,9 +22,9 @@
         "text": "首页"
       },
       {
-        "pagePath": "pages/study/study",
-        "text": "学习"
-      },
+      "pagePath": "pages/study/study",
+      "text": "背单词"
+    },
       {
         "pagePath": "pages/profile/profile",
         "text": "我的"

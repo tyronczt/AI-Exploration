@@ -1,200 +1,186 @@
 /* study.wxss */
 .container {
-  padding: 20rpx;
-  background-color: #f5f5f5;
+  background-color: #e3f2fd;
   min-height: 100vh;
+  padding: 0;
 }
 
-.study-header {
-  margin-bottom: 30rpx;
-}
-
-.progress {
-  margin-bottom: 20rpx;
-}
-
-.progress-text {
-  font-size: 24rpx;
-  color: #666;
-  text-align: right;
-  margin-bottom: 10rpx;
-}
-
-.progress-bar {
-  height: 10rpx;
-  background-color: #e0e0e0;
-  border-radius: 5rpx;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: #1aad19;
-  border-radius: 5rpx;
-  transition: width 0.3s ease;
-}
-
-.wordbook-info {
-  font-size: 26rpx;
-  color: #999;
-  text-align: center;
-}
-
-.word-card {
-  background-color: white;
-  border-radius: 16rpx;
-  padding: 40rpx;
-  margin-bottom: 40rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
-}
-
-.word-pronunciation {
-  text-align: center;
-  margin-bottom: 30rpx;
-}
-
-.word {
-  font-size: 64rpx;
-  font-weight: bold;
-  margin-bottom: 10rpx;
-  color: #333;
-}
-
-.pronunciation {
-  font-size: 32rpx;
-  color: #666;
-  margin-bottom: 20rpx;
-}
-
-.audio-btn {
-  display: inline-block;
-  width: 60rpx;
-  height: 60rpx;
-  background-color: #f0f0f0;
-  border-radius: 50%;
+/* 学习进度信息 */
+.study-info {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-}
-
-.audio-btn image {
-  width: 30rpx;
-  height: 30rpx;
-}
-
-.word-meaning {
-  margin-bottom: 30rpx;
-}
-
-.part-of-speech {
+  justify-content: space-between;
+  padding: 20rpx 30rpx;
+  background-color: #e3f2fd;
   font-size: 28rpx;
-  color: #1aad19;
-  margin-bottom: 10rpx;
-  font-style: italic;
+  margin-bottom: 30rpx;
 }
 
-.chinese-meaning {
-  font-size: 32rpx;
-  color: #333;
-  margin-bottom: 15rpx;
-  line-height: 48rpx;
-}
-
-.english-definition {
-  font-size: 26rpx;
-  color: #666;
-  line-height: 40rpx;
-}
-
-.example-sentence {
-  background-color: #f9f9f9;
-  padding: 20rpx;
-  border-radius: 12rpx;
-}
-
-.sentence-label {
-  font-size: 24rpx;
-  color: #999;
-  margin-bottom: 10rpx;
-}
-
-.sentence {
-  font-size: 26rpx;
-  color: #333;
-  margin-bottom: 15rpx;
-  line-height: 40rpx;
-}
-
-.sentence-translation {
-  font-size: 24rpx;
-  color: #666;
-  line-height: 36rpx;
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 60rpx;
-}
-
-.action-btn {
+.info-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20rpx;
-  border-radius: 16rpx;
-  width: 150rpx;
+}
+
+.info-label {
+  color: #666;
+  margin-bottom: 5rpx;
+}
+
+.info-value {
+  color: #333;
+  font-weight: bold;
+}
+
+/* 单词卡片 */
+.word-card {
+  background-color: white;
+  border-radius: 30rpx;
+  padding: 50rpx 30rpx;
+  margin: 0 30rpx 40rpx 30rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 单词标题 */
+.word-title {
+  font-size: 64rpx;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+/* 例句 */
+.example-sentence {
+  font-size: 28rpx;
+  color: #666;
+  text-align: center;
+  margin-bottom: 40rpx;
+  line-height: 48rpx;
+}
+
+/* 正确答案 */
+.correct-answer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  border: 4rpx solid #4fc3f7;
+  border-radius: 40rpx;
+  padding: 25rpx 30rpx;
+  margin-bottom: 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(79, 195, 247, 0.3);
+}
+
+.answer-text {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: bold;
+}
+
+.check-icon {
+  font-size: 36rpx;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* 选项按钮 */
+.option-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 25rpx;
+  margin-bottom: 50rpx;
+}
+
+.option-btn {
+  background-color: #f5f5f5;
+  border-radius: 40rpx;
+  padding: 30rpx;
+  text-align: center;
+  font-size: 32rpx;
+  color: #666;
   transition: all 0.3s ease;
 }
 
-.action-btn:active {
-  transform: scale(0.95);
+.option-btn:active {
+  background-color: #e0e0e0;
+  transform: scale(0.98);
 }
 
-.forget-btn {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
-.uncertain-btn {
-  background-color: #fff3e0;
-  color: #ef6c00;
-}
-
-.remember-btn {
-  background-color: #e8f5e8;
-  color: #2e7d32;
-}
-
-.btn-text {
-  font-size: 28rpx;
-  font-weight: bold;
-  margin-bottom: 15rpx;
-}
-
-.btn-icon {
-  width: 60rpx;
-  height: 60rpx;
+/* 功能按钮 */
+.function-buttons {
   display: flex;
+  justify-content: space-around;
+  padding: 0 30rpx;
+  margin-bottom: 40rpx;
+}
+
+.func-btn {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 10rpx;
+  background-color: white;
+  border-radius: 20rpx;
+  padding: 25rpx 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
 }
 
-.btn-icon image {
-  width: 40rpx;
-  height: 40rpx;
+.func-icon {
+  font-size: 36rpx;
 }
 
+.func-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 下一个按钮 */
+.next-button {
+  background-color: #4fc3f7;
+  border-radius: 50rpx;
+  padding: 35rpx;
+  margin: 0 30rpx 50rpx 30rpx;
+  text-align: center;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 8rpx 32rpx rgba(79, 195, 247, 0.4);
+  transition: all 0.3s ease;
+}
+
+.next-button:active {
+  background-color: #29b6f6;
+  transform: scale(0.98);
+}
+
+.next-text {
+  color: white;
+}
+
+/* 加载状态 */
 .loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 100rpx 0;
+  padding: 200rpx 0;
   color: #999;
 }
 
 .loading-text {
+  font-size: 28rpx;
+}
+
+/* 空状态 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+  color: #999;
+}
+
+.empty-text {
   font-size: 28rpx;
 }
