@@ -309,7 +309,7 @@ export default {
     const logout = async () => {
       try {
         // 调用后端退出登录接口
-        await axios.post('/api/logout')
+        await axios.post('/api/auth/logout')
         
         // 清除本地存储
         localStorage.removeItem('token')
