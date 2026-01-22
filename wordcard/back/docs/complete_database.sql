@@ -156,6 +156,25 @@ CREATE TABLE role_permissions (
     FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
 
+-- 用户登录日志表
+CREATE TABLE user_logs (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '日志ID',
+    user_id BIGINT COMMENT '用户ID',
+    username VARCHAR(50) COMMENT '用户名',
+    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '登录时间',
+    login_ip VARCHAR(50) COMMENT '登录IP',
+    login_device VARCHAR(255) COMMENT '登录设备',
+    login_platform VARCHAR(50) COMMENT '登录平台：wechat,web,android,ios',
+    login_status TINYINT DEFAULT 1 COMMENT '登录状态：1-成功，0-失败',
+    fail_reason VARCHAR(200) COMMENT '失败原因',
+    user_agent VARCHAR(500) COMMENT 'User-Agent',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    INDEX idx_user (user_id),
+    INDEX idx_login_time (login_time),
+    INDEX idx_user_login_time (user_id, login_time),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户登录日志表';
+
 -- 初始化管理员账号
 INSERT INTO users (username, email, password, nickname, status) 
 VALUES ('admin', 'admin@example.com', 'admin123', '超级管理员', 1);

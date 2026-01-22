@@ -67,20 +67,21 @@ Page({
 
   // 登录
   login() {
-    wx.login({
-      success: (res) => {
-        if (res.code) {
-          console.log('微信登录 code:', res.code)
-          
-          // 调用后端微信登录接口
-          userApi.wechatLogin(res.code).then(loginRes => {
-            console.log('后端登录成功:', loginRes)
-            
-            // 获取用户信息
-            wx.getUserProfile({
-              desc: '用于完善会员资料',
-              success: (userProfileRes) => {
-                console.log('获取用户信息成功:', userProfileRes)
+    // 先获取用户信息，必须在点击事件直接调用
+    wx.getUserProfile({
+      desc: '用于完善会员资料',
+      success: (userProfileRes) => {
+        console.log('获取用户信息成功:', userProfileRes)
+        
+        // 然后调用微信登录获取code
+        wx.login({
+          success: (res) => {
+            if (res.code) {
+              console.log('微信登录 code:', res.code)
+              
+              // 调用后端微信登录接口
+              userApi.wechatLogin(res.code).then(loginRes => {
+                console.log('后端登录成功:', loginRes)
                 
                 // 构建用户信息对象
                 const userInfo = {
@@ -112,26 +113,30 @@ Page({
                     icon: 'success'
                   })
                 })
-              },
-              fail: (err) => {
-                console.error('获取用户信息失败:', err)
+              }).catch(err => {
+                console.error('微信登录失败:', err)
                 wx.showToast({
-                  title: '获取用户信息失败',
+                  title: '登录失败',
                   icon: 'none'
                 })
-              }
-            })
-          }).catch(err => {
-            console.error('微信登录失败:', err)
+              })
+            }
+          },
+          fail: (err) => {
+            console.error('wx.login 失败:', err)
             wx.showToast({
               title: '登录失败',
               icon: 'none'
             })
-          })
-        }
+          }
+        })
       },
       fail: (err) => {
-        console.error('wx.login 失败:', err)
+        console.error('获取用户信息失败:', err)
+        wx.showToast({
+          title: '获取用户信息失败',
+          icon: 'none'
+        })
       }
     })
   },

@@ -31,7 +31,7 @@
 
   <!-- 开始学习按钮 -->
   <view class="start-learning">
-    <navigator url="/pages/study/study" class="start-btn">
+    <navigator url="/pages/study/study" class="start-btn" open-type="switchTab">
       <view class="btn-icon">📖</view>
       <view class="btn-text">开始学习</view>
     </navigator>

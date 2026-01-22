@@ -6,6 +6,11 @@ spring:
     password: mysql_mstZti
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+  # 微信小程序配置
+  wechat:
+    appid: your-wechat-appid
+    appsecret: your-wechat-appsecret
+    jscode2session-url: https://api.weixin.qq.com/sns/jscode2session
 
 mybatis-plus:
   configuration:
