@@ -1,8 +1,8 @@
-# 英语单词学习小程序
+# 词小伴
 
 ## 一、项目需求
 
-来源于一个朋友的英语辅导机构，希望为机构学生开发一款英语单词学习软件，主要功能包括：
+来源于一个朋友的英语辅导机构，希望为机构学生开发一款英语单词学习软件“词小伴”，主要功能包括：
 - 核心记单词功能
 - 内置可选词库
 - 简洁的页面设计
@@ -118,3 +118,4 @@ graph TD
 3. [AI 开发题库测评小程序](https://my.feishu.cn/wiki/Fw6SwfI1wio1MIkRdc4chJcNnVd)
 4. [5 个维度、6 个 App，帮你选出最适合自己的「背单词神器」](https://sspai.com/post/87587)
 5. [GitHub - Mint-green/UnlearnableWord: 一个背单词小程序](https://github.com/Mint-green/UnlearnableWord)
+

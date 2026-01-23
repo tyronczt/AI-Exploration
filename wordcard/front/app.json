@@ -8,7 +8,7 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "英语单词学习",
+    "navigationBarTitleText": "词小伴",
     "navigationBarTextStyle": "black"
   },
   "tabBar": {

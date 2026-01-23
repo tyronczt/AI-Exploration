@@ -9,8 +9,8 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>english-learning</name>
-    <description>英语单词学习小程序后端</description>
+    <name>词小伴</name>
+    <description>词小伴英语单词学习小程序后端</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
