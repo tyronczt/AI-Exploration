@@ -185,9 +185,8 @@ Page({
       })
       return
     }
-    wx.showToast({
-      title: '功能开发中',
-      icon: 'none'
+    wx.navigateTo({
+      url: '/pages/favorites/favorites'
     })
   },
 
@@ -200,9 +199,22 @@ Page({
       })
       return
     }
-    wx.showToast({
-      title: '功能开发中',
-      icon: 'none'
+    wx.navigateTo({
+      url: '/pages/studyRecord/studyRecord'
+    })
+  },
+
+  // 导航到生词本
+  navigateToWordList() {
+    if (!this.data.userInfo) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none'
+      })
+      return
+    }
+    wx.navigateTo({
+      url: '/pages/wordList/wordList'
     })
   },
 

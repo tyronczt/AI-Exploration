@@ -1,0 +1,36 @@
+<!--wordList.wxml-->
+<view class="container">
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">
+      <text>＜</text>
+    </view>
+    <view class="title">生词本</view>
+    <view class="header-right">
+      <view class="more-btn">•••</view>
+      <view class="audio-btn">🔊</view>
+    </view>
+  </view>
+  
+  <!-- 标签栏 -->
+  <view class="tabs">
+    <view class="tab-item active">全部</view>
+  </view>
+  
+  <!-- 生词列表 -->
+  <view class="word-list" wx:if="{{words.length > 0}}">
+    <view class="word-item" wx:for="{{words}}" wx:key="id" bindtap="viewWordDetail" data-word="{{item}}">
+      <view class="word-info">
+        <view class="word">{{item.word}}</view>
+        <view class="chinese-meaning">{{item.chineseMeaning}}</view>
+      </view>
+      <view class="audio-icon">🔊</view>
+    </view>
+  </view>
+  
+  <!-- 空状态 -->
+  <view class="empty" wx:else>
+    <view class="empty-icon">📖</view>
+    <view class="empty-text">暂无生词</view>
+    <button class="go-study-btn" bindtap="goStudy">去学习</button>
+  </view>
+</view>

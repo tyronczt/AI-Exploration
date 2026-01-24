@@ -58,6 +58,11 @@
         <view class="menu-text">学习记录</view>
         <view class="menu-arrow">→</view>
       </view>
+      <view class="menu-item" bindtap="navigateToWordList">
+        <view class="menu-icon">📖</view>
+        <view class="menu-text">生词本</view>
+        <view class="menu-arrow">→</view>
+      </view>
     </view>
 
     <!-- 系统设置 -->

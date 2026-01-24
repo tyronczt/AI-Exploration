@@ -3,7 +3,10 @@
     "pages/index/index",
     "pages/wordbook/wordbook",
     "pages/study/study",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/favorites/favorites",
+    "pages/studyRecord/studyRecord",
+    "pages/wordList/wordList"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -19,15 +22,21 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页"
+        "text": "首页",
+        "iconPath": "images/front.png",
+        "selectedIconPath": "images/front.png"
       },
       {
       "pagePath": "pages/study/study",
-      "text": "背单词"
+      "text": "背单词",
+      "iconPath": "images/word.png",
+      "selectedIconPath": "images/word.png"
     },
       {
         "pagePath": "pages/profile/profile",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "images/me.png",
+        "selectedIconPath": "images/me.png"
       }
     ]
   },

@@ -1,0 +1,42 @@
+<!--studyRecord.wxml-->
+<view class="container">
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">
+      <text>＜</text>
+    </view>
+    <view class="title">学习记录</view>
+    <view class="header-right">
+      <view class="more-btn">•••</view>
+      <view class="audio-btn">🔊</view>
+    </view>
+  </view>
+  
+  <!-- 标签栏 -->
+  <view class="tabs">
+    <view class="tab-item active">全部</view>
+  </view>
+  
+  <!-- 学习记录列表 -->
+  <view class="record-list" wx:if="{{records.length > 0}}">
+    <view class="record-item" wx:for="{{records}}" wx:key="id">
+      <view class="record-date">{{item.studyDate}}</view>
+      
+      <view class="word-list">
+        <view class="word-item" wx:for="{{item.words}}" wx:for-item="word" wx:for-index="wordIndex" wx:key="wordIndex">
+          <view class="word-info">
+            <view class="word">{{word.word}}</view>
+            <view class="chinese-meaning">{{word.chineseMeaning}}</view>
+          </view>
+          <view class="audio-icon">🔊</view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 空状态 -->
+  <view class="empty" wx:else>
+    <view class="empty-icon">📊</view>
+    <view class="empty-text">暂无学习记录</view>
+    <button class="go-study-btn" bindtap="goStudy">去学习</button>
+  </view>
+</view>

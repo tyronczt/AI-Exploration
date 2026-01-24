@@ -22,24 +22,15 @@
       <text>{{currentWord.exampleSentence}}</text>
     </view>
     
-    <!-- 正确答案 -->
-    <view class="correct-answer">
-      <text class="answer-text">{{currentWord.chineseMeaning}}</text>
-      <text class="check-icon">✓</text>
-    </view>
-    
     <!-- 选项按钮 -->
-    <view class="option-buttons">
-      <view class="option-btn" bindtap="selectOption">
-        <text>书屋</text>
+      <view class="option-buttons">
+        <view wx:for="{{currentWord.options}}" wx:key="index"
+              class="option-btn {{selectedOption == index ? 'selected' : ''}}"
+              bindtap="selectOption"
+              data-option="{{index}}">
+          <text>{{item}}</text>
+        </view>
       </view>
-      <view class="option-btn" bindtap="selectOption">
-        <text>随便</text>
-      </view>
-      <view class="option-btn" bindtap="selectOption">
-        <text>随意</text>
-      </view>
-    </view>
   </view>
 
   <!-- 功能按钮 -->

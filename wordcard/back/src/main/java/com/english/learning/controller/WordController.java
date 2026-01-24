@@ -8,7 +8,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/words")
@@ -54,6 +58,35 @@ public class WordController {
     public List<Word> getWordsByWordbookId(@PathVariable Long wordbookId) {
         LambdaQueryWrapper<Word> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Word::getWordbookId, wordbookId);
-        return wordService.list(queryWrapper);
+        
+        List<Word> words = wordService.list(queryWrapper);
+        
+        // 为每个单词生成选项
+        List<Word> allWords = wordService.list();
+        for (Word word : words) {
+            // 生成4个选项，其中包含正确答案
+            List<String> options = new ArrayList<>();
+            options.add(word.getChineseMeaning());
+            
+            // 随机选择3个不同的错误选项
+            Set<String> wrongOptions = new HashSet<>();
+            while (wrongOptions.size() < 3) {
+                int randomIndex = (int) (Math.random() * allWords.size());
+                Word randomWord = allWords.get(randomIndex);
+                String wrongMeaning = randomWord.getChineseMeaning();
+                if (!wrongMeaning.equals(word.getChineseMeaning())) {
+                    wrongOptions.add(wrongMeaning);
+                }
+            }
+            options.addAll(wrongOptions);
+            
+            // 打乱选项顺序
+            Collections.shuffle(options);
+            
+            // 设置选项数组
+            word.setOptions(options.toArray(new String[0]));
+        }
+        
+        return words;
     }
 }

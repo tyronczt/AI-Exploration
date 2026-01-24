@@ -240,3 +240,38 @@ VALUES
 INSERT INTO user_wordbooks (user_id, wordbook_id, progress, learned_count, total_count) VALUES
 ((SELECT id FROM (SELECT id FROM users WHERE username = 'admin') AS temp), (SELECT id FROM (SELECT id FROM wordbooks WHERE name = '大学英语四级词汇') AS temp), 0.00, 0, 4000),
 ((SELECT id FROM (SELECT id FROM users WHERE username = 'admin') AS temp), (SELECT id FROM (SELECT id FROM wordbooks WHERE name = '大学英语六级词汇') AS temp), 0.00, 0, 6000);
+
+-- 学习记录表
+CREATE TABLE study_records (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '记录ID',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    word_id BIGINT NOT NULL COMMENT '单词ID',
+    wordbook_id BIGINT NOT NULL COMMENT '词库ID',
+    result TINYINT NOT NULL COMMENT '学习结果：1-记住，2-忘记，3-不确定',
+    study_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '学习时间',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_user (user_id),
+    INDEX idx_word (word_id),
+    INDEX idx_wordbook (wordbook_id),
+    INDEX idx_result (result),
+    INDEX idx_study_time (study_time),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE,
+    FOREIGN KEY (wordbook_id) REFERENCES wordbooks(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学习记录表';
+
+-- 用户单词收藏表
+CREATE TABLE user_word_collections (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '记录ID',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    word_id BIGINT NOT NULL COMMENT '单词ID',
+    collection_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_user (user_id),
+    INDEX idx_word (word_id),
+    UNIQUE KEY uk_user_word (user_id, word_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户单词收藏表';

@@ -89,9 +89,44 @@ export const wordApi = {
   deleteWord: (id) => request(`/words/${id}`, 'DELETE')
 }
 
+// 学习记录相关API
+export const studyRecordApi = {
+  // 保存学习记录
+  saveStudyRecord: (record) => request('/study/records', 'POST', record),
+  
+  // 获取学习进度
+  getStudyProgress: (userId, wordbookId) => request(`/study/records/progress/${userId}/${wordbookId}`),
+  
+  // 获取学习统计信息
+  getStudyStatistics: (userId, wordbookId) => request(`/study/records/statistics/${userId}/${wordbookId}`),
+  
+  // 获取学习记录列表
+  getStudyRecords: (userId) => request(`/study/records/user/${userId}`),
+  
+  // 获取生词列表
+  getWordList: (userId) => request(`/study/records/wordlist/${userId}`)
+}
+
+// 单词收藏相关API
+export const wordCollectionApi = {
+  // 收藏单词
+  collectWord: (userId, wordId) => request(`/word/collections?userId=${userId}&wordId=${wordId}`, 'POST'),
+  
+  // 取消收藏单词
+  cancelCollectWord: (userId, wordId) => request(`/word/collections?userId=${userId}&wordId=${wordId}`, 'DELETE'),
+  
+  // 检查单词是否已收藏
+  isWordCollected: (userId, wordId) => request(`/word/collections/check?userId=${userId}&wordId=${wordId}`, 'GET'),
+  
+  // 获取用户收藏列表
+  getUserCollections: (userId) => request(`/word/collections/user/${userId}`)
+}
+
 // 导出默认对象
 export default {
   userApi,
   wordbookApi,
-  wordApi
+  wordApi,
+  studyRecordApi,
+  wordCollectionApi
 }
