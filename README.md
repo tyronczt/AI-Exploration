@@ -4,3 +4,7 @@
 # 第一篇
 
 [语雀一键复制公众号](https://github.com/tyronczt/AI-Exploration/tree/main/yuque)
+
+# 第二篇
+
+[免费的英语单词记忆小程序](https://github.com/tyronczt/AI-Exploration/tree/main/wordcard)
