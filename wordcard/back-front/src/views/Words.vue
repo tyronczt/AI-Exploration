@@ -58,10 +58,18 @@
       >
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="word" label="单词" min-width="150" />
-        <el-table-column prop="phonetic" label="音标" min-width="150" />
-        <el-table-column prop="definition" label="释义" min-width="200" />
-        <el-table-column prop="example" label="例句" min-width="250" show-overflow-tooltip />
-        <el-table-column prop="translation" label="例句翻译" min-width="200" show-overflow-tooltip />
+        <el-table-column label="音标" min-width="150">
+          <template #default="scope">{{ scope.row.pronunciation || '-' }}</template>
+        </el-table-column>
+        <el-table-column label="释义" min-width="200">
+          <template #default="scope">{{ scope.row.chineseMeaning || '-' }}</template>
+        </el-table-column>
+        <el-table-column label="例句" min-width="250" show-overflow-tooltip>
+          <template #default="scope">{{ scope.row.exampleSentence || '-' }}</template>
+        </el-table-column>
+        <el-table-column label="例句翻译" min-width="200" show-overflow-tooltip>
+          <template #default="scope">{{ scope.row.exampleTranslation || '-' }}</template>
+        </el-table-column>
         <el-table-column prop="wordbookId" label="所属词库" min-width="150">
           <template #default="scope">
             {{ getWordbookName(scope.row.wordbookId) }}
@@ -179,6 +187,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { Plus as ElIconPlus, Search as ElIconSearch, Edit as ElIconEdit, Delete as ElIconDelete, RefreshRight as ElIconRefreshRight } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import axios from 'axios'
 
 export default {
   name: 'Words',
@@ -244,7 +253,7 @@ export default {
         const query = searchQuery.value.toLowerCase()
         filtered = filtered.filter(item => 
           item.word.toLowerCase().includes(query) || 
-          item.definition.toLowerCase().includes(query)
+          item.chineseMeaning.toLowerCase().includes(query)
         )
       }
       
@@ -264,62 +273,28 @@ export default {
     })
 
     // 获取单词列表
-    const getWords = () => {
+    const getWords = async () => {
       loading.value = true
-      // 调用API获取单词列表
-      // 暂时使用模拟数据
-      setTimeout(() => {
-        words.value = [
-          {
-            id: 1,
-            word: 'apple',
-            phonetic: '/ˈæpl/',
-            definition: '苹果',
-            example: 'I eat an apple every day.',
-            translation: '我每天吃一个苹果。',
-            wordbookId: 1,
-            status: 1,
-            createdAt: '2026-01-01 10:00:00',
-            updatedAt: '2026-01-01 10:00:00'
-          },
-          {
-            id: 2,
-            word: 'banana',
-            phonetic: '/bəˈnɑːnə/',
-            definition: '香蕉',
-            example: 'Bananas are rich in potassium.',
-            translation: '香蕉富含钾。',
-            wordbookId: 1,
-            status: 1,
-            createdAt: '2026-01-02 10:00:00',
-            updatedAt: '2026-01-02 10:00:00'
-          },
-          {
-            id: 3,
-            word: 'cherry',
-            phonetic: '/ˈtʃeri/',
-            definition: '樱桃',
-            example: 'The cherry tree is in full bloom.',
-            translation: '樱花树正在盛开。',
-            wordbookId: 2,
-            status: 1,
-            createdAt: '2026-01-03 10:00:00',
-            updatedAt: '2026-01-03 10:00:00'
-          }
-        ]
+      try {
+        const response = await axios.get('/api/words')
+        words.value = response.data
+      } catch (error) {
+        console.error('获取单词列表失败:', error)
+        ElMessage.error('获取单词列表失败')
+      } finally {
         loading.value = false
-      }, 500)
+      }
     }
 
     // 获取词库列表
-    const getWordbooks = () => {
-      // 调用API获取词库列表
-      // 暂时使用模拟数据
-      wordbooks.value = [
-        { id: 1, name: '大学英语四级' },
-        { id: 2, name: '大学英语六级' },
-        { id: 3, name: '雅思核心词汇' }
-      ]
+    const getWordbooks = async () => {
+      try {
+        const response = await axios.get('/api/wordbooks')
+        wordbooks.value = response.data
+      } catch (error) {
+        console.error('获取词库列表失败:', error)
+        ElMessage.error('获取词库列表失败')
+      }
     }
 
     // 根据词库ID获取词库名称
@@ -341,7 +316,13 @@ export default {
       dialogTitle.value = '编辑单词'
       editingId.value = row.id
       // 复制数据到表单
-      wordForm.value = { ...row }
+      wordForm.value = { 
+        ...row,
+        phonetic: row.pronunciation || '',
+        definition: row.chineseMeaning || '',
+        example: row.exampleSentence || '',
+        translation: row.exampleTranslation || ''
+      }
       dialogVisible.value = true
     }
 
@@ -374,53 +355,65 @@ export default {
     }
 
     // 处理提交
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       if (!wordFormRef.value) return
       
-      wordFormRef.value.validate((valid) => {
+      wordFormRef.value.validate(async (valid) => {
         if (valid) {
-          if (editingId.value) {
-            // 编辑模式
-            const index = words.value.findIndex(item => item.id === editingId.value)
-            if (index !== -1) {
-              words.value[index] = { ...wordForm.value, updatedAt: new Date().toLocaleString() }
+          try {
+            // 转换表单数据为后端需要的格式
+            const wordData = {
+              word: wordForm.value.word,
+              pronunciation: wordForm.value.phonetic,
+              chineseMeaning: wordForm.value.definition,
+              exampleSentence: wordForm.value.example,
+              exampleTranslation: wordForm.value.translation,
+              wordbookId: wordForm.value.wordbookId,
+              status: wordForm.value.status
+            }
+            
+            if (editingId.value) {
+              // 编辑模式
+              await axios.put(`/api/words/${editingId.value}`, wordData)
               ElMessage.success('单词更新成功')
+            } else {
+              // 创建模式
+              await axios.post('/api/words', wordData)
+              ElMessage.success('单词创建成功')
             }
-          } else {
-            // 创建模式
-            const newWord = {
-              ...wordForm.value,
-              id: Date.now(),
-              createdAt: new Date().toLocaleString(),
-              updatedAt: new Date().toLocaleString()
-            }
-            words.value.unshift(newWord)
-            ElMessage.success('单词创建成功')
+            dialogVisible.value = false
+            getWords() // 重新获取单词列表
+          } catch (error) {
+            console.error('操作单词失败:', error)
+            ElMessage.error('操作单词失败')
           }
-          dialogVisible.value = false
         }
       })
     }
 
     // 处理删除
-    const handleDelete = (row) => {
-      ElMessageBox.confirm(
-        `确定要删除单词 "${row.word}" 吗？删除后不可恢复。`,
-        '删除确认',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
+    const handleDelete = async (row) => {
+      try {
+        await ElMessageBox.confirm(
+          `确定要删除单词 "${row.word}" 吗？删除后不可恢复。`,
+          '删除确认',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        )
+        
+        await axios.delete(`/api/words/${row.id}`)
+        ElMessage.success('单词删除成功')
+        getWords() // 重新获取单词列表
+      } catch (error) {
+        // 取消删除或操作失败
+        if (error !== 'cancel') {
+          console.error('删除单词失败:', error)
+          ElMessage.error('删除单词失败')
         }
-      ).then(() => {
-        const index = words.value.findIndex(item => item.id === row.id)
-        if (index !== -1) {
-          words.value.splice(index, 1)
-          ElMessage.success('单词删除成功')
-        }
-      }).catch(() => {
-        // 取消删除
-      })
+      }
     }
 
     // 分页相关

@@ -171,7 +171,7 @@ Page({
 
   // 导航到词库页面
   navigateToWordbook() {
-    wx.switchTab({
+    wx.navigateTo({
       url: '/pages/wordbook/wordbook'
     })
   },
