@@ -1,0 +1,137 @@
+/* 个人中心页面样式 */
+.user-header {
+  text-align: center;
+  padding: 40rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  margin-bottom: 20rpx;
+}
+
+.username {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.user-level {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.edit-profile-btn {
+  background-color: #1976D2;
+  color: white;
+  border-radius: 20rpx;
+  padding: 10rpx 30rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.core-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.stat-card {
+  flex: 1;
+  margin: 0 10rpx;
+  text-align: center;
+  padding: 30rpx 20rpx;
+}
+
+.stat-number {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #1976D2;
+  display: block;
+  margin-bottom: 5rpx;
+}
+
+.stat-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.more-link {
+  font-size: 28rpx;
+  color: #1976D2;
+}
+
+.achievements-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.achievement-list {
+  display: inline-flex;
+}
+
+.achievement-item {
+  width: 150rpx;
+  margin-right: 20rpx;
+  text-align: center;
+}
+
+.achievement-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 40rpx;
+  margin-bottom: 10rpx;
+}
+
+.achievement-name {
+  font-size: 24rpx;
+  color: #666;
+  display: block;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.month {
+  font-size: 32rpx;
+  color: #333;
+  display: block;
+  margin-bottom: 5rpx;
+}
+
+.count {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.arrow {
+  font-size: 32rpx;
+  color: #999;
+}
+
+.logout-btn {
+  width: 100%;
+  margin-top: 40rpx;
+  padding: 20rpx;
+  font-size: 32rpx;
+  border: none;
+}

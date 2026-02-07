@@ -1,0 +1,54 @@
+<!-- 首页 -->
+<view class="container">
+  <!-- 用户信息区 -->
+  <view class="user-info card">
+    <image class="avatar" src="{{userInfo.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <text class="username">{{userInfo.nickName || '请登录'}}</text>
+    <text class="streak">已连续打卡 {{streakDays}} 天</text>
+  </view>
+
+  <!-- 核心打卡区 -->
+  <view class="checkin-area card">
+    <view class="location-info">
+      <text class="location-title">📍 当前所在位置</text>
+      <text class="station-name">{{currentStation || '未检测到位置'}}</text>
+    </view>
+    <button class="btn-success" bindtap="handleCheckin">
+      <text class="checkin-time">{{currentTime}}</text>
+      <text class="checkin-text">立即打卡</text>
+    </button>
+  </view>
+
+  <!-- 数据统计区 -->
+  <view class="stats-area card">
+    <text class="title">📊 本周数据统计</text>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-number">{{weekStats.checkins}}</text>
+        <text class="stat-label">打卡数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{weekStats.mileage}}</text>
+        <text class="stat-label">里程(km)</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{weekStats.achievements}}</text>
+        <text class="stat-label">成就数</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最近访问站点区 -->
+  <view class="recent-stations card">
+    <text class="title">🗺️ 最近访问站点</text>
+    <scroll-view class="stations-scroll" scroll-x="true">
+      <view class="station-list">
+        <view class="station-card" wx:for="{{recentStations}}" wx:key="id" bindtap="goToStation" data-id="{{item.id}}">
+          <image class="station-image" src="{{item.image || '/assets/images/station-default.png'}}" mode="aspectFill"></image>
+          <text class="station-name">{{item.name}}</text>
+          <text class="station-rating">⭐ {{item.rating || '0.0'}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

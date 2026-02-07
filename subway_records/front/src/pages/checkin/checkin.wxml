@@ -1,0 +1,33 @@
+<!-- 打卡页面 -->
+<view class="container">
+  <!-- 状态选择器 -->
+  <view class="status-selector card">
+    <text class="title">选择当前状态</text>
+    <picker bindchange="changeStatus" value="{{currentStatusIndex}}" range="{{statusOptions}}">
+      <view class="picker">
+        <text class="picker-text">{{statusOptions[currentStatusIndex]}}</text>
+        <text class="picker-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 打卡按钮 -->
+  <view class="checkin-button-area">
+    <button class="btn-success" bindtap="handleCheckin">
+      <text class="checkin-time">{{currentTime}}</text>
+      <text class="checkin-text">立即打卡</text>
+    </button>
+  </view>
+
+  <!-- 最近记录 -->
+  <view class="recent-records card">
+    <text class="title">最近打卡记录</text>
+    <view class="record-list">
+      <view class="record-item" wx:for="{{recentRecords}}" wx:key="id">
+        <view class="record-time">{{item.time}}</view>
+        <view class="record-status">{{item.status}}</view>
+        <view class="record-duration">{{item.duration}}</view>
+      </view>
+    </view>
+  </view>
+</view>

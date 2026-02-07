@@ -1,0 +1,51 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/checkin/checkin",
+    "pages/records/records",
+    "pages/analysis/analysis",
+    "pages/profile/profile",
+    "pages/station/station",
+    "pages/success/success"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1976D2",
+    "navigationBarTitleText": "地铁打卡",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#7A7E83",
+    "selectedColor": "#1976D2",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home-active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/station/station",
+        "iconPath": "assets/icons/explore.png",
+        "selectedIconPath": "assets/icons/explore-active.png",
+        "text": "探索"
+      },
+      {
+        "pagePath": "pages/checkin/checkin",
+        "iconPath": "assets/icons/checkin.png",
+        "selectedIconPath": "assets/icons/checkin-active.png",
+        "text": "打卡"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "iconPath": "assets/icons/profile.png",
+        "selectedIconPath": "assets/icons/profile-active.png",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

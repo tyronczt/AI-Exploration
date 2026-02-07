@@ -1,0 +1,57 @@
+<!-- 个人中心页面 -->
+<view class="container">
+  <!-- 用户信息头图 -->
+  <view class="user-header card">
+    <image class="avatar" src="{{userInfo.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <text class="username">{{userInfo.nickName || '请登录'}}</text>
+    <text class="user-level">地铁旅行家 Lv.{{userLevel}}</text>
+    <button class="edit-profile-btn" bindtap="editProfile">编辑资料</button>
+  </view>
+
+  <!-- 核心数据概览 -->
+  <view class="core-stats">
+    <view class="stat-card card">
+      <text class="stat-number">{{totalCheckins}}</text>
+      <text class="stat-label">总打卡</text>
+    </view>
+    <view class="stat-card card">
+      <text class="stat-number">{{totalMileage}}</text>
+      <text class="stat-label">总里程(km)</text>
+    </view>
+  </view>
+
+  <!-- 成就展示区 -->
+  <view class="achievements-section card">
+    <view class="section-header">
+      <text class="title">🏆 我的成就</text>
+      <text class="more-link" bindtap="viewAllAchievements">查看全部 ></text>
+    </view>
+    <scroll-view class="achievements-scroll" scroll-x="true">
+      <view class="achievement-list">
+        <view class="achievement-item" wx:for="{{achievements}}" wx:key="id">
+          <image class="achievement-icon" src="{{item.icon || '/assets/images/badge-default.png'}}" mode="aspectFill"></image>
+          <text class="achievement-name">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 历史记录区 -->
+  <view class="history-section card">
+    <view class="section-header">
+      <text class="title">📁 我的足迹</text>
+    </view>
+    <view class="history-list">
+      <view class="history-item" wx:for="{{historyRecords}}" wx:key="month" bindtap="viewMonthDetail" data-month="{{item.month}}">
+        <view class="history-info">
+          <text class="month">{{item.month}}</text>
+          <text class="count">已打卡 {{item.count}} 个站点</text>
+        </view>
+        <text class="arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <button class="logout-btn btn-danger" bindtap="logout">退出登录</button>
+</view>

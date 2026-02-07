@@ -1,0 +1,138 @@
+/* 站点探索页面样式 */
+.view-switcher {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.switcher-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  border-radius: 10rpx;
+  margin: 0 10rpx;
+}
+
+.switcher-item.active {
+  background-color: #1976D2;
+}
+
+.switcher-item.active .switcher-text {
+  color: white;
+}
+
+.switcher-text {
+  font-size: 32rpx;
+  color: #666;
+}
+
+.search-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.search-input-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 10rpx;
+  padding: 0 20rpx;
+  margin-right: 20rpx;
+}
+
+.search-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 10rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 80rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.filter-btn {
+  background-color: #1976D2;
+  color: white;
+  border-radius: 10rpx;
+  padding: 0 30rpx;
+  height: 80rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.map-view {
+  height: 600rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-placeholder {
+  font-size: 32rpx;
+  color: #666;
+}
+
+.line-section {
+  margin-bottom: 30rpx;
+}
+
+.line-header {
+  margin-bottom: 20rpx;
+}
+
+.line-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.station-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.station-card {
+  padding: 20rpx;
+}
+
+.station-image {
+  width: 100%;
+  height: 150rpx;
+  border-radius: 10rpx;
+  margin-bottom: 10rpx;
+}
+
+.station-info {
+  text-align: center;
+}
+
+.station-name {
+  font-size: 28rpx;
+  color: #333;
+  display: block;
+  margin-bottom: 5rpx;
+}
+
+.station-rating {
+  font-size: 24rpx;
+  color: #FF9500;
+  display: block;
+  margin-bottom: 5rpx;
+}
+
+.station-status {
+  font-size: 24rpx;
+  color: #4CAF50;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+}

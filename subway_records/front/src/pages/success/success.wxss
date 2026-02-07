@@ -1,0 +1,119 @@
+/* 打卡成功页面样式 */
+.celebration-area {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.celebration-emoji {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.success-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.success-message {
+  font-size: 32rpx;
+  color: #666;
+}
+
+.achievement-area {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.achievement-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.achievement-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.achievement-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  margin-bottom: 10rpx;
+}
+
+.achievement-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.recommendation-area {
+  margin-bottom: 40rpx;
+}
+
+.recommendation-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.recommended-station {
+  text-align: center;
+}
+
+.station-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #1976D2;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.station-distance {
+  font-size: 28rpx;
+  color: #666;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.explore-btn {
+  background-color: #1976D2;
+  color: white;
+  border-radius: 20rpx;
+  padding: 15rpx 40rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.action-area {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.view-detail-btn, .share-btn {
+  flex: 1;
+  padding: 20rpx;
+  font-size: 32rpx;
+  border-radius: 10rpx;
+  border: none;
+}
+
+.view-detail-btn {
+  background-color: #1976D2;
+  color: white;
+}
+
+.share-btn {
+  background-color: #4CAF50;
+  color: white;
+}

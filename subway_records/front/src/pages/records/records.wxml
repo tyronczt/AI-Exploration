@@ -1,0 +1,63 @@
+<!-- 记录页面 -->
+<view class="container">
+  <!-- 日历视图 -->
+  <view class="calendar-section card">
+    <view class="calendar-header">
+      <text class="calendar-title">📅 打卡日历</text>
+      <view class="calendar-nav">
+        <button class="nav-btn" bindtap="prevMonth">‹</button>
+        <text class="current-month">{{currentYear}}年{{currentMonth}}月</text>
+        <button class="nav-btn" bindtap="nextMonth">›</button>
+      </view>
+    </view>
+    
+    <view class="calendar-grid">
+      <!-- 星期标题 -->
+      <view class="weekdays">
+        <text class="weekday">日</text>
+        <text class="weekday">一</text>
+        <text class="weekday">二</text>
+        <text class="weekday">三</text>
+        <text class="weekday">四</text>
+        <text class="weekday">五</text>
+        <text class="weekday">六</text>
+      </view>
+      
+      <!-- 日期网格 -->
+      <view class="days-grid">
+        <view class="day-cell {{item.hasCheckin ? 'has-checkin' : ''}} {{item.isToday ? 'today' : ''}} {{item.isCurrentMonth ? '' : 'other-month'}}" 
+              wx:for="{{calendarDays}}" wx:key="date" 
+              bindtap="selectDate" data-date="{{item.date}}">
+          <text class="day-number">{{item.day}}</text>
+          <view class="checkin-dot" wx:if="{{item.hasCheckin}}"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 记录列表 -->
+  <view class="records-section card">
+    <view class="records-header">
+      <text class="title">📋 打卡记录</text>
+      <text class="selected-date">{{selectedDate}}</text>
+    </view>
+    
+    <view class="record-list">
+      <view class="record-item" wx:for="{{dailyRecords}}" wx:key="id">
+        <view class="record-info">
+          <text class="record-time">{{item.time}}</text>
+          <text class="record-status">{{item.status}}</text>
+          <text class="record-location">{{item.location || '未知位置'}}</text>
+        </view>
+        <view class="record-actions">
+          <button class="edit-btn" bindtap="editRecord" data-id="{{item.id}}">编辑</button>
+          <button class="delete-btn" bindtap="deleteRecord" data-id="{{item.id}}">删除</button>
+        </view>
+      </view>
+      
+      <view class="empty-state" wx:if="{{dailyRecords.length === 0}}">
+        <text>当天暂无打卡记录</text>
+      </view>
+    </view>
+  </view>
+</view>

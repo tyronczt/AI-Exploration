@@ -1,0 +1,12 @@
+<!-- 导航栏组件 -->
+<view class="navigation-bar" style="background-color: {{backgroundColor}}; color: {{textColor}};">
+  <view class="nav-left" wx:if="{{showBack}}">
+    <text class="back-icon" bindtap="goBack">‹</text>
+  </view>
+  <view class="nav-center">
+    <text class="nav-title">{{title}}</text>
+  </view>
+  <view class="nav-right" wx:if="{{showMore}}">
+    <text class="more-icon" bindtap="showMoreActions">⋮</text>
+  </view>
+</view>

@@ -1,0 +1,59 @@
+<!-- 分析页面 -->
+<view class="container">
+  <!-- 统计卡片 -->
+  <view class="stats-cards">
+    <view class="stat-card card">
+      <text class="stat-title">平均通勤时间</text>
+      <text class="stat-value">{{averageCommuteTime}}</text>
+      <text class="stat-unit">分钟</text>
+    </view>
+    <view class="stat-card card">
+      <text class="stat-title">最常用路线</text>
+      <text class="stat-value">{{mostUsedRoute}}</text>
+      <text class="stat-unit">次/周</text>
+    </view>
+    <view class="stat-card card">
+      <text class="stat-title">本周打卡天数</text>
+      <text class="stat-value">{{weeklyCheckinDays}}</text>
+      <text class="stat-unit">天</text>
+    </view>
+  </view>
+
+  <!-- 通勤时间趋势图 -->
+  <view class="chart-section card">
+    <text class="title">📈 通勤时间趋势</text>
+    <view class="chart-container">
+      <!-- 这里使用简单的矩形表示图表 -->
+      <view class="chart-bar-container" wx:for="{{commuteTrendData}}" wx:key="day">
+        <view class="chart-bar" style="height: {{item.height}}%; background-color: {{item.color}};"></view>
+        <text class="chart-label">{{item.day}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 路线使用频率图 -->
+  <view class="chart-section card">
+    <text class="title">🗺️ 路线使用频率</text>
+    <view class="route-list">
+      <view class="route-item" wx:for="{{routeUsageData}}" wx:key="route">
+        <text class="route-name">{{item.route}}</text>
+        <view class="route-bar-container">
+          <view class="route-bar" style="width: {{item.percentage}}%; background-color: {{item.color}};"></view>
+          <text class="route-percentage">{{item.percentage}}%</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 出行建议 -->
+  <view class="suggestions-section card">
+    <text class="title">💡 出行建议</text>
+    <view class="suggestion-list">
+      <view class="suggestion-item" wx:for="{{suggestions}}" wx:key="id">
+        <text class="suggestion-title">{{item.title}}</text>
+        <text class="suggestion-content">{{item.content}}</text>
+        <text class="suggestion-time">{{item.time}}</text>
+      </view>
+    </view>
+  </view>
+</view>

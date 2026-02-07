@@ -1,0 +1,32 @@
+{
+  "name": "subway-checkin-backend",
+  "version": "1.0.0",
+  "description": "地铁打卡记录小程序后端服务",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "subway",
+    "checkin",
+    "wechat",
+    "mini-program"
+  ],
+  "author": "地铁打卡团队",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "mysql2": "^3.6.0",
+    "sequelize": "^6.32.1",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

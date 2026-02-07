@@ -1,0 +1,71 @@
+/* 打卡页面样式 */
+.status-selector {
+  text-align: center;
+}
+
+.picker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 10rpx;
+  margin-top: 20rpx;
+}
+
+.picker-text {
+  font-size: 32rpx;
+  color: #333;
+}
+
+.picker-arrow {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.checkin-button-area {
+  display: flex;
+  justify-content: center;
+  margin: 40rpx 0;
+}
+
+.recent-records .title {
+  margin-bottom: 20rpx;
+}
+
+.record-list {
+  max-height: 400rpx;
+  overflow-y: auto;
+}
+
+.record-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.record-item:last-child {
+  border-bottom: none;
+}
+
+.record-time {
+  font-size: 28rpx;
+  color: #666;
+  width: 30%;
+}
+
+.record-status {
+  font-size: 32rpx;
+  color: #333;
+  width: 40%;
+  text-align: center;
+}
+
+.record-duration {
+  font-size: 28rpx;
+  color: #1976D2;
+  width: 30%;
+  text-align: right;
+}

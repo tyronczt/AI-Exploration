@@ -1,0 +1,50 @@
+<!-- 站点探索页面 -->
+<view class="container">
+  <!-- 视图切换器 -->
+  <view class="view-switcher card">
+    <view class="switcher-item {{currentView === 'map' ? 'active' : ''}}" bindtap="switchView" data-view="map">
+      <text class="switcher-text">地图视图</text>
+    </view>
+    <view class="switcher-item {{currentView === 'list' ? 'active' : ''}}" bindtap="switchView" data-view="list">
+      <text class="switcher-text">列表视图</text>
+    </view>
+  </view>
+
+  <!-- 搜索框 -->
+  <view class="search-section card">
+    <view class="search-input-container">
+      <image class="search-icon" src="/assets/icons/search.png" mode="aspectFit"></image>
+      <input class="search-input" placeholder="搜索站点或线路..." bindinput="onSearchInput" value="{{searchKeyword}}"/>
+    </view>
+    <button class="filter-btn" bindtap="showFilter">筛选</button>
+  </view>
+
+  <!-- 地图视图 (简化版) -->
+  <view class="map-view card" wx:if="{{currentView === 'map'}}">
+    <text class="map-placeholder">🗺️ 地图视图功能开发中...</text>
+  </view>
+
+  <!-- 列表视图 -->
+  <view class="list-view" wx:if="{{currentView === 'list'}}">
+    <view class="line-section" wx:for="{{filteredStations}}" wx:key="line">
+      <view class="line-header">
+        <text class="line-name">{{item.line}}</text>
+      </view>
+      <view class="station-grid">
+        <view class="station-card card" wx:for="{{item.stations}}" wx:key="id" bindtap="goToStationDetail" data-id="{{item.id}}">
+          <image class="station-image" src="{{item.image || '/assets/images/station-default.png'}}" mode="aspectFill"></image>
+          <view class="station-info">
+            <text class="station-name">{{item.name}}</text>
+            <text class="station-rating">⭐ {{item.rating || '0.0'}}</text>
+            <text class="station-status" wx:if="{{item.checkedIn}}">✅ 已打卡</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{filteredStations.length === 0}}">
+    <text>没有找到相关站点</text>
+  </view>
+</view>

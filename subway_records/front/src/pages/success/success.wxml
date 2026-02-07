@@ -1,0 +1,34 @@
+<!-- 打卡成功页面 -->
+<view class="container">
+  <!-- 庆祝氛围区 -->
+  <view class="celebration-area">
+    <text class="celebration-emoji">🎉✨</text>
+    <text class="success-title">打卡成功！</text>
+    <text class="success-message">你已成功点亮【{{stationName}}】</text>
+  </view>
+
+  <!-- 成就展示区 -->
+  <view class="achievement-area card">
+    <text class="achievement-title">🏆 本次解锁成就</text>
+    <view class="achievement-item">
+      <image class="achievement-icon" src="{{achievement.icon || '/assets/images/achievement-default.png'}}" mode="aspectFill"></image>
+      <text class="achievement-name">{{achievement.name}}</text>
+    </view>
+  </view>
+
+  <!-- 推荐引导区 -->
+  <view class="recommendation-area card">
+    <text class="recommendation-title">📍 下一个推荐站点</text>
+    <view class="recommended-station">
+      <text class="station-name">{{recommendedStation.name}}</text>
+      <text class="station-distance">距离此地 {{recommendedStation.distance}}</text>
+      <button class="explore-btn" bindtap="goToRecommendedStation">前往探索</button>
+    </view>
+  </view>
+
+  <!-- 主操作区 -->
+  <view class="action-area">
+    <button class="view-detail-btn btn-primary" bindtap="viewDetail">查看详情</button>
+    <button class="share-btn btn-secondary" bindtap="shareSuccess">分享喜悦</button>
+  </view>
+</view>
