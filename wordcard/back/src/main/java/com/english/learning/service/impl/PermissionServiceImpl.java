@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permission> implements PermissionService {
@@ -49,7 +50,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         }
         
         // 去重
-        permissionIds = permissionIds.stream().distinct().toList();
+        permissionIds = permissionIds.stream().distinct().collect(Collectors.toList());
         
         if (permissionIds.isEmpty()) {
             return new ArrayList<>();
@@ -67,7 +68,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         // 过滤出菜单权限（type=1）
         List<Permission> menuPermissions = permissions.stream()
                 .filter(p -> p.getType() == 1)
-                .toList();
+                .collect(Collectors.toList());
         
         return menuPermissions;
     }

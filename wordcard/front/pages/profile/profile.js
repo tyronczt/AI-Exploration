@@ -86,12 +86,12 @@ Page({
                 // 构建用户信息对象
                 const userInfo = {
                   openid: loginRes.openid,
-                  wechatNickname: userProfileRes.userInfo.nickName,
-                  wechatAvatar: userProfileRes.userInfo.avatarUrl,
-                  wechatGender: userProfileRes.userInfo.gender,
-                  wechatCountry: userProfileRes.userInfo.country,
-                  wechatProvince: userProfileRes.userInfo.province,
-                  wechatCity: userProfileRes.userInfo.city
+                  nickname: userProfileRes.userInfo.nickName,
+                  avatarUrl: userProfileRes.userInfo.avatarUrl,
+                  gender: userProfileRes.userInfo.gender,
+                  country: userProfileRes.userInfo.country,
+                  province: userProfileRes.userInfo.province,
+                  city: userProfileRes.userInfo.city
                 }
                 
                 // 更新用户信息到后端
