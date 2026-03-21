@@ -83,9 +83,9 @@ CREATE TABLE IF NOT EXISTS checkins (
     notes TEXT COMMENT '备注信息',
     achievement_unlocked_id INT NULL COMMENT '解锁的成就ID',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE COMMENT '外键：用户ID',
-    FOREIGN KEY (station_id) REFERENCES stations(id) ON DELETE CASCADE COMMENT '外键：站点ID',
-    FOREIGN KEY (achievement_unlocked_id) REFERENCES achievements(id) ON DELETE SET NULL COMMENT '外键：成就ID',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (station_id) REFERENCES stations(id) ON DELETE CASCADE,
+    FOREIGN KEY (achievement_unlocked_id) REFERENCES achievements(id) ON DELETE SET NULL,
     INDEX idx_user_date (user_id, date) COMMENT '用户+日期索引',
     INDEX idx_station (station_id) COMMENT '站点索引',
     INDEX idx_timestamp (timestamp) COMMENT '时间戳索引'
@@ -98,8 +98,8 @@ CREATE TABLE IF NOT EXISTS user_preferred_stations (
     user_id INT NOT NULL COMMENT '用户ID',
     station_id INT NOT NULL COMMENT '站点ID',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE COMMENT '外键：用户ID',
-    FOREIGN KEY (station_id) REFERENCES stations(id) ON DELETE CASCADE COMMENT '外键：站点ID',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (station_id) REFERENCES stations(id) ON DELETE CASCADE,
     UNIQUE KEY unique_user_station (user_id, station_id) COMMENT '确保用户不会重复收藏同一站点'
 );
 
@@ -110,8 +110,8 @@ CREATE TABLE IF NOT EXISTS user_achievements (
     user_id INT NOT NULL COMMENT '用户ID',
     achievement_id INT NOT NULL COMMENT '成就ID',
     unlocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '解锁时间',
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE COMMENT '外键：用户ID',
-    FOREIGN KEY (achievement_id) REFERENCES achievements(id) ON DELETE CASCADE COMMENT '外键：成就ID',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (achievement_id) REFERENCES achievements(id) ON DELETE CASCADE,
     UNIQUE KEY unique_user_achievement (user_id, achievement_id) COMMENT '确保用户不会重复获得同一成就'
 );
 

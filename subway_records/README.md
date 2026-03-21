@@ -70,6 +70,9 @@ subway_records/
 
 ## 快速开始
 
+### 项目完整性测试
+运行 `test-project.bat` 可以验证项目结构完整性。
+
 ### 一键启动（推荐）
 
 #### 启动后端服务
@@ -193,6 +196,14 @@ subway_records/
 4. 初始化MySQL数据库（执行mysql-schema.sql）
 5. 配置Nginx反向代理（可选）
 6. 配置域名和SSL证书（推荐）
+
+### 数据库初始化
+如果遇到SQL语法错误，可以使用 `back/src/test-sql-syntax.bat` 脚本来测试和调试SQL语法。
+
+```bash
+cd back/src
+test-sql-syntax.bat
+```
 
 ## 相关文档
 

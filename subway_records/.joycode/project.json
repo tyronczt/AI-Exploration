@@ -1,0 +1,26 @@
+{
+  "id": 53249,
+  "name": "subway_records",
+  "abbrName": "SU",
+  "description": "",
+  "devMode": 2,
+  "status": null,
+  "url": null,
+  "databaseHost": null,
+  "databasePort": null,
+  "databaseName": null,
+  "databaseUsername": null,
+  "databasePassword": null,
+  "projectInfo": {
+    "JOYCODE": {
+      "pcczt1013": [
+        {
+          "pcczt1013": {
+            "projectId": 53249,
+            "appId": "23980"
+          }
+        }
+      ]
+    }
+  }
+}
