@@ -11,4 +11,8 @@
 
 # 第三篇
 
-地铁记录
+[地铁打卡](https://github.com/tyronczt/AI-Exploration/tree/main/subway_records)
+
+# 第四篇
+
+[周末旅行出游](https://github.com/tyronczt/AI-Exploration/tree/main/travel_partner)
