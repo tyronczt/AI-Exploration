@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>邀请码申请</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 申请表单卡片 -->
+    <div class="card" id="applyCard">
+      <h1>邀请码申请</h1>
+      <p class="subtitle">请仔细阅读以下申请条件</p>
+
+      <div class="conditions">
+        <label class="condition-item">
+          <input type="checkbox" id="condition1">
+          <span class="checkmark"></span>
+          <span class="condition-text"> 关注公众号【小天成猿路】 3 天以上</span>
+        </label>
+        <label class="condition-item">
+          <input type="checkbox" id="condition2">
+          <span class="checkmark"></span>
+          <span class="condition-text"> 公众号内文章点赞数超过 7 个</span>
+        </label>
+      </div>
+
+      <form id="applyForm">
+        <div class="form-group">
+          <label for="wechatName">微信名</label>
+          <input type="text" id="wechatName" name="wechatName" placeholder="请输入您的微信名" required>
+        </div>
+
+        <div class="form-group captcha-group">
+          <label for="captchaCode">验证码</label>
+          <div class="captcha-wrapper">
+            <input type="text" id="captchaCode" name="captchaCode" placeholder="请输入验证码" required maxlength="4">
+            <img id="captchaImg" src="/api/captcha" alt="验证码" title="点击刷新" onclick="refreshCaptcha()">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">提交申请</button>
+      </form>
+
+      <div class="query-link">
+        <a href="javascript:void(0)" onclick="showQueryCard()">已提交过申请？点击查看进度 →</a>
+      </div>
+    </div>
+
+    <!-- 进度查询卡片 -->
+    <div class="card" id="queryCard" style="display: none;">
+      <h1>查询申请进度</h1>
+      <p class="subtitle">输入您的微信名查询申请状态</p>
+
+      <div class="form-group">
+        <label for="queryWechatName">微信名</label>
+        <input type="text" id="queryWechatName" placeholder="请输入您的微信名" required>
+      </div>
+
+      <button class="btn-submit" id="queryBtn" onclick="queryProgress()">查询进度</button>
+
+      <div class="query-link" style="margin-top: 15px;">
+        <a href="javascript:void(0)" onclick="showApplyCard()">← 返回申请页面</a>
+      </div>
+    </div>
+
+    <!-- 进度展示卡片 -->
+    <div class="card" id="progressCard" style="display: none;">
+      <h1>申请进度</h1>
+      <p class="subtitle" id="progressWechatName"></p>
+
+      <!-- 进度时间线 -->
+      <div class="timeline">
+        <div class="timeline-item" id="timeline-applied">
+          <div class="timeline-icon">📝</div>
+          <div class="timeline-content">
+            <h3>已提交申请</h3>
+            <p id="applyTime"></p>
+          </div>
+        </div>
+
+        <div class="timeline-item" id="timeline-in_queue">
+          <div class="timeline-icon">⏳</div>
+          <div class="timeline-content">
+            <h3>申请队列中</h3>
+            <p>等待管理员审核发送</p>
+            <p class="expected-date-display" id="expectedDateDisplay"></p>
+          </div>
+        </div>
+
+        <div class="timeline-item" id="timeline-sent">
+          <div class="timeline-icon">✅</div>
+          <div class="timeline-content">
+            <h3>邀请码已发送</h3>
+            <p id="inviteDate"></p>
+            <p class="invite-code-display" id="inviteCodeDisplay"></p>
+            <p class="remark" id="progressRemark"></p>
+          </div>
+        </div>
+
+        <div class="timeline-item" id="timeline-unqualified">
+          <div class="timeline-icon">❌</div>
+          <div class="timeline-content">
+            <h3>不符合条件</h3>
+            <p id="unqualifiedRemark"></p>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-submit" onclick="showQueryCard()" style="margin-top: 20px;">查询其他申请</button>
+
+      <div class="query-link" style="margin-top: 15px;">
+        <a href="javascript:void(0)" onclick="showApplyCard()">← 返回申请页面</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 成功提示弹窗 -->
+  <div class="modal" id="successModal">
+    <div class="modal-content">
+      <div class="modal-icon success">✓</div>
+      <h2>提交成功</h2>
+      <p id="successMessage">您的申请已收到，会按照顺序在微信公众号后台给您发送邀请码</p>
+      <button class="btn-close" onclick="closeModal()">确定</button>
+    </div>
+  </div>
+
+  <!-- 错误提示弹窗 -->
+  <div class="modal" id="errorModal">
+    <div class="modal-content">
+      <div class="modal-icon error">✕</div>
+      <h2>提示</h2>
+      <p id="errorMessage">出错了</p>
+      <button class="btn-close" onclick="closeErrorModal()">确定</button>
+    </div>
+  </div>
+
+  <script src="apply.js"></script>
+</body>
+</html>

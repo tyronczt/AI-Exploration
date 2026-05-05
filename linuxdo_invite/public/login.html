@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理员登录</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-page">
+  <div class="container">
+    <div class="card login-card">
+      <h1>管理员登录</h1>
+      <p class="subtitle">请输入管理员密码</p>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="password">密码</label>
+          <input type="password" id="password" name="password" placeholder="请输入管理员密码" required>
+        </div>
+
+        <button type="submit" class="btn-submit" id="loginBtn">登录</button>
+      </form>
+
+      <a href="/" class="back-link">返回申请页面</a>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const password = document.getElementById('password').value;
+      const loginBtn = document.getElementById('loginBtn');
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = '登录中...';
+
+      try {
+        const response = await fetch(API_BASE + '/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          window.location.href = '/admin';
+        } else {
+          alert(result.message || '登录失败');
+          loginBtn.disabled = false;
+          loginBtn.textContent = '登录';
+        }
+      } catch (error) {
+        alert('网络错误，请稍后重试');
+        loginBtn.disabled = false;
+        loginBtn.textContent = '登录';
+      }
+    });
+  </script>
+</body>
+</html>

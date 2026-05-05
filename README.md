@@ -16,3 +16,7 @@
 # 第四篇
 
 [周末旅行出游](https://github.com/tyronczt/AI-Exploration/tree/main/travel_partner)
+
+# 第五篇
+
+[邀请码管理系统](https://github.com/tyronczt/AI-Exploration/tree/main/linuxdo_invite)
