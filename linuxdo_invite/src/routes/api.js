@@ -162,6 +162,56 @@ router.get('/admin/applications', adminAuth, async (req, res) => {
   }
 });
 
+// 获取公开参考小作文
+router.get('/reference-articles', async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT id, title, category, content
+       FROM reference_articles
+       WHERE is_active = 1
+       ORDER BY sort_order ASC, id ASC`
+    );
+
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    console.error('获取参考小作文失败:', error);
+    res.json({ success: false, message: '获取参考内容失败' });
+  }
+});
+
+// 新增申请记录
+router.post('/admin/applications', adminAuth, async (req, res) => {
+  try {
+    const { wechat_name, status, remark, invite_date, invite_code, expected_date } = req.body;
+    const wechatName = (wechat_name || '').trim();
+    const allowedStatuses = ['not_qualified', 'in_queue', 'sent'];
+    const nextStatus = allowedStatuses.includes(status) ? status : 'in_queue';
+
+    if (!wechatName) {
+      return res.json({ success: false, message: '请输入微信名' });
+    }
+
+    await db.query(
+      `INSERT INTO applications
+       (wechat_name, status, invite_date, invite_code, expected_date, remark)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        wechatName,
+        nextStatus,
+        invite_date || null,
+        invite_code ? invite_code.trim() : null,
+        expected_date || null,
+        remark ? remark.trim() : null
+      ]
+    );
+
+    res.json({ success: true, message: '新增成功' });
+  } catch (error) {
+    console.error('新增申请记录失败:', error);
+    res.json({ success: false, message: '新增失败' });
+  }
+});
+
 // 更新申请记录
 router.put('/admin/applications/:id', adminAuth, async (req, res) => {
   try {
@@ -191,6 +241,106 @@ router.delete('/admin/applications/:id', adminAuth, async (req, res) => {
     res.json({ success: true, message: '删除成功' });
   } catch (error) {
     console.error('删除申请记录失败:', error);
+    res.json({ success: false, message: '删除失败' });
+  }
+});
+
+// ==================== 参考小作文管理 ====================
+
+// 获取参考小作文列表
+router.get('/admin/reference-articles', adminAuth, async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT id, title, category, content, sort_order, is_active,
+       DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') as updated_at
+       FROM reference_articles
+       ORDER BY sort_order ASC, id ASC`
+    );
+
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    console.error('获取参考小作文列表失败:', error);
+    res.json({ success: false, message: '获取参考内容失败' });
+  }
+});
+
+// 新增参考小作文
+router.post('/admin/reference-articles', adminAuth, async (req, res) => {
+  try {
+    const { title, category, content, sort_order, is_active } = req.body;
+    const nextTitle = (title || '').trim();
+    const nextContent = (content || '').trim();
+
+    if (!nextTitle) {
+      return res.json({ success: false, message: '请输入标题' });
+    }
+    if (!nextContent) {
+      return res.json({ success: false, message: '请输入正文内容' });
+    }
+
+    await db.query(
+      `INSERT INTO reference_articles (title, category, content, sort_order, is_active)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        nextTitle,
+        category ? category.trim() : null,
+        nextContent,
+        parseInt(sort_order, 10) || 0,
+        is_active ? 1 : 0
+      ]
+    );
+
+    res.json({ success: true, message: '新增成功' });
+  } catch (error) {
+    console.error('新增参考小作文失败:', error);
+    res.json({ success: false, message: '新增失败' });
+  }
+});
+
+// 更新参考小作文
+router.put('/admin/reference-articles/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, category, content, sort_order, is_active } = req.body;
+    const nextTitle = (title || '').trim();
+    const nextContent = (content || '').trim();
+
+    if (!nextTitle) {
+      return res.json({ success: false, message: '请输入标题' });
+    }
+    if (!nextContent) {
+      return res.json({ success: false, message: '请输入正文内容' });
+    }
+
+    await db.query(
+      `UPDATE reference_articles
+       SET title = ?, category = ?, content = ?, sort_order = ?, is_active = ?
+       WHERE id = ?`,
+      [
+        nextTitle,
+        category ? category.trim() : null,
+        nextContent,
+        parseInt(sort_order, 10) || 0,
+        is_active ? 1 : 0,
+        id
+      ]
+    );
+
+    res.json({ success: true, message: '更新成功' });
+  } catch (error) {
+    console.error('更新参考小作文失败:', error);
+    res.json({ success: false, message: '更新失败' });
+  }
+});
+
+// 删除参考小作文
+router.delete('/admin/reference-articles/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.query('DELETE FROM reference_articles WHERE id = ?', [id]);
+    res.json({ success: true, message: '删除成功' });
+  } catch (error) {
+    console.error('删除参考小作文失败:', error);
     res.json({ success: false, message: '删除失败' });
   }
 });

@@ -3,6 +3,7 @@ const API_BASE = '/api';
 // 当前页码
 let appPage = 1;
 let isAdmin = false;
+let referenceArticles = [];
 
 // 页面加载时检查登录状态
 (async function init() {
@@ -15,6 +16,7 @@ let isAdmin = false;
     } else {
       showAdminPanel();
       loadApplications();
+      loadReferenceArticles();
     }
   } catch {
     showLoginPanel();
@@ -58,6 +60,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       isAdmin = true;
       showAdminPanel();
       loadApplications();
+      loadReferenceArticles();
     } else {
       errorMsg.textContent = result.message || '密码错误';
       errorMsg.style.display = 'block';
@@ -85,6 +88,16 @@ function maskInviteCode(code) {
   if (!code) return '-';
   if (code.length <= 4) return code[0] + '******' + code[code.length - 1];
   return code.substring(0, 2) + '******' + code.substring(code.length - 2);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
 }
 
 // 格式化日期时间（处理时区问题）
@@ -124,6 +137,24 @@ function getAppStatusClass(status) {
   return map[status] || '';
 }
 
+function truncateText(value, maxLength = 80) {
+  const text = String(value ?? '').replace(/\s+/g, ' ').trim();
+  if (text.length <= maxLength) return text || '-';
+  return text.slice(0, maxLength) + '...';
+}
+
+function switchAdminTab(tab) {
+  const isApplications = tab === 'applications';
+  document.getElementById('applicationsPanel').style.display = isApplications ? 'block' : 'none';
+  document.getElementById('referencesPanel').style.display = isApplications ? 'none' : 'block';
+  document.getElementById('applicationsTab').classList.toggle('active', isApplications);
+  document.getElementById('referencesTab').classList.toggle('active', !isApplications);
+
+  if (!isApplications) {
+    loadReferenceArticles();
+  }
+}
+
 // ==================== 申请记录 ====================
 
 async function loadApplications(page = 1) {
@@ -153,14 +184,14 @@ function renderApplications(result) {
   } else {
     tbody.innerHTML = result.list.map(item => `
       <tr>
-        <td>${item.wechat_name}</td>
+        <td>${escapeHtml(item.wechat_name)}</td>
         <td>${formatDateTime(item.apply_time)}</td>
         <td><span class="status-badge ${getAppStatusClass(item.status)}">${getAppStatusText(item.status)}</span></td>
-        <td class="invite-code-cell" title="${item.invite_code || ''}">${maskInviteCode(item.invite_code)}</td>
+        <td class="invite-code-cell" title="${escapeHtml(item.invite_code || '')}">${escapeHtml(maskInviteCode(item.invite_code))}</td>
         <td>${formatDate(item.expected_date)}</td>
         <td>${formatDate(item.invite_date)}</td>
-        <td class="remark-cell" title="${item.remark || ''}">${item.remark || '-'}</td>
-        <td>
+        <td class="remark-cell" title="${escapeHtml(item.remark || '')}">${escapeHtml(item.remark || '-')}</td>
+        <td class="action-buttons">
           <button class="btn-edit" onclick="editApplication(${item.id})">编辑</button>
           <button class="btn-delete" onclick="deleteApplication(${item.id})">删除</button>
         </td>
@@ -170,6 +201,51 @@ function renderApplications(result) {
 
   renderPagination('applicationsPagination', result.page, result.totalPages, loadApplications);
 }
+
+// 新增申请记录
+function openAddAppModal() {
+  document.getElementById('addAppForm').reset();
+  document.getElementById('addAppStatus').value = 'in_queue';
+  document.getElementById('addAppModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('addAppWechatName').focus(), 50);
+}
+
+function closeAddAppModal() {
+  document.getElementById('addAppModal').style.display = 'none';
+}
+
+document.getElementById('addAppForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const wechat_name = document.getElementById('addAppWechatName').value.trim();
+  const status = document.getElementById('addAppStatus').value;
+  const invite_date = document.getElementById('addAppInviteDate').value;
+  const invite_code = document.getElementById('addAppInviteCode').value.trim();
+  const expected_date = document.getElementById('addAppExpectedDate').value;
+  const remark = document.getElementById('addAppRemark').value.trim();
+
+  if (!wechat_name) {
+    showToast('请输入微信名');
+    return;
+  }
+
+  try {
+    const res = await fetch(API_BASE + '/admin/applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wechat_name, status, invite_date, invite_code, expected_date, remark })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeAddAppModal();
+      loadApplications(1);
+      showToast('新增成功');
+    } else {
+      showToast(data.message || '新增失败');
+    }
+  } catch {
+    showToast('新增失败');
+  }
+});
 
 // 编辑申请记录
 function editApplication(id) {
@@ -235,6 +311,135 @@ async function deleteApplication(id) {
       showToast('删除成功');
     } else {
       showToast(data.message);
+    }
+  } catch {
+    showToast('删除失败');
+  }
+}
+
+// ==================== 参考小作文 ====================
+
+async function loadReferenceArticles() {
+  try {
+    const res = await fetch(API_BASE + '/admin/reference-articles');
+    const data = await res.json();
+    if (data.success) {
+      referenceArticles = data.data;
+      renderReferenceArticles();
+    } else {
+      showToast(data.message || '加载参考小作文失败');
+    }
+  } catch (err) {
+    console.error('加载参考小作文失败:', err);
+    showToast('加载参考小作文失败');
+  }
+}
+
+function renderReferenceArticles() {
+  document.getElementById('referenceTotalCount').textContent = `共 ${referenceArticles.length} 条记录`;
+
+  const tbody = document.getElementById('referencesTableBody');
+  if (referenceArticles.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-row">暂无参考小作文</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = referenceArticles.map(item => `
+    <tr>
+      <td>${item.sort_order}</td>
+      <td>${escapeHtml(item.title)}</td>
+      <td>${escapeHtml(item.category || '-')}</td>
+      <td class="reference-summary" title="${escapeHtml(item.content)}">${escapeHtml(truncateText(item.content, 100))}</td>
+      <td><span class="status-badge ${item.is_active ? 'status-success' : 'status-error'}">${item.is_active ? '展示' : '隐藏'}</span></td>
+      <td>${formatDateTime(item.updated_at)}</td>
+      <td class="action-buttons">
+        <button class="btn-edit" onclick="editReferenceArticle(${item.id})">编辑</button>
+        <button class="btn-delete" onclick="deleteReferenceArticle(${item.id})">删除</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openReferenceModal() {
+  document.getElementById('referenceForm').reset();
+  document.getElementById('referenceId').value = '';
+  document.getElementById('referenceModalTitle').textContent = '新增参考小作文';
+  document.getElementById('referenceSortOrder').value = referenceArticles.length + 1;
+  document.getElementById('referenceIsActive').checked = true;
+  document.getElementById('referenceModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('referenceTitle').focus(), 50);
+}
+
+function editReferenceArticle(id) {
+  const item = referenceArticles.find(article => article.id === id);
+  if (!item) return;
+
+  document.getElementById('referenceForm').reset();
+  document.getElementById('referenceId').value = item.id;
+  document.getElementById('referenceModalTitle').textContent = '编辑参考小作文';
+  document.getElementById('referenceTitle').value = item.title || '';
+  document.getElementById('referenceCategory').value = item.category || '';
+  document.getElementById('referenceSortOrder').value = item.sort_order || 0;
+  document.getElementById('referenceIsActive').checked = !!item.is_active;
+  document.getElementById('referenceContent').value = item.content || '';
+  document.getElementById('referenceModal').style.display = 'flex';
+}
+
+function closeReferenceModal() {
+  document.getElementById('referenceModal').style.display = 'none';
+}
+
+document.getElementById('referenceForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const id = document.getElementById('referenceId').value;
+  const payload = {
+    title: document.getElementById('referenceTitle').value.trim(),
+    category: document.getElementById('referenceCategory').value.trim(),
+    sort_order: document.getElementById('referenceSortOrder').value,
+    is_active: document.getElementById('referenceIsActive').checked,
+    content: document.getElementById('referenceContent').value.trim()
+  };
+
+  if (!payload.title) {
+    showToast('请输入标题');
+    return;
+  }
+  if (!payload.content) {
+    showToast('请输入正文内容');
+    return;
+  }
+
+  try {
+    const res = await fetch(API_BASE + '/admin/reference-articles' + (id ? '/' + id : ''), {
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeReferenceModal();
+      loadReferenceArticles();
+      showToast(id ? '更新成功' : '新增成功');
+    } else {
+      showToast(data.message || '保存失败');
+    }
+  } catch {
+    showToast('保存失败');
+  }
+});
+
+async function deleteReferenceArticle(id) {
+  if (!confirm('确定要删除这条参考小作文吗？')) return;
+
+  try {
+    const res = await fetch(API_BASE + '/admin/reference-articles/' + id, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      loadReferenceArticles();
+      showToast('删除成功');
+    } else {
+      showToast(data.message || '删除失败');
     }
   } catch {
     showToast('删除失败');

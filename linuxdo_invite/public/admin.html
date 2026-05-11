@@ -29,33 +29,111 @@
       <h1>邀请码管理系统</h1>
       <div class="header-actions">
         <a href="/" class="btn-link">返回申请页面</a>
+        <a href="/reference" class="btn-link">参考页面</a>
         <button class="btn-logout" onclick="logout()">退出登录</button>
       </div>
     </header>
 
+    <nav class="admin-tabs">
+      <button class="admin-tab active" id="applicationsTab" onclick="switchAdminTab('applications')">申请记录</button>
+      <button class="admin-tab" id="referencesTab" onclick="switchAdminTab('references')">参考小作文</button>
+    </nav>
+
     <div class="main-panel">
-      <div class="panel-header">
-        <h2>申请记录列表</h2>
-        <span class="total-count" id="totalCount">共 0 条记录</span>
-      </div>
-      <div class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>微信名</th>
-              <th>申请时间</th>
-              <th>状态</th>
-              <th>邀请码</th>
-              <th>预计日期</th>
-              <th>邀请日期</th>
-              <th>备注</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="applicationsTableBody"></tbody>
-        </table>
-      </div>
-      <div class="pagination" id="applicationsPagination"></div>
+      <section id="applicationsPanel">
+        <div class="panel-header">
+          <h2>申请记录列表</h2>
+          <div class="panel-actions">
+            <span class="total-count" id="totalCount">共 0 条记录</span>
+            <button class="btn-add" onclick="openAddAppModal()">新增记录</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table applications-table">
+            <thead>
+              <tr>
+                <th>微信名</th>
+                <th>申请时间</th>
+                <th>状态</th>
+                <th>邀请码</th>
+                <th>预计日期</th>
+                <th>邀请日期</th>
+                <th>备注</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="applicationsTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="applicationsPagination"></div>
+      </section>
+
+      <section id="referencesPanel" style="display: none;">
+        <div class="panel-header">
+          <h2>参考小作文</h2>
+          <div class="panel-actions">
+            <span class="total-count" id="referenceTotalCount">共 0 条记录</span>
+            <button class="btn-add" onclick="openReferenceModal()">新增文案</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table references-table">
+            <thead>
+              <tr>
+                <th>排序</th>
+                <th>标题</th>
+                <th>分类</th>
+                <th>正文摘要</th>
+                <th>展示</th>
+                <th>更新时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="referencesTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 新增申请记录弹窗 -->
+  <div class="modal" id="addAppModal">
+    <div class="modal-content modal-edit">
+      <h2>新增申请记录</h2>
+      <form id="addAppForm">
+        <div class="form-group">
+          <label>微信名</label>
+          <input type="text" id="addAppWechatName" placeholder="请输入微信名" required>
+        </div>
+        <div class="form-group">
+          <label>状态</label>
+          <select id="addAppStatus">
+            <option value="in_queue">申请队列中</option>
+            <option value="not_qualified">不符合条件</option>
+            <option value="sent">已发送</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>邀请日期</label>
+          <input type="date" id="addAppInviteDate">
+        </div>
+        <div class="form-group">
+          <label>邀请码</label>
+          <input type="text" id="addAppInviteCode" placeholder="请输入邀请码">
+        </div>
+        <div class="form-group">
+          <label>预计邀请日期</label>
+          <input type="date" id="addAppExpectedDate">
+        </div>
+        <div class="form-group">
+          <label>备注</label>
+          <textarea id="addAppRemark" rows="3" placeholder="可选填写备注"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeAddAppModal()">取消</button>
+          <button type="submit" class="btn-save">新增</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -91,6 +169,44 @@
         </div>
         <div class="modal-actions">
           <button type="button" class="btn-cancel" onclick="closeEditAppModal()">取消</button>
+          <button type="submit" class="btn-save">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 新增/编辑参考小作文弹窗 -->
+  <div class="modal" id="referenceModal">
+    <div class="modal-content modal-edit modal-reference">
+      <h2 id="referenceModalTitle">新增参考小作文</h2>
+      <form id="referenceForm">
+        <input type="hidden" id="referenceId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>标题</label>
+            <input type="text" id="referenceTitle" placeholder="请输入标题" required>
+          </div>
+          <div class="form-group">
+            <label>分类</label>
+            <input type="text" id="referenceCategory" placeholder="如 Java 后端、学生">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>排序</label>
+            <input type="number" id="referenceSortOrder" min="0" step="1" value="0">
+          </div>
+          <label class="switch-field">
+            <input type="checkbox" id="referenceIsActive" checked>
+            <span>在 /reference 展示</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label>正文内容</label>
+          <textarea id="referenceContent" rows="12" placeholder="请输入参考小作文正文" required></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeReferenceModal()">取消</button>
           <button type="submit" class="btn-save">保存</button>
         </div>
       </form>
