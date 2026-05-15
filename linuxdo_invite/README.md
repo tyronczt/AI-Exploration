@@ -1,6 +1,6 @@
 # 邀请码管理系统
 
-一个简单的邀请码申请与管理系统。
+一个简单的邀请码申请与管理系统：https://tyron.me/linuxdo_invite/
 
 ## 功能特性
 
@@ -43,7 +43,7 @@ DB_PASSWORD=your_password
 DB_NAME=linuxdo_invite
 ADMIN_PASSWORD=your_password
 SESSION_SECRET=your_session_secret
-PORT=3000
+PORT=300
 ```
 
 ### 3. 初始化数据库
@@ -58,7 +58,7 @@ npm run db:init
 npm start
 ```
 
-访问 http://localhost:3000
+访问 http://localhost:300
 
 ## 默认管理员密码
 
