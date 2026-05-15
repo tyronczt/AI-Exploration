@@ -23,4 +23,8 @@
 
 # 第六篇
 
-[工作日报/周报/月报生成 Skill](https://github.com/tyronczt/AI-Exploration/tree/main/daily_skill)
+[工作日报/周报/月报生成 Skill](https://github.com/tyronczt/AI-Exploration/tree/main/daily_skill) [![skills.sh](https://skills.sh/b/tyronczt/AI-Exploration)](https://skills.sh/tyronczt/AI-Exploration)
+
+```bash
+npx skills add tyronczt/AI-Exploration/daily_skill
+```

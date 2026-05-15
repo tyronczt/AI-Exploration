@@ -4,6 +4,12 @@
 
 [![skills.sh](https://skills.sh/b/tyronczt/AI-Exploration)](https://skills.sh/tyronczt/AI-Exploration)
 
+## 一键安装
+
+```bash
+npx skills add tyronczt/AI-Exploration/daily_skill
+```
+
 ## 功能特性
 
 - **日报生成**：从 git 仓库提取当日 commit，按业务故事线聚合，输出 Markdown 日报
@@ -14,12 +20,6 @@
 - **交互式补全**：询问完成状态、协作上下文、待开发计划
 - **多仓库支持**：支持同时从多个 git 仓库提取 commit
 - **远程归档**：可选上传至私有 Git 仓库进行归档
-
-## 安装
-
-```bash
-npx skills add tyronczt/AI-Exploration/daily_skill
-```
 
 ## 使用方式
 
