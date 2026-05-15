@@ -1,11 +1,15 @@
 ## ADDED Requirements
 
-### Requirement: Optional upload to Gitee repository
-The system SHALL offer to upload the generated report to a private Gitee repository as an optional step.
+### Requirement: Optional upload to Git repository
+The system SHALL offer to upload the generated report to a private Git repository as an optional step.
 
-#### Scenario: Upload prompt after report generation
-- **WHEN** daily or weekly report generation is complete
-- **THEN** system asks "是否上传至 Gitee 仓库归档？(y/N)" with default "N"
+#### Scenario: Daily upload prompt after completion confirmation
+- **WHEN** daily report completion is confirmed and local save handling is complete
+- **THEN** system asks "是否提交到 Git 归档仓库，方便后续周报/月报输出？(y/N)" with default "N"
+
+#### Scenario: Weekly or monthly upload prompt after report generation
+- **WHEN** weekly or monthly report generation is complete
+- **THEN** system asks "是否上传至 Git 仓库归档？(y/N)" with default "N"
 
 #### Scenario: User declines upload
 - **WHEN** user answers "N" or presses Enter
@@ -16,10 +20,10 @@ The system SHALL offer to upload the generated report to a private Gitee reposit
 - **THEN** system proceeds with the upload flow
 
 ### Requirement: Clone or update local repository
-The system SHALL maintain a local clone of the Gitee repository for uploading reports.
+The system SHALL maintain a local clone of the Git repository for uploading reports.
 
 #### Scenario: First time upload
-- **WHEN** the local clone of the Gitee repository does not exist
+- **WHEN** the local clone of the Git repository does not exist
 - **THEN** system clones the configured remote repository URL to a local cache directory (e.g., `.claude/skills/daily-report/.cache/daily-report-repo`)
 
 #### Scenario: Subsequent upload
@@ -49,7 +53,7 @@ The system SHALL commit the report file and push to the remote repository.
 - **THEN** system informs the user of the error and suggests checking git credentials and network connectivity
 
 ### Requirement: Repository URL as configurable variable
-The system SHALL allow the Gitee repository URL to be configured as a variable.
+The system SHALL allow the Git repository URL to be configured as a variable.
 
 #### Scenario: Default repository URL
 - **WHEN** user does not specify a repository URL

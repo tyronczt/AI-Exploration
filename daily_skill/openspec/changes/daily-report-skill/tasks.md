@@ -65,7 +65,7 @@
 
 ## 10. 远程归档模块
 
-- [ ] 10.1 实现上传确认交互：日报/周报/月报生成后询问 "是否上传至仓库归档？(y/N)"
+- [ ] 10.1 实现上传确认交互：日报确认完成并处理本地保存后询问 "是否提交到 Git 归档仓库，方便后续周报/月报输出？(y/N)"；周报/月报生成后询问 "是否上传至 Git 仓库归档？(y/N)"
 - [ ] 10.2 实现仓库 clone/pull：首次 clone 到 `.claude/skills/daily-report/.cache/daily-report-repo`，后续 pull 更新
 - [ ] 10.3 实现文件写入：日报写入 `daily/YYYY-MM-DD-工作日报.md`，周报写入 `weekly/YYYY-WXX-工作周报.md`，月报写入 `monthly/YYYY-MM-工作月报.md`
 - [ ] 10.4 实现 git commit 和 push：自动 add → commit → push，含错误处理

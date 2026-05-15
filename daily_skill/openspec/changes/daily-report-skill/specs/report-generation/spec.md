@@ -42,3 +42,14 @@ The system SHALL present the final report in a way that is easy to copy.
 #### Scenario: Final output display
 - **WHEN** report generation is complete
 - **THEN** system displays the full report in a single code block or text block that can be copied in one action
+
+### Requirement: Daily report completion confirmation
+The system SHALL ask the user to confirm the daily report is complete before saving or archiving it.
+
+#### Scenario: User confirms daily report completion
+- **WHEN** the final daily report is displayed
+- **THEN** system asks "日报是否确认完成？(Y/n)" with default "Y"
+
+#### Scenario: User requests changes before completion
+- **WHEN** user answers "n"
+- **THEN** system asks what should be adjusted, updates the daily report, displays it again, and repeats the completion confirmation
