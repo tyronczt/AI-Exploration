@@ -43,6 +43,17 @@ The system SHALL present the final report in a way that is easy to copy.
 - **WHEN** report generation is complete
 - **THEN** system displays the full report in a single code block or text block that can be copied in one action
 
+### Requirement: Concise business-only point wording
+The system SHALL keep each report point concise and business-facing.
+
+#### Scenario: One sentence per point
+- **WHEN** final daily report points are generated
+- **THEN** each numbered point is written as one complete sentence without extra technical explanation, parenthetical file notes, or line-count details
+
+#### Scenario: Code terms excluded
+- **WHEN** final daily report text is assembled
+- **THEN** it contains no file names, paths, component names, API names, variable names, method names, class names, commit hashes, diff wording, console/log references, or code cleanup wording
+
 ### Requirement: Daily report completion confirmation
 The system SHALL ask the user to confirm the daily report is complete before saving or archiving it.
 

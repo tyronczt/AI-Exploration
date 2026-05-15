@@ -23,7 +23,11 @@ The system SHALL generate numbered points for each storyline, where each point d
 
 #### Scenario: Point structure
 - **WHEN** generating a numbered point for a storyline
-- **THEN** each point follows the structure: [业务对象]：[改动描述] + [业务价值/效果]
+- **THEN** each point is one complete business-language sentence following the structure: [业务对象]：[业务改动与业务价值]
+
+#### Scenario: No implementation details in points
+- **WHEN** source commits mention implementation details such as files, components, APIs, variables, line counts, logs, or code refactoring
+- **THEN** system excludes those details from the point and describes only the business result and value
 
 #### Scenario: Multiple commits in one point
 - **WHEN** two commits are tightly coupled (e.g., one adds a feature, another fixes a bug in that feature)
