@@ -26,7 +26,7 @@ The system SHALL ask the user if there are collaboration details to add.
 - **THEN** system asks "今天有没有协作沟通要补充的？(回车跳过)"
 
 #### Scenario: User provides collaboration context
-- **WHEN** user inputs collaboration details (e.g., "与产品对齐了分润规则细节")
+- **WHEN** user inputs collaboration details (e.g., "与产品对齐了需求细节")
 - **THEN** system incorporates this into the final report under the relevant storyline
 
 #### Scenario: User skips collaboration

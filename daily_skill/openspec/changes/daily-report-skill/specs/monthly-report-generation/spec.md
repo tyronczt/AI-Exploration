@@ -27,7 +27,7 @@ The system SHALL merge storylines from multiple weekly reports that relate to th
 - **THEN** system merges them into one monthly storyline that summarizes the month's progress on that feature
 
 #### Scenario: Sub-feature evolution
-- **WHEN** a storyline evolves over the month (e.g., "分润结算" progresses from design to development to testing across weeks)
+- **WHEN** a storyline evolves over the month (e.g., "用户中心" progresses from design to development to testing across weeks)
 - **THEN** system captures the progression arc in the monthly summary
 
 ### Requirement: Generate monthly summary structure

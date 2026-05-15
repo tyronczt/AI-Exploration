@@ -4,7 +4,7 @@
 The system SHALL analyze each commit using an adaptive strategy: first read message + stat, then read diff content only when the message is insufficient to understand the business meaning.
 
 #### Scenario: Message sufficient
-- **WHEN** commit message clearly describes the business change (e.g., "feat: 分润结算-汇总详情接口") and stat shows affected files
+- **WHEN** commit message clearly describes the business change (e.g., "feat: 用户中心-汇总详情接口") and stat shows affected files
 - **THEN** system derives business meaning from message + stat alone without reading diff
 
 #### Scenario: Message insufficient, deep read needed
@@ -19,9 +19,9 @@ The system SHALL analyze each commit using an adaptive strategy: first read mess
 The system SHALL transform technical commit descriptions into business-language descriptions suitable for leadership review.
 
 #### Scenario: Technical to business transformation
-- **WHEN** commit is "fix: 分润结算单结算-用户、商户的分润参数对象未序列化导致结算失败"
-- **THEN** system produces business language like "修复结算流程中用户/商户分润参数序列化缺陷，保障结算正常执行"
+- **WHEN** commit is "fix: 用户注册-参数校验逻辑错误导致注册失败"
+- **THEN** system produces business language like "修复注册流程中参数校验缺陷，保障注册正常执行"
 
 #### Scenario: Preserve domain terms
-- **WHEN** commit contains domain-specific terms (e.g., "分润", "结算单", "Seata")
+- **WHEN** commit contains domain-specific terms (e.g., "用户中心", "注册流程", "鉴权服务")
 - **THEN** system preserves these terms in the business description as they are meaningful to leadership

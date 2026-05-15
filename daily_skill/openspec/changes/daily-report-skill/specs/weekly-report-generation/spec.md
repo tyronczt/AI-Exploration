@@ -34,7 +34,7 @@ The system SHALL filter daily reports to include only those from the target week
 The system SHALL merge storylines from multiple daily reports that relate to the same business feature.
 
 #### Scenario: Same storyline across multiple days
-- **WHEN** multiple daily reports contain storylines about the same feature (e.g., "分润结算" appears on Monday, Wednesday, Friday)
+- **WHEN** multiple daily reports contain storylines about the same feature (e.g., "用户中心" appears on Monday, Wednesday, Friday)
 - **THEN** system merges them into one weekly storyline that summarizes the week's progress on that feature
 
 #### Scenario: Unique storylines
