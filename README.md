@@ -19,8 +19,8 @@
 
 # 第五篇
 
-[邀请码管理系统](https://github.com/tyronczt/AI-Exploration/tree/main/linuxdo_invite)
+[L站（LinuxDo）邀请码管理系统](https://github.com/tyronczt/AI-Exploration/tree/main/linuxdo_invite)
 
 # 第六篇
 
-[L站（LinuxDo）邀请码引流文章](https://github.com/tyronczt/AI-Exploration/blob/main/linuxdo_invite/linuxdo_article.md)
+[工作日报/周报/月报生成 Skill](https://github.com/tyronczt/AI-Exploration/tree/main/daily_skill)
