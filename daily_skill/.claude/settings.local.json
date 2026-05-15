@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(openspec new *)",
+      "Bash(openspec status *)",
+      "Bash(openspec instructions *)",
+      "Bash(grep *)",
+      "Bash(gh api *)",
+      "WebSearch",
+      "WebFetch(domain:skills.sh)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl -sL https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md)",
+      "Bash(curl -sL https://raw.githubusercontent.com/anthropics/skills/main/README.md)",
+      "Bash(curl -sL https://skills.sh)",
+      "Bash(curl -sL https://agentskills.io)",
+      "Bash(curl -sL https://skills.sh/api)",
+      "Bash(curl -sL https://skills.sh/docs)",
+      "Bash(curl *)",
+      "Bash(npx skills *)"
+    ]
+  }
+}
