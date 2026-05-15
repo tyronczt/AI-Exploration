@@ -23,6 +23,20 @@
 npx skills add tyronczt/AI-Exploration/daily_skill
 ```
 
+### 更新 Skill
+
+如果本仓库里的 skill 有更新，可以在 Agent 里直接说：
+
+```text
+帮我更新这个 skill：https://github.com/tyronczt/AI-Exploration/tree/main/daily_skill
+```
+
+Agent 会重新拉取最新版本并覆盖本地旧版本。也可以重新执行安装命令来刷新：
+
+```bash
+npx skills add tyronczt/AI-Exploration/daily_skill
+```
+
 安装后可通过自然语言触发：
 
 ```text
