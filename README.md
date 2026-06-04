@@ -28,3 +28,7 @@
 ```bash
 npx skills add tyronczt/AI-Exploration/daily_skill
 ```
+
+# 第七篇
+
+GitHub 热点项目周报 Skill
