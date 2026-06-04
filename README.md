@@ -19,7 +19,7 @@
 
 # 第五篇
 
-[L站（LinuxDo）邀请码管理系统](https://github.com/tyronczt/AI-Exploration/tree/main/linuxdo_invite)
+[L站（LinuxDo）邀请码管理系统](https://tyron.me/linuxdo_invite/)：[https://tyron.me/linuxdo_invite/](https://tyron.me/linuxdo_invite/)
 
 # 第六篇
 
