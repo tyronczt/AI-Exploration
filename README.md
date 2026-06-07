@@ -31,4 +31,8 @@ npx skills add tyronczt/AI-Exploration/daily_skill
 
 # 第七篇
 
-GitHub 热点项目 Skill
+[GitHub 热点项目 Skill](https://github.com/tyronczt/AI-Exploration/tree/main/github_daily) [![skills.sh](https://skills.sh/b/tyronczt/AI-Exploration)](https://skills.sh/tyronczt/AI-Exploration)
+
+```bash
+npx skills add tyronczt/AI-Exploration/github_daily
+```
