@@ -12,13 +12,13 @@ npx skills add tyronczt/AI-Exploration/github_daily
 
 | 文件 | 用途 |
 |------|------|
-| `SKILL.md` | QoderWork 技能定义文件，包含完整的工作流程和指令 |
+| `SKILL.md` | 技能定义文件，包含完整的工作流程和指令 |
 | `template.html` | HTML 报告模板，含样式和交互逻辑 |
 | `github-trending-YYYY-MM-DD.html` | 每次生成的周报文件 |
 
 ## 使用方式
 
-在 QoderWork 中调用 `github-trending` 技能，或手动输入类似指令：
+在 智能体 中调用 `github-trending` 技能，或手动输入类似指令：
 
 - "获取本周 GitHub 热门项目"
 - "生成 GitHub 周报"
