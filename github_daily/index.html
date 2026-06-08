@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Trending - 开源热榜导航</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+:root{--bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--border:#30363d;--border-light:#444c56;--text:#e6edf3;--text2:#8b949e;--text3:#6e7681;--accent:#58a6ff;--accent-bg:rgba(88,166,255,.12);--green:#3fb950;--green-bg:rgba(63,185,80,.12);--orange:#d29922;--red:#f85149;--purple:#bc8cff;--yellow:#e3b341;--gold:#ffd700;--silver:#c0c0c0;--bronze:#cd7f32}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0d1117 0%,#161b22 50%,#1a2332 100%);padding:32px 24px 24px;text-align:center;position:relative;border-bottom:1px solid var(--border)}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 0%,rgba(88,166,255,.06) 0%,transparent 60%),radial-gradient(ellipse at 70% 0%,rgba(163,113,247,.05) 0%,transparent 60%);pointer-events:none}
+.header-inner{position:relative;z-index:1;max-width:1100px;margin:0 auto}
+.header h1{font-size:28px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,#e6edf3,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.header .subtitle{color:var(--text2);font-size:14px}
+
+/* Tab bar */
+.tab-bar{display:flex;justify-content:center;gap:4px;margin-top:20px}
+.tab-btn{padding:8px 20px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text2);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+.tab-btn:hover{background:var(--surface);color:var(--text);border-color:var(--border-light)}
+.tab-btn.active{background:var(--accent-bg);color:var(--accent);border-color:rgba(88,166,255,.3)}
+
+/* Main container */
+.main{max-width:1100px;margin:0 auto;padding:32px 24px}
+.view{display:none}.view.active{display:block}
+
+/* ===================== CALENDAR VIEW ===================== */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.cal-nav{display:flex;align-items:center;gap:12px}
+.cal-nav button{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cal-nav button:hover{background:var(--surface2);color:var(--text);border-color:var(--accent)}
+.cal-title{font-size:20px;font-weight:700;min-width:160px;text-align:center}
+.cal-meta{color:var(--text2);font-size:13px}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:32px}
+.cal-day-name{text-align:center;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;padding:8px 0;letter-spacing:1px}
+.cal-cell{aspect-ratio:1;border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:all .2s;background:var(--surface);min-height:72px}
+.cal-cell.empty{background:transparent;border-color:transparent}
+.cal-cell.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.cal-cell.has-report{cursor:pointer;border-color:var(--green);background:var(--green-bg)}
+.cal-cell.has-report:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(63,185,80,.15);border-color:var(--green)}
+.cal-cell .day-num{font-size:18px;font-weight:600;color:var(--text2)}
+.cal-cell.has-report .day-num{color:var(--green)}
+.cal-cell.today .day-num{color:var(--accent)}
+.cal-cell .report-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-top:4px}
+.cal-cell .repo-count{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* Report cards list */
+.recent-section{margin-top:8px}
+.recent-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.report-list{display:flex;flex-direction:column;gap:10px}
+.report-card{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;transition:all .2s;cursor:pointer;text-decoration:none;color:var(--text)}
+.report-card:hover{border-color:var(--accent);background:var(--surface2);transform:translateX(4px);text-decoration:none}
+.report-date{font-size:14px;font-weight:600;color:var(--accent);min-width:100px;white-space:nowrap}
+.report-info{flex:1;min-width:0}
+.report-info .top-proj{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.report-stats{display:flex;gap:12px;font-size:12px;color:var(--text2)}
+.report-arrow{color:var(--text3);font-size:18px;transition:transform .2s}
+.report-card:hover .report-arrow{transform:translateX(4px);color:var(--accent)}
+
+/* ===================== DASHBOARD VIEW ===================== */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;transition:border-color .2s}
+.dash-card:hover{border-color:var(--accent)}
+.dash-card .val{font-size:32px;font-weight:800;color:var(--accent);margin-bottom:4px}
+.dash-card .label{font-size:13px;color:var(--text2)}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.panel h3{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.panel-subtitle{font-size:13px;color:var(--text2);margin-bottom:16px}
+
+/* Leaderboard */
+.lb-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(48,54,61,.5)}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;background:var(--bg);border:1px solid var(--border);color:var(--text2);flex-shrink:0}
+.lb-rank.gold{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;border:none}
+.lb-rank.silver{background:linear-gradient(135deg,#c0c0c0,#8a8a8a);color:#000;border:none}
+.lb-rank.bronze{background:linear-gradient(135deg,#cd7f32,#8b4513);color:#fff;border:none}
+.lb-name{flex:1;min-width:0}
+.lb-name a{font-size:14px;font-weight:500;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.lb-name .desc{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-val{font-size:14px;font-weight:700;color:var(--green);white-space:nowrap}
+.lb-bar{width:100px;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;flex-shrink:0}
+.lb-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),#2ea043)}
+
+/* Language chart */
+.lang-bars{display:flex;flex-direction:column;gap:10px}
+.lang-row{display:flex;align-items:center;gap:10px;font-size:13px}
+.lang-label{width:100px;text-align:right;color:var(--text2);flex-shrink:0}
+.lang-track{flex:1;height:24px;background:var(--bg);border-radius:6px;overflow:hidden;position:relative}
+.lang-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;color:#fff;transition:width .6s ease}
+.lang-count{color:var(--text3);font-size:12px;min-width:40px}
+
+/* Empty state */
+.empty-state{text-align:center;padding:80px 24px;color:var(--text2)}
+.empty-state .icon{font-size:48px;margin-bottom:16px;opacity:.5}
+.empty-state h3{font-size:18px;color:var(--text);margin-bottom:8px}
+.empty-state p{font-size:14px;max-width:400px;margin:0 auto}
+
+/* Loading */
+.loading{text-align:center;padding:80px 24px;color:var(--text2)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Footer */
+.footer{text-align:center;padding:32px;color:var(--text3);font-size:12px;border-top:1px solid var(--border);margin-top:32px}
+
+/* Responsive */
+@media(max-width:768px){
+  .dash-grid{grid-template-columns:1fr}
+  .cal-cell{min-height:56px}
+  .cal-cell .day-num{font-size:15px}
+  .report-stats{flex-direction:column;gap:2px}
+  .header h1{font-size:22px}
+  .lb-bar{width:60px}
+}
+</style>
+<!-- __EMBEDDED_DATA_START__ -->
+<!-- __EMBEDDED_DATA_END__ -->
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>GitHub Trending</h1>
+    <div class="subtitle">每日开源热榜追踪 &middot; 数据驱动的开源发现</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" data-view="calendar">&#128197; 日历浏览</button>
+      <button class="tab-btn" data-view="dashboard">&#128202; 趋势看板</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- Calendar View -->
+  <div class="view active" id="view-calendar">
+    <div id="cal-loading" class="loading"><div class="spinner"></div>加载报告数据中...</div>
+    <div id="cal-content" style="display:none">
+      <div class="cal-header">
+        <div class="cal-nav">
+          <button id="cal-prev">&#8249;</button>
+          <div class="cal-title" id="cal-title"></div>
+          <button id="cal-next">&#8250;</button>
+        </div>
+        <div class="cal-meta" id="cal-meta"></div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="recent-section">
+        <div class="recent-title">&#128640; 最近报告</div>
+        <div class="report-list" id="report-list"></div>
+      </div>
+    </div>
+    <div id="cal-empty" class="empty-state" style="display:none">
+      <div class="icon">&#128269;</div>
+      <h3>暂无报告数据</h3>
+      <p>请先运行 <code>node generate.js</code> 生成 data.json，或等待定时任务自动生成每日报告。</p>
+    </div>
+  </div>
+
+  <!-- Dashboard View -->
+  <div class="view" id="view-dashboard">
+    <div id="dash-loading" class="loading"><div class="spinner"></div>加载聚合数据中...</div>
+    <div id="dash-content" style="display:none">
+      <div class="dash-grid" id="dash-stats"></div>
+      <div class="panel" id="panel-freq"></div>
+      <div class="panel" id="panel-stars"></div>
+      <div class="panel" id="panel-lang"></div>
+    </div>
+    <div id="dash-empty" class="empty-state" style="display:none">
+      <div class="icon">&#128202;</div>
+      <h3>数据不足</h3>
+      <p>趋势看板需要至少 2 份报告才能生成有意义的聚合分析。请先生成更多日报。</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  GitHub Trending 开源热榜 &middot; 由 QoderWork 提供技术支持 &middot; 数据来源 <a href="https://github.com/trending" target="_blank">GitHub Trending</a>
+</div>
+
+<script>
+(function(){
+  // ========== State ==========
+  var DATA = null;
+  var calYear, calMonth; // 0-indexed month
+  var today = new Date();
+
+  // ========== Init ==========
+  calYear = today.getFullYear();
+  calMonth = today.getMonth();
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+      document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});
+      btn.classList.add('active');
+      document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    });
+  });
+
+  // Calendar nav
+  document.getElementById('cal-prev').addEventListener('click', function(){
+    calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar();
+  });
+  document.getElementById('cal-next').addEventListener('click', function(){
+    calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar();
+  });
+
+  // ========== Load Data ==========
+  function initData(d){
+    DATA = d;
+    document.getElementById('cal-loading').style.display='none';
+    document.getElementById('dash-loading').style.display='none';
+
+    if(!DATA.reports || DATA.reports.length === 0){
+      document.getElementById('cal-empty').style.display='block';
+      document.getElementById('dash-empty').style.display='block';
+      return;
+    }
+
+    document.getElementById('cal-content').style.display='block';
+    document.getElementById('dash-content').style.display='block';
+
+    // Sort by date desc
+    DATA.reports.sort(function(a,b){ return b.date > a.date ? 1 : -1; });
+
+    renderCalendar();
+    renderReportList();
+    renderDashboard();
+  }
+
+  // Try embedded data first (for standalone file), then fetch data.json
+  if(window.__EMBEDDED_DATA__){
+    initData(window.__EMBEDDED_DATA__);
+  } else {
+    fetch('data.json')
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(initData)
+      .catch(function(){
+        document.getElementById('cal-loading').style.display='none';
+        document.getElementById('cal-empty').style.display='block';
+        document.getElementById('dash-loading').style.display='none';
+        document.getElementById('dash-empty').style.display='block';
+      });
+  }
+
+  // ========== Calendar ==========
+  function renderCalendar(){
+    var months = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+    var dayNames = ['日','一','二','三','四','五','六'];
+    document.getElementById('cal-title').textContent = calYear + '年 ' + months[calMonth];
+
+    // Count reports in this month
+    var monthReports = DATA.reports.filter(function(r){
+      var d = new Date(r.date);
+      return d.getFullYear()===calYear && d.getMonth()===calMonth;
+    });
+    document.getElementById('cal-meta').textContent = '本月 ' + monthReports.length + ' 份报告';
+
+    var grid = document.getElementById('cal-grid');
+    var html = dayNames.map(function(d){ return '<div class="cal-day-name">'+d+'</div>'; }).join('');
+
+    var firstDay = new Date(calYear, calMonth, 1).getDay();
+    var daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+
+    // Empty cells before first day
+    for(var i=0;i<firstDay;i++) html += '<div class="cal-cell empty"></div>';
+
+    // Report lookup
+    var reportMap = {};
+    DATA.reports.forEach(function(r){
+      var d = new Date(r.date);
+      var key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      reportMap[key] = r;
+    });
+
+    for(var day=1; day<=daysInMonth; day++){
+      var dateKey = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+      var report = reportMap[dateKey];
+      var isToday = (calYear===today.getFullYear() && calMonth===today.getMonth() && day===today.getDate());
+
+      var cls = 'cal-cell';
+      if(isToday) cls += ' today';
+      if(report) cls += ' has-report';
+
+      html += '<div class="'+cls+'"'+(report?' data-url="'+report.url+'"':'')+'>'
+        + '<div class="day-num">'+day+'</div>'
+        + (report ? '<div class="report-dot"></div><div class="repo-count">'+report.repo_count+' 项目</div>' : '')
+        + '</div>';
+    }
+
+    grid.innerHTML = html;
+
+    // Click handlers
+    grid.querySelectorAll('.cal-cell.has-report').forEach(function(cell){
+      cell.addEventListener('click', function(){
+        window.open(cell.dataset.url, '_blank');
+      });
+    });
+  }
+
+  // ========== Report List ==========
+  function renderReportList(){
+    var el = document.getElementById('report-list');
+    var recent = DATA.reports.slice(0, 10);
+
+    el.innerHTML = recent.map(function(r){
+      var d = new Date(r.date);
+      var weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+      var dateStr = (d.getMonth()+1)+'月'+d.getDate()+'日 '+weekdays[d.getDay()];
+      var topProj = r.top_project || (r.repos && r.repos[0] ? r.repos[0].name : 'N/A');
+      var topStars = r.top_project_stars || (r.repos && r.repos[0] ? r.repos[0].weekly_stars : 0);
+      var totalStars = r.total_weekly_stars || 0;
+
+      return '<a class="report-card" href="'+r.url+'" target="_blank">'
+        + '<div class="report-date">'+dateStr+'</div>'
+        + '<div class="report-info">'
+        +   '<div class="top-proj">&#127942; '+topProj+'</div>'
+        +   '<div class="report-stats">'
+        +     '<span>'+r.repo_count+' 个项目</span>'
+        +     '<span>&#11088; '+fmt(totalStars)+' 本周星标</span>'
+        +   '</div>'
+        + '</div>'
+        + '<div class="report-arrow">&#8250;</div>'
+        + '</a>';
+    }).join('');
+  }
+
+  // ========== Dashboard ==========
+  function renderDashboard(){
+    if(DATA.reports.length < 2){
+      document.getElementById('dash-empty').style.display='block';
+      document.getElementById('dash-content').style.display='none';
+      return;
+    }
+    document.getElementById('dash-content').style.display='block';
+
+    renderDashStats();
+    renderFreqLeaderboard();
+    renderStarsLeaderboard();
+    renderLangChart();
+  }
+
+  function renderDashStats(){
+    var el = document.getElementById('dash-stats');
+    var totalReports = DATA.reports.length;
+    var allRepos = getAllRepos();
+    var uniqueProjects = Object.keys(allRepos).length;
+    var totalStars = 0;
+    DATA.reports.forEach(function(r){ totalStars += (r.total_weekly_stars || 0); });
+
+    // Date range
+    var dates = DATA.reports.map(function(r){ return r.date; }).sort();
+    var range = dates[0] + ' ~ ' + dates[dates.length-1];
+
+    el.innerHTML = [
+      {v:totalReports, l:'报告总数'},
+      {v:uniqueProjects, l:'独立项目数'},
+      {v:fmtK(totalStars), l:'累计追踪 Star'}
+    ].map(function(s){
+      return '<div class="dash-card"><div class="val">'+s.v+'</div><div class="label">'+s.l+'</div></div>';
+    }).join('');
+  }
+
+  function renderFreqLeaderboard(){
+    var el = document.getElementById('panel-freq');
+    var allRepos = getAllRepos();
+    var entries = Object.keys(allRepos).map(function(k){
+      return {name:k, info:allRepos[k]};
+    });
+
+    // Sort by appearance count
+    entries.sort(function(a,b){ return b.info.count - a.info.count; });
+    var top = entries.slice(0, 15);
+    var maxCount = top.length > 0 ? top[0].info.count : 1;
+
+    el.innerHTML = '<h3>&#128293; 上榜频次排行</h3>'
+      + '<div class="panel-subtitle">在 ' + DATA.reports.length + ' 份报告中出现的次数</div>'
+      + top.map(function(e, i){
+          var rank = i + 1;
+          var rankCls = rank<=3 ? ['','gold','silver','bronze'][rank] : '';
+          var barW = maxCount > 0 ? (e.info.count / maxCount * 100) : 0;
+          return '<div class="lb-row">'
+            + '<div class="lb-rank '+rankCls+'">'+rank+'</div>'
+            + '<div class="lb-name"><a href="https://github.com/'+e.name+'" target="_blank">'+e.name+'</a>'
+            +   '<div class="desc">'+esc(e.info.description || '')+'</div></div>'
+            + '<div class="lb-val">'+e.info.count+' 次</div>'
+            + '<div class="lb-bar"><div class="lb-bar-fill" style="width:'+barW+'%"></div></div>'
+            + '</div>';
+        }).join('');
+  }
+
+  function renderStarsLeaderboard(){
+    var el = document.getElementById('panel-stars');
+    var allRepos = getAllRepos();
+    var entries = Object.keys(allRepos).map(function(k){
+      return {name:k, info:allRepos[k]};
+    });
+
+    // Sort by total weekly stars accumulated
+    entries.sort(function(a,b){ return b.info.totalWeeklyStars - a.info.totalWeeklyStars; });
+    var top = entries.slice(0, 15);
+    var maxStars = top.length > 0 ? top[0].info.totalWeeklyStars : 1;
+
+    el.innerHTML = '<h3>&#11088; 累计星标增长</h3>'
+      + '<div class="panel-subtitle">在所有报告周期中的累计本周星标数</div>'
+      + top.map(function(e, i){
+          var rank = i + 1;
+          var rankCls = rank<=3 ? ['','gold','silver','bronze'][rank] : '';
+          var barW = maxStars > 0 ? (e.info.totalWeeklyStars / maxStars * 100) : 0;
+          return '<div class="lb-row">'
+            + '<div class="lb-rank '+rankCls+'">'+rank+'</div>'
+            + '<div class="lb-name"><a href="https://github.com/'+e.name+'" target="_blank">'+e.name+'</a>'
+            +   '<div class="desc">'+esc(e.info.language || '')+'</div></div>'
+            + '<div class="lb-val">+'+fmt(e.info.totalWeeklyStars)+'</div>'
+            + '<div class="lb-bar"><div class="lb-bar-fill" style="width:'+barW+'%"></div></div>'
+            + '</div>';
+        }).join('');
+  }
+
+  function renderLangChart(){
+    var el = document.getElementById('panel-lang');
+    var allRepos = getAllRepos();
+    var langCount = {};
+
+    Object.keys(allRepos).forEach(function(k){
+      var lang = allRepos[k].language || 'Other';
+      langCount[lang] = (langCount[lang] || 0) + allRepos[k].count;
+    });
+
+    var entries = Object.keys(langCount).map(function(k){ return {lang:k, count:langCount[k]}; });
+    entries.sort(function(a,b){ return b.count - a.count; });
+    var top = entries.slice(0, 10);
+    var maxVal = top.length > 0 ? top[0].count : 1;
+
+    var LANG_COLORS = {
+      'JavaScript':'#f1e05a','TypeScript':'#3178c6','Python':'#3572A5','Java':'#b07219',
+      'Go':'#00ADD8','Rust':'#dea584','C++':'#f34b7d','C':'#555555','C#':'#178600',
+      'Ruby':'#701516','PHP':'#4F5D95','Swift':'#F05138','Kotlin':'#A97BFF','Shell':'#89e051',
+      'HTML':'#e34c26','CSS':'#563d7c','Other':'#8b949e'
+    };
+
+    el.innerHTML = '<h3>&#128187; 语言热度分布</h3>'
+      + '<div class="panel-subtitle">基于所有报告中项目出现次数的语言统计</div>'
+      + '<div class="lang-bars">'
+      + top.map(function(e){
+          var color = LANG_COLORS[e.lang] || '#8b949e';
+          var w = maxVal > 0 ? (e.count / maxVal * 100) : 0;
+          return '<div class="lang-row">'
+            + '<div class="lang-label">'+e.lang+'</div>'
+            + '<div class="lang-track"><div class="lang-fill" style="width:'+w+'%;background:'+color+'">'+e.count+'</div></div>'
+            + '<div class="lang-count">'+e.count+' 次</div>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }
+
+  // ========== Helpers ==========
+  function getAllRepos(){
+    var map = {};
+    DATA.reports.forEach(function(r){
+      if(!r.repos) return;
+      r.repos.forEach(function(repo){
+        var name = repo.name;
+        if(!map[name]){
+          map[name] = {
+            count: 0,
+            totalWeeklyStars: 0,
+            description: repo.description || '',
+            language: repo.language || '',
+            url: repo.url || ''
+          };
+        }
+        map[name].count++;
+        map[name].totalWeeklyStars += (repo.weekly_stars || 0);
+        // Keep latest description
+        if(repo.description) map[name].description = repo.description;
+        if(repo.language) map[name].language = repo.language;
+      });
+    });
+    return map;
+  }
+
+  function fmt(n){ return Number(n).toLocaleString('en-US'); }
+  function fmtK(n){ return n >= 1000 ? Math.round(n/1000)+'K' : String(n); }
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+})();
+</script>
+</body>
+</html>
