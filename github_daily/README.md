@@ -13,7 +13,8 @@ npx skills add tyronczt/AI-Exploration/github_daily
 | 文件 | 用途 |
 |------|------|
 | `SKILL.md` | 技能定义文件，包含完整的工作流程和指令 |
-| `template.html` | HTML 报告模板，含样式和交互逻辑 |
+| `template.html` | 浅色博客风格 HTML 报告模板 |
+| `template-dark.html` | 暗色仪表盘风格 HTML 报告模板（默认） |
 | `github-trending-YYYY-MM-DD.html` | 每次生成的周报文件 |
 
 ## 使用方式
@@ -35,6 +36,11 @@ npx skills add tyronczt/AI-Exploration/github_daily
 - 最近 7 天星标增长趋势图（基于 Chart.js）
 - 项目基础数据：Star 数、Fork 数、编程语言
 - 可点击的项目链接直接跳转 GitHub
+
+提供两套主题模板：
+
+- **暗色仪表盘**（默认）：深色背景、金银牌排名、趋势条形图、语言分布统计
+- **浅色博客**：白底卡片、清新排版、适合正式分享
 
 ## 定时更新
 
