@@ -66,6 +66,8 @@ npx skills add tyronczt/AI-Exploration/daily_skill
 
 AI Agent Skill，自动抓取 GitHub 本周热门项目，生成包含中文深度介绍、星标趋势图的精美 HTML 周报。
 
+🔗 在线地址：https://10130728.xyz/github_daily/index.html
+
 **技术栈**：SKILL.md + HTML 模板 + Chart.js
 
 ```bash
