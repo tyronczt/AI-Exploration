@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Fusion Daily"
+  short_description: "Build AI HOT and GitHub fusion dashboards"
+  default_prompt: "Use $ai-fusion-daily to generate today's AI HOT and GitHub Trending fusion daily report with calendar browsing and trend dashboard."

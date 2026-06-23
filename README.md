@@ -77,3 +77,17 @@ npx skills add tyronczt/AI-Exploration/github_daily
 [![skills.sh](https://skills.sh/tyronczt/AI-Exploration/github_daily)](https://skills.sh/tyronczt/AI-Exploration/github_daily)
 
 📂 [github_daily/](https://github.com/tyronczt/AI-Exploration/tree/main/github_daily)
+
+### 8. AI × GitHub 融合日报 Skill
+
+AI Agent Skill，将 AI HOT 每日资讯与 GitHub Trending 热门项目融合为单文件 HTML 晨报，附带日历浏览和趋势看板。支持增量构建、暗色主题和移动端适配。
+
+**技术栈**：SKILL.md + HTML/CSS/JS 单文件 + Node.js 构建脚本
+
+```bash
+npx skills add tyronczt/AI-Exploration/ai-fusion-daily
+```
+
+[![skills.sh](https://skills.sh/b/tyronczt/AI-Exploration/ai-fusion-daily)](https://skills.sh/tyronczt/AI-Exploration/ai-fusion-daily)
+
+📂 [ai-fusion-daily/](https://github.com/tyronczt/AI-Exploration/tree/main/ai-fusion-daily)

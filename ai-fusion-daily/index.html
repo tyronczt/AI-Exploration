@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI × GitHub 融合日报导航</title>
+<style>
+:root{--bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--border:#30363d;--border-light:#444c56;--text:#e6edf3;--text2:#8b949e;--text3:#6e7681;--accent:#58a6ff;--accent-bg:rgba(88,166,255,.12);--green:#3fb950;--green-bg:rgba(63,185,80,.12);--orange:#d29922;--purple:#bc8cff;--gold:#ffd700;--silver:#c0c0c0;--bronze:#cd7f32}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.header{background:linear-gradient(135deg,#0d1117 0%,#161b22 50%,#1a2332 100%);padding:32px 24px 24px;text-align:center;position:relative;border-bottom:1px solid var(--border)}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 0%,rgba(88,166,255,.06) 0%,transparent 60%),radial-gradient(ellipse at 70% 0%,rgba(188,140,255,.05) 0%,transparent 60%);pointer-events:none}
+.header-inner{position:relative;z-index:1;max-width:1100px;margin:0 auto}
+.header h1{font-size:28px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,#e6edf3,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.subtitle{color:var(--text2);font-size:14px}
+.tab-bar{display:flex;justify-content:center;gap:4px;margin-top:20px}
+.tab-btn{padding:8px 20px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text2);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+.tab-btn:hover{background:var(--surface);color:var(--text);border-color:var(--border-light)}
+.tab-btn.active{background:var(--accent-bg);color:var(--accent);border-color:rgba(88,166,255,.3)}
+.main{max-width:1100px;margin:0 auto;padding:32px 24px}.view{display:none}.view.active{display:block}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}.cal-nav{display:flex;align-items:center;gap:12px}.cal-nav button{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}.cal-nav button:hover{background:var(--surface2);color:var(--text);border-color:var(--accent)}.cal-title{font-size:20px;font-weight:700;min-width:160px;text-align:center}.cal-meta{color:var(--text2);font-size:13px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:32px}.cal-day-name{text-align:center;font-size:12px;font-weight:600;color:var(--text3);padding:8px 0;letter-spacing:1px;min-width:0}.cal-cell{aspect-ratio:1;border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:all .2s;background:var(--surface);min-height:72px;min-width:0}.cal-cell.empty{background:transparent;border-color:transparent}.cal-cell.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}.cal-cell.has-report{cursor:pointer;border-color:var(--green);background:var(--green-bg)}.cal-cell.has-report:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(63,185,80,.15);border-color:var(--green)}.day-num{font-size:18px;font-weight:600;color:var(--text2)}.has-report .day-num{color:var(--green)}.today .day-num{color:var(--accent)}.report-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-top:4px}.repo-count{font-size:10px;color:var(--text3);margin-top:2px}
+.recent-section{margin-top:8px}.recent-title{font-size:16px;font-weight:700;margin-bottom:16px}.report-list{display:flex;flex-direction:column;gap:10px}.report-card{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;transition:all .2s;cursor:pointer;text-decoration:none;color:var(--text)}.report-card:hover{border-color:var(--accent);background:var(--surface2);transform:translateX(4px);text-decoration:none}.report-date{font-size:14px;font-weight:600;color:var(--accent);min-width:100px;white-space:nowrap}.report-info{flex:1;min-width:0}.top-proj{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.report-stats{display:flex;gap:12px;font-size:12px;color:var(--text2)}.report-arrow{color:var(--text3);font-size:18px;transition:transform .2s}.report-card:hover .report-arrow{transform:translateX(4px);color:var(--accent)}
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;transition:border-color .2s}.dash-card:hover{border-color:var(--accent)}.dash-card .val{font-size:30px;font-weight:800;color:var(--accent);margin-bottom:4px}.dash-card .label{font-size:13px;color:var(--text2)}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}.panel h3{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}.panel-subtitle{font-size:13px;color:var(--text2);margin-bottom:16px}
+.lb-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(48,54,61,.5)}.lb-row:last-child{border-bottom:none}.lb-rank{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;background:var(--bg);border:1px solid var(--border);color:var(--text2);flex-shrink:0}.lb-rank.gold{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;border:none}.lb-rank.silver{background:linear-gradient(135deg,#c0c0c0,#8a8a8a);color:#000;border:none}.lb-rank.bronze{background:linear-gradient(135deg,#cd7f32,#8b4513);color:#fff;border:none}.lb-name{flex:1;min-width:0}.lb-name a{font-size:14px;font-weight:500;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}.lb-name .desc{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lb-val{font-size:14px;font-weight:700;color:var(--green);white-space:nowrap}.lb-bar{width:100px;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;flex-shrink:0}.lb-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),#2ea043)}
+.lang-bars{display:flex;flex-direction:column;gap:10px}.lang-row{display:flex;align-items:center;gap:10px;font-size:13px}.lang-label{width:100px;text-align:right;color:var(--text2);flex-shrink:0}.lang-track{flex:1;height:24px;background:var(--bg);border-radius:6px;overflow:hidden}.lang-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;color:#fff;transition:width .6s ease}.lang-count{color:var(--text3);font-size:12px;min-width:40px}
+.empty-state{text-align:center;padding:80px 24px;color:var(--text2)}.empty-state .icon{font-size:48px;margin-bottom:16px;opacity:.5}.empty-state h3{font-size:18px;color:var(--text);margin-bottom:8px}.empty-state p{font-size:14px;max-width:420px;margin:0 auto}.footer{text-align:center;padding:32px;color:var(--text3);font-size:12px;border-top:1px solid var(--border);margin-top:32px}
+@media(max-width:768px){.dash-grid{grid-template-columns:1fr}.cal-grid{gap:6px}.cal-cell{min-height:0}.day-num{font-size:15px}.report-stats{flex-direction:column;gap:2px}.header h1{font-size:22px}.lb-bar{width:60px}.cal-header{align-items:flex-start;flex-direction:column;gap:10px}}
+</style>
+<!-- __EMBEDDED_DATA_START__ -->
+<script id="__embedded_data__">
+window.__FUSION_DATA__ = {
+  "generated_at": "2026-06-23T03:39:46.413Z",
+  "report_count": 1,
+  "reports": [
+    {
+      "date": "2026-06-23",
+      "url": "20260623.html",
+      "news_count": 17,
+      "repo_count": 18,
+      "ai_repo_count": 16,
+      "relation_count": 5,
+      "total_weekly_stars": 59957,
+      "top_project": "Panniantong/Agent-Reach",
+      "top_project_stars": 8108,
+      "top_project_desc": "一个给 AI Agent 使用的跨平台信息访问 CLI，让 Agent 能读和搜多个公开内容平台。",
+      "languages": {
+        "Python": 5,
+        "C": 1,
+        "Shell": 1,
+        "TypeScript": 7,
+        "Clojure": 1,
+        "JavaScript": 1,
+        "Rust": 1,
+        "Elixir": 1
+      },
+      "repos": [
+        {
+          "name": "Panniantong/Agent-Reach",
+          "url": "https://github.com/Panniantong/Agent-Reach",
+          "weekly_stars": 8108,
+          "language": "Python",
+          "ai_related": true
+        },
+        {
+          "name": "DeusData/codebase-memory-mcp",
+          "url": "https://github.com/DeusData/codebase-memory-mcp",
+          "weekly_stars": 7560,
+          "language": "C",
+          "ai_related": true
+        },
+        {
+          "name": "calesthio/OpenMontage",
+          "url": "https://github.com/calesthio/OpenMontage",
+          "weekly_stars": 6089,
+          "language": "Python",
+          "ai_related": true
+        },
+        {
+          "name": "addyosmani/agent-skills",
+          "url": "https://github.com/addyosmani/agent-skills",
+          "weekly_stars": 5277,
+          "language": "Shell",
+          "ai_related": true
+        },
+        {
+          "name": "google-research/timesfm",
+          "url": "https://github.com/google-research/timesfm",
+          "weekly_stars": 4259,
+          "language": "Python",
+          "ai_related": true
+        },
+        {
+          "name": "NVIDIA/SkillSpector",
+          "url": "https://github.com/NVIDIA/SkillSpector",
+          "weekly_stars": 3302,
+          "language": "Python",
+          "ai_related": true
+        },
+        {
+          "name": "OpenCut-app/OpenCut",
+          "url": "https://github.com/OpenCut-app/OpenCut",
+          "weekly_stars": 3097,
+          "language": "TypeScript",
+          "ai_related": true
+        },
+        {
+          "name": "penpot/penpot",
+          "url": "https://github.com/penpot/penpot",
+          "weekly_stars": 2983,
+          "language": "Clojure",
+          "ai_related": true
+        },
+        {
+          "name": "freeCodeCamp/freeCodeCamp",
+          "url": "https://github.com/freeCodeCamp/freeCodeCamp",
+          "weekly_stars": 2670,
+          "language": "TypeScript",
+          "ai_related": true
+        },
+        {
+          "name": "asgeirtj/system_prompts_leaks",
+          "url": "https://github.com/asgeirtj/system_prompts_leaks",
+          "weekly_stars": 2612,
+          "language": "JavaScript",
+          "ai_related": true
+        },
+        {
+          "name": "koala73/worldmonitor",
+          "url": "https://github.com/koala73/worldmonitor",
+          "weekly_stars": 2090,
+          "language": "TypeScript",
+          "ai_related": true
+        },
+        {
+          "name": "n0-computer/iroh",
+          "url": "https://github.com/n0-computer/iroh",
+          "weekly_stars": 1806,
+          "language": "Rust",
+          "ai_related": true
+        },
+        {
+          "name": "makeplane/plane",
+          "url": "https://github.com/makeplane/plane",
+          "weekly_stars": 1696,
+          "language": "TypeScript",
+          "ai_related": true
+        },
+        {
+          "name": "withastro/flue",
+          "url": "https://github.com/withastro/flue",
+          "weekly_stars": 1413,
+          "language": "TypeScript",
+          "ai_related": true
+        },
+        {
+          "name": "Kong/insomnia",
+          "url": "https://github.com/Kong/insomnia",
+          "weekly_stars": 1074,
+          "language": "TypeScript",
+          "ai_related": true
+        },
+        {
+          "name": "LMCache/LMCache",
+          "url": "https://github.com/LMCache/LMCache",
+          "weekly_stars": 503,
+          "language": "Python",
+          "ai_related": true
+        },
+        {
+          "name": "iptv-org/iptv",
+          "url": "https://github.com/iptv-org/iptv",
+          "weekly_stars": 5017,
+          "language": "TypeScript",
+          "ai_related": false
+        },
+        {
+          "name": "teslamate-org/teslamate",
+          "url": "https://github.com/teslamate-org/teslamate",
+          "weekly_stars": 401,
+          "language": "Elixir",
+          "ai_related": false
+        }
+      ]
+    }
+  ]
+};
+</script>
+<!-- __EMBEDDED_DATA_END__ -->
+</head>
+<body>
+<div class="header">
+  <div class="header-inner">
+    <h1>AI × GitHub 融合日报</h1>
+    <div class="subtitle">日历浏览 · 趋势看板 · AI 新闻与开源项目联动追踪</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" data-view="calendar">日历浏览</button>
+      <button class="tab-btn" data-view="dashboard">趋势看板</button>
+    </div>
+  </div>
+</div>
+
+<main class="main">
+  <section class="view active" id="view-calendar">
+    <div id="cal-content">
+      <div class="cal-header">
+        <div class="cal-nav">
+          <button id="cal-prev" aria-label="上个月">&#8249;</button>
+          <div class="cal-title" id="cal-title"></div>
+          <button id="cal-next" aria-label="下个月">&#8250;</button>
+        </div>
+        <div class="cal-meta" id="cal-meta"></div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="recent-section">
+        <div class="recent-title">最近报告</div>
+        <div class="report-list" id="report-list"></div>
+      </div>
+    </div>
+    <div id="cal-empty" class="empty-state" style="display:none">
+      <div class="icon">&#128269;</div>
+      <h3>暂无融合日报</h3>
+      <p>生成形如 <code>20260623.html</code> 的日报后，运行 <code>node build.js</code> 即可更新日历。</p>
+    </div>
+  </section>
+
+  <section class="view" id="view-dashboard">
+    <div id="dash-content">
+      <div class="dash-grid" id="dash-stats"></div>
+      <div class="panel" id="panel-stars"></div>
+      <div class="panel" id="panel-ai"></div>
+      <div class="panel" id="panel-lang"></div>
+    </div>
+    <div id="dash-empty" class="empty-state" style="display:none">
+      <div class="icon">&#128202;</div>
+      <h3>暂无聚合数据</h3>
+      <p>趋势看板会随日报数量增加自动聚合；当前至少需要 1 份日报。</p>
+    </div>
+  </section>
+</main>
+
+<div class="footer">AI × GitHub 融合日报 · 数据源：AI HOT 与 GitHub Trending</div>
+
+<script>
+(function(){
+  var DATA = window.__FUSION_DATA__ || {reports:[]};
+  var today = new Date();
+  var calYear = today.getFullYear();
+  var calMonth = today.getMonth();
+  var LANG_COLORS = {'JavaScript':'#f1e05a','TypeScript':'#3178c6','Python':'#3572A5','Java':'#b07219','Go':'#00ADD8','Rust':'#dea584','C++':'#f34b7d','C':'#555555','C#':'#178600','Shell':'#89e051','Clojure':'#db5855','Elixir':'#6e4a7e','Other':'#8b949e'};
+
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.tab-btn').forEach(function(item){ item.classList.remove('active'); });
+      document.querySelectorAll('.view').forEach(function(view){ view.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('view-' + btn.dataset.view).classList.add('active');
+    });
+  });
+
+  document.getElementById('cal-prev').addEventListener('click', function(){
+    calMonth--;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderCalendar();
+  });
+  document.getElementById('cal-next').addEventListener('click', function(){
+    calMonth++;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    renderCalendar();
+  });
+
+  init();
+
+  function init(){
+    DATA.reports = DATA.reports || [];
+    DATA.reports.sort(function(a,b){ return b.date.localeCompare(a.date); });
+    if (!DATA.reports.length) {
+      document.getElementById('cal-content').style.display = 'none';
+      document.getElementById('dash-content').style.display = 'none';
+      document.getElementById('cal-empty').style.display = 'block';
+      document.getElementById('dash-empty').style.display = 'block';
+      return;
+    }
+    var latest = DATA.reports[0] && new Date(DATA.reports[0].date);
+    if (latest && !isNaN(latest)) {
+      calYear = latest.getFullYear();
+      calMonth = latest.getMonth();
+    }
+    renderCalendar();
+    renderReportList();
+    renderDashboard();
+  }
+
+  function renderCalendar(){
+    var months = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+    var dayNames = ['日','一','二','三','四','五','六'];
+    var monthReports = DATA.reports.filter(function(report){
+      var d = new Date(report.date);
+      return d.getFullYear() === calYear && d.getMonth() === calMonth;
+    });
+    document.getElementById('cal-title').textContent = calYear + '年 ' + months[calMonth];
+    document.getElementById('cal-meta').textContent = '本月 ' + monthReports.length + ' 份融合日报';
+
+    var reportMap = {};
+    DATA.reports.forEach(function(report){ reportMap[report.date] = report; });
+    var html = dayNames.map(function(day){ return '<div class="cal-day-name">' + day + '</div>'; }).join('');
+    var firstDay = new Date(calYear, calMonth, 1).getDay();
+    var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    for (var i = 0; i < firstDay; i++) html += '<div class="cal-cell empty"></div>';
+    for (var day = 1; day <= daysInMonth; day++) {
+      var dateKey = calYear + '-' + pad(calMonth + 1) + '-' + pad(day);
+      var report = reportMap[dateKey];
+      var isToday = calYear === today.getFullYear() && calMonth === today.getMonth() && day === today.getDate();
+      var cls = 'cal-cell' + (isToday ? ' today' : '') + (report ? ' has-report' : '');
+      html += '<div class="' + cls + '"' + (report ? ' data-url="' + escAttr(report.url) + '"' : '') + '>'
+        + '<div class="day-num">' + day + '</div>'
+        + (report ? '<div class="report-dot"></div><div class="repo-count">' + report.news_count + ' 资讯 / ' + report.repo_count + ' 项目</div>' : '')
+        + '</div>';
+    }
+    var grid = document.getElementById('cal-grid');
+    grid.innerHTML = html;
+    grid.querySelectorAll('.cal-cell.has-report').forEach(function(cell){
+      cell.addEventListener('click', function(){ window.open(cell.dataset.url, '_blank'); });
+    });
+  }
+
+  function renderReportList(){
+    document.getElementById('report-list').innerHTML = DATA.reports.slice(0, 10).map(function(report){
+      var date = new Date(report.date);
+      var dateText = (date.getMonth() + 1) + '月' + date.getDate() + '日';
+      return '<a class="report-card" href="' + escAttr(report.url) + '" target="_blank" rel="noopener noreferrer">'
+        + '<div class="report-date">' + dateText + '</div>'
+        + '<div class="report-info">'
+        + '<div class="top-proj">Top 项目：' + esc(report.top_project || 'N/A') + '</div>'
+        + '<div class="report-stats"><span>' + report.news_count + ' 条资讯</span><span>' + report.repo_count + ' 个项目</span><span>+' + fmt(report.total_weekly_stars) + ' stars</span></div>'
+        + '</div><div class="report-arrow">&#8250;</div></a>';
+    }).join('');
+  }
+
+  function renderDashboard(){
+    var repos = allRepos();
+    var reports = DATA.reports;
+    var totalNews = reports.reduce(function(sum, item){ return sum + item.news_count; }, 0);
+    var totalStars = reports.reduce(function(sum, item){ return sum + item.total_weekly_stars; }, 0);
+    var uniqueProjects = Object.keys(repos).length;
+    var aiProjects = Object.keys(repos).filter(function(name){ return repos[name].ai_related; }).length;
+
+    document.getElementById('dash-stats').innerHTML = [
+      [reports.length, '报告总数'],
+      [totalNews, '累计资讯'],
+      [uniqueProjects, '独立项目'],
+      ['+' + fmt(totalStars), '累计周增星标']
+    ].map(function(item){ return '<div class="dash-card"><div class="val">' + item[0] + '</div><div class="label">' + item[1] + '</div></div>'; }).join('');
+
+    renderStars(repos);
+    renderAiPanel(uniqueProjects, aiProjects);
+    renderLang(repos);
+  }
+
+  function renderStars(repos){
+    var entries = Object.keys(repos).map(function(name){ return {name:name, info:repos[name]}; })
+      .sort(function(a,b){ return b.info.total_weekly_stars - a.info.total_weekly_stars; })
+      .slice(0, 15);
+    var max = entries.length ? entries[0].info.total_weekly_stars : 1;
+    document.getElementById('panel-stars').innerHTML = '<h3>累计星标增长排行</h3><div class="panel-subtitle">按融合日报中出现项目的本周新增星标累计</div>'
+      + entries.map(function(entry, index){
+        var rank = index + 1;
+        var rankClass = rank <= 3 ? ['','gold','silver','bronze'][rank] : '';
+        var width = max ? entry.info.total_weekly_stars / max * 100 : 0;
+        return '<div class="lb-row"><div class="lb-rank ' + rankClass + '">' + rank + '</div>'
+          + '<div class="lb-name"><a href="' + escAttr(entry.info.url || ('https://github.com/' + entry.name)) + '" target="_blank" rel="noopener noreferrer">' + esc(entry.name) + '</a><div class="desc">' + esc(entry.info.description || '') + '</div></div>'
+          + '<div class="lb-val">+' + fmt(entry.info.total_weekly_stars) + '</div><div class="lb-bar"><div class="lb-bar-fill" style="width:' + width + '%"></div></div></div>';
+      }).join('');
+  }
+
+  function renderAiPanel(uniqueProjects, aiProjects){
+    var ratio = uniqueProjects ? Math.round(aiProjects / uniqueProjects * 100) : 0;
+    var reports = DATA.reports.map(function(report){
+      return '<div class="lb-row"><div class="lb-rank">' + report.date.slice(5).replace('-', '/') + '</div>'
+        + '<div class="lb-name"><a href="' + escAttr(report.url) + '" target="_blank" rel="noopener noreferrer">' + esc(report.date) + ' 融合日报</a><div class="desc">' + report.news_count + ' 条资讯，' + report.ai_repo_count + ' 个 AI 相关项目</div></div>'
+        + '<div class="lb-val">' + report.relation_count + ' 关联</div><div class="lb-bar"><div class="lb-bar-fill" style="width:' + Math.max(8, ratio) + '%"></div></div></div>';
+    }).join('');
+    document.getElementById('panel-ai').innerHTML = '<h3>AI 相关度</h3><div class="panel-subtitle">当前项目池中 AI 相关项目占 ' + ratio + '%</div>' + reports;
+  }
+
+  function renderLang(repos){
+    var counts = {};
+    Object.keys(repos).forEach(function(name){
+      var lang = repos[name].language || 'Other';
+      counts[lang] = (counts[lang] || 0) + repos[name].count;
+    });
+    var entries = Object.keys(counts).map(function(lang){ return {lang:lang, count:counts[lang]}; })
+      .sort(function(a,b){ return b.count - a.count; });
+    var max = entries.length ? entries[0].count : 1;
+    document.getElementById('panel-lang').innerHTML = '<h3>语言热度分布</h3><div class="panel-subtitle">基于项目在融合日报中出现次数统计</div><div class="lang-bars">'
+      + entries.map(function(item){
+        var width = max ? item.count / max * 100 : 0;
+        var color = LANG_COLORS[item.lang] || '#8b949e';
+        return '<div class="lang-row"><div class="lang-label">' + esc(item.lang) + '</div><div class="lang-track"><div class="lang-fill" style="width:' + width + '%;background:' + color + '">' + item.count + '</div></div><div class="lang-count">' + item.count + ' 次</div></div>';
+      }).join('') + '</div>';
+  }
+
+  function allRepos(){
+    var map = {};
+    DATA.reports.forEach(function(report){
+      (report.repos || []).forEach(function(repo){
+        if (!map[repo.name]) {
+          map[repo.name] = {count:0,total_weekly_stars:0,description:repo.description || repo.zh_one_liner || '',language:repo.language || 'Other',url:repo.url,ai_related:false};
+        }
+        map[repo.name].count++;
+        map[repo.name].total_weekly_stars += repo.weekly_stars || 0;
+        if (repo.description) map[repo.name].description = repo.description;
+        if (repo.language) map[repo.name].language = repo.language;
+        if (repo.url) map[repo.name].url = repo.url;
+        if (repo.ai_related) map[repo.name].ai_related = true;
+      });
+    });
+    return map;
+  }
+
+  function pad(value){ return String(value).padStart(2, '0'); }
+  function fmt(value){ return Number(value || 0).toLocaleString('en-US'); }
+  function esc(value){ return String(value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escAttr(value){ return esc(value).replace(/"/g, '&quot;'); }
+})();
+</script>
+</body>
+</html>
