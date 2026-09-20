@@ -1,4 +1,0 @@
-interface:
-  display_name: "小天 Agent 人物形象"
-  short_description: "维护小天统一人物设定，制作立绘表情与姿态素材，检查参考图和身份一致性"
-  default_prompt: "使用 $xiaotian-character 按当前角色规范和参考图，为小天设计一个讲解姿态，先输出提示词供审核。"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "小天视觉内容"
+  short_description: "一个技能制作知识全景图、文章配图与动画视频，共用小天形象和温暖手绘风格"
+  default_prompt: "使用 $xiaotian-visual，根据以下内容选择合适的视觉表达，先给方案，不生成图片或视频。"

@@ -66,15 +66,13 @@ npx skills add tyronczt/AI-Exploration/daily_skill
 
 AI Agent Skill，自动抓取 GitHub 本周热门项目，生成包含中文深度介绍、星标趋势图的精美 HTML 周报。
 
-🔗 在线地址：https://10130728.xyz/github_daily/index.html
+~~🔗 在线地址：<https://10130728.xyz/github_daily/index.html>~~
 
 **技术栈**：SKILL.md + HTML 模板 + Chart.js
 
 ```bash
 npx skills add tyronczt/AI-Exploration/github_daily
 ```
-
-[![skills.sh](https://skills.sh/tyronczt/AI-Exploration/github_daily)](https://skills.sh/tyronczt/AI-Exploration/github_daily)
 
 📂 [github_daily/](https://github.com/tyronczt/AI-Exploration/tree/main/github_daily)
 
@@ -84,6 +82,8 @@ AI Agent Skill，将 AI HOT 每日资讯与 GitHub Trending 热门项目融合�
 
 **技术栈**：SKILL.md + HTML/CSS/JS 单文件 + Node.js 构建脚本
 
+🔗 在线地址：<https://10130728.xyz/ai-fusion-daily/index.html>
+
 ```bash
 npx skills add tyronczt/AI-Exploration/ai-fusion-daily
 ```
@@ -92,12 +92,14 @@ npx skills add tyronczt/AI-Exploration/ai-fusion-daily
 
 📂 [ai-fusion-daily/](https://github.com/tyronczt/AI-Exploration/tree/main/ai-fusion-daily)
 
-### 9. 小天 Agent 人物形象 Skill
+### 9. 小天视觉内容 Skill
 
-AI Agent Skill，为技术文章和视频讲解制作统一的人物素材，支持角色设定、立绘、表情、讲解姿态及参考图编辑。采用温暖手绘风格，随包提供角色规范和参考图片，可独立下载使用。
+AI Agent Skill，结合统一的小天 Agent 形象，提供知识全景图、文章配图和动画视频三个能力。按内容选择图形结构，保持温暖手绘品牌风格。
 
-**技术栈**：SKILL.md + 角色规范 + 提示词与验收规则 + 图像参考
+**交付**：一张知识全景图 / 文章总览与局部详解 / 实际动画视频。
 
-实际出图需要宿主具备图像生成能力；安装与使用方式见 [技能 README](xiaotian-character/README.md)。
+**技术栈**：SKILL.md + 三类能力指南 + 共用角色规范与图像参考
 
-📂 [xiaotian-character/](https://github.com/tyronczt/AI-Exploration/tree/main/xiaotian-character)
+下载一个完整技能目录即可使用全部能力；实际生成需要宿主具备相应的图像或视频工具。安装与使用方式见 [技能 README](xiaotian-visual/README.md)。
+
+📂 [xiaotian-visual/](https://github.com/tyronczt/AI-Exploration/tree/main/xiaotian-visual)
