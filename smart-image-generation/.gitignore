@@ -1,4 +1,0 @@
-# Publish only the standalone skill package; keep research and drafts local.
-/*
-!/.gitignore
-!/xiaotian-character/

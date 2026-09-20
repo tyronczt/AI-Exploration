@@ -91,3 +91,13 @@ npx skills add tyronczt/AI-Exploration/ai-fusion-daily
 [![skills.sh](https://skills.sh/b/tyronczt/AI-Exploration/ai-fusion-daily)](https://skills.sh/tyronczt/AI-Exploration/ai-fusion-daily)
 
 📂 [ai-fusion-daily/](https://github.com/tyronczt/AI-Exploration/tree/main/ai-fusion-daily)
+
+### 9. 小天 Agent 人物形象 Skill
+
+AI Agent Skill，为技术文章和视频讲解制作统一的人物素材，支持角色设定、立绘、表情、讲解姿态及参考图编辑。采用温暖手绘风格，随包提供角色规范和参考图片，可独立下载使用。
+
+**技术栈**：SKILL.md + 角色规范 + 提示词与验收规则 + 图像参考
+
+实际出图需要宿主具备图像生成能力；安装与使用方式见 [技能 README](xiaotian-character/README.md)。
+
+📂 [xiaotian-character/](https://github.com/tyronczt/AI-Exploration/tree/main/xiaotian-character)
