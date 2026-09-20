@@ -1,6 +1,6 @@
 # 小天视觉内容 Skill
 
-**v0.3.2** · 一个技能，包含知识全景图、网站文章配图、小红书图文和动画视频四个能力，共用小天 Agent 形象与温暖手绘品牌风格。
+**v0.3.3** · 一个技能，包含知识全景图、网站文章配图、小红书图文和动画视频四个能力，共用小天 Agent 形象与温暖手绘品牌风格。
 
 ## 四个能力
 
@@ -74,22 +74,25 @@ xiaotian-visual/
 │   ├── character.md                 # 唯一角色规范
 │   ├── character-workflow.md        # 共用人物制作流程
 │   └── prompts-and-qa.md            # 人物提示词与验收
-└── assets/character-style-reference.png
+└── assets/
+    ├── character-style-reference.png  # 已认可的九宫格动作参考
+    ├── character-front-reference.png  # 正面全身细节参考
+    └── article-style-reference.png    # 文章布局与配色参考
 ```
 
 能力目录是内部工作指南，不是需要单独安装的技能。用户读本页，Agent 从 `SKILL.md` 进入，按任务读取对应指南。
 
 ## 默认视觉与工具条件
 
-![温暖手绘与小天人物示例](assets/character-style-reference.png)
+![已认可的小天人物与九种动作](assets/character-style-reference.png)
 
-示例用于画风与可见人物外观参考，不是固定知识结构或多视角角色表。具体外观见 [角色规范](references/character.md)。
+九宫格为已认可的默认人物与动作参考，保持温暖手绘二次元风格。[正面立绘](assets/character-front-reference.png) 用于核对细节，[文章整图示例](assets/article-style-reference.png) 仅用于配色与排版。九宫格不是多视角角色表或动画连续帧，具体使用方式见 [角色规范](references/character.md)。
 
 本技能提供指令和参考，不自带生成引擎、账户或额度。图片需要图像工具或绘图渲染能力；动画需要视频生成或真实人物动画渲染能力。仅有文字工具时可做方案，不能完成图片或动画。
 
 动画需有实际人物动作，静态图片的平移缩放不等于人物动画。额外付费和外部素材上传按具体任务授权。输出保存在当前工作区，检查后交付；技能结构校验不代表生成效果已经通过实测。
 
-视频按内容选择 A-roll 讲解、机制演示、知识卡片、模拟输入或真实录屏，共用品牌基调。包含镜头提示词、头颈肩动态检查、实际配音时间轴与字幕验收，见 [视频指南](video/GUIDE.md)。包内人物示例尚未重绘，生成时按角色规范 v0.2 修正头颈领口衔接。
+视频按内容选择 A-roll 讲解、机制演示、知识卡片、模拟输入或真实录屏，共用品牌基调。包含镜头提示词、头颈肩动态检查、实际配音时间轴与字幕验收，见 [视频指南](video/GUIDE.md)。人物形象采用已认可九宫格，头颈肩与服饰规范共用角色规范 v0.2。
 
 ## 从旧结构迁移
 
