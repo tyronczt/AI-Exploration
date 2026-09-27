@@ -1,8 +1,8 @@
 ---
 name: xiaotian-visual
-description: 使用统一的小天 Agent 形象整理知识并制作视觉内容，支持一张知识全景图、网站文章配图、小红书章节图文、实际动画视频。用于知识图、文章配图、小红书图文和小天动画讲解，按交付目标选择包内能力，保持温暖手绘品牌风格。
+description: 使用统一的小天 Agent 形象整理知识并制作视觉内容，支持一张知识全景图、四列白板信息图海报、网站文章配图、小红书章节图文、实际动画视频。用于知识图、文章配图、小红书图文和小天动画讲解，按交付目标选择包内能力，保持温暖手绘品牌风格。
 metadata:
-  version: "0.3.7"
+  version: "0.3.8"
 ---
 
 # 小天视觉内容
@@ -14,6 +14,7 @@ metadata:
 | 用户目标 | 读取 | 最终交付 |
 |---|---|---|
 | 整理知识、全景图、一图读懂 | [knowledge-map](knowledge-map/GUIDE.md) | 一张图，约定范围内主要结构完整 |
+| 横版手绘白板信息图、四列知识卡片海报 | [knowledge-map](knowledge-map/GUIDE.md) 与 [白板海报版式](knowledge-map/whiteboard-poster.md) | 一张 16:9 海报，四列卡片与底部总结 |
 | 给文章配图、总览与章节详解 | [article](article/GUIDE.md) | 少量场景插画或机制图，按需配复习总览；明确要求时插入正文 |
 | 小红书图文、章节卡、xiaotian-xiaohongshu | [xiaohongshu](xiaohongshu/GUIDE.md) | 简洁封面 + 3:4 章节图文，独立复习图按需交付 |
 | 动画、动态讲解、A-roll/B-roll 视频 | [video](video/GUIDE.md) | 实际可播放的动画视频 |
