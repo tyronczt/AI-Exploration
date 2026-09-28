@@ -1,77 +1,71 @@
 # Java 团队开发规范与多中台代码审查
 
-一套同时用于**写代码和审代码**的团队规范。覆盖 Java/Spring 分层、Query/DTO/VO、注释、接口、安全、SQL、事务、幂等、跨中台协作与异常恢复。支付只是其中一种场景，也适用于用户、组织、订单、库存、配置、任务和报表等能力。
+用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.1.0**。业务请求参数超过 3 个使用 POST JSON，3 个及以内的简单只读查询可用 GET；分页按参数数量判断，不一律要求 POST。Query、DTO、VO 统一使用普通 class + Lombok，采用标准访问器（只读对象不强加 setter），并显式声明 Serializable 与各自的序列化版本号；JSON 和实际 RPC 协议分别验证。类、字段、手写方法及构造方法补充业务注释，覆盖 Controller、Service、Repository。开发与审查共用规则及验收条件，详见下方入口。
 
-## 直接交给智能体安装
+## 同事只需发一段话
 
-在目标代码项目中打开 Codex、Claude Code、Cursor 或 WorkBuddy/CodeBuddy，把下面这段话发给智能体即可：
+在目标项目中打开 Codex、Claude Code、Cursor 或 WorkBuddy/CodeBuddy，把以下内容交给智能体：
 
 ```text
 请读取 https://raw.githubusercontent.com/tyronczt/AI-Exploration/main/java-team-standards/INSTALL.md，
-按其中说明，将 Java 团队开发规范、java-team-development 开发 Skill 和
-multi-center-code-review 审查 Skill 安装到当前项目，默认兼容四类工具。
-请直接完成文件接入和验证，保留项目已有规则及未提交修改；有冲突时报告具体冲突，不覆盖。
-不修改业务代码，不提交或推送。不要让我手动运行安装脚本。
+按说明将 Java 团队规范、开发 Skill 和审查 Skill 安装到当前项目，仅接入我当前使用的工具。
+直接完成文件接入与验证，保留已有规则和未提交修改；冲突时报告，不覆盖。
+不修改业务代码，不提交或推送，不要让我手动运行安装脚本。
 ```
 
-同事无需安装 Python、Node.js 或 Git，也不用克隆仓库、复制多个配置文件。智能体需要能联网读取文件并修改当前项目；权限受限时仍需按客户端提示授权。
+需要团队同时使用四类工具时，把“仅接入我当前使用的工具”改为“兼容 Codex、Claude Code、Cursor、WorkBuddy/CodeBuddy”。更新时把“安装”改为“更新到最新版”。
 
-离线或无法读取 GitHub 时：[仅下载当前规范包 ZIP](https://raw.githubusercontent.com/tyronczt/AI-Exploration/main/java-team-standards/java-team-standards.zip)，解压后让智能体读取其中的 `INSTALL.md` 并安装。只使用部分工具时，在提示词后补充“仅接入 Claude Code”或其他目标工具。
+不需要安装 Python、Node.js 或 Git，不需要克隆仓库。智能体须有联网和项目文件读写能力；受限环境按客户端授权。也可 [只下载当前包 ZIP](https://raw.githubusercontent.com/tyronczt/AI-Exploration/main/java-team-standards/java-team-standards.zip)，让智能体读取其中的 INSTALL.md。ZIP 包含规范及可选参考工程，不含构建产物或测试文件。
 
-## 写代码与审代码如何生效
+## 从哪里开始
 
-| 入口 | 何时使用 | 内容 |
+| 你的任务 | 使用内容 | 得到什么 |
 | --- | --- | --- |
-| 项目 AGENTS.md | 日常开发与维护 | 持续生效的团队开发基线，引导智能体按任务读取完整规范 |
-| java-team-development | 新增功能、修复缺陷、限定重构 | 编码前定位规则，编码中落实约束，交付前验证 |
-| multi-center-code-review | 代码审查、PR/MR Review、合并前检查 | 追踪相关调用链，输出有证据的问题及验证边界 |
+| 接入规范 | [安装说明](INSTALL.md) | 项目入口、两个 Skill 和共用规则；安装不生成业务代码 |
+| 还没有真实模块 | [初始化决策与验收](java-team-development/references/initialization.md) | 技术栈、契约、权限和检查命令的决策模板；未决项明确保留 |
+| 想看能运行的代码 | [最小参考工程](examples/reference-service/README.md) | Java 21 / Spring Boot 3，Query/DTO/VO、分页、校验、错误、资源权限 |
+| 日常编码 | [开发 Skill](java-team-development/SKILL.md) | 按任务选择规则、落实实现并验证 |
+| 查具体标准 | [13 条可执行规则](multi-center-code-review/references/practical-rules.md) | 规则编号、适用条件、正反例、验收与例外 |
+| 代码审查 | [审查 Skill](multi-center-code-review/SKILL.md) | 真实行号、触发条件、证据、影响与最小修正方向 |
+| 设计或高风险业务 | [完整规范](multi-center-code-review/references/standards.md) | 分层、事实归属、事务、幂等、SQL、安全和业务专项 |
 
-正常开发直接描述需求即可，也可以明确指定：
+初始化示例提示：
 
 ```text
-按项目 Java 团队规范开发，使用 java-team-development，为当前用户模块增加分页查询。
-先参考现有实现，落实 Query/VO、字段注释、权限校验和稳定排序，再完成代码与验证。
+使用 java-team-development，先根据本包初始化指南记录技术基线。
+参考包内 reference-service 建立最小单模块工程；采用 Java 21 + Spring Boot 3。
+先完成只读接口、分页、校验、错误和权限验证。数据库、认证平台与真实中台职责列为待定。
+不要为未来需求创建空模块或引入中间件。
+```
+
+日常开发可以直接描述业务需求；明确指定时：
+
+```text
+按项目规范使用 java-team-development，为组织列表增加名称筛选。
+复用现有结构，按接口定义的业务参数数量选择 HTTP 方法并评估既有契约兼容性；
+保留 Query/DTO/VO 边界，补齐字段及方法注释。
+核验绑定校验、资源范围、total 口径和适用的 CSRF，完成实际验证。
 ```
 
 ```text
-使用 multi-center-code-review 审查当前未提交的 Java 变更，只输出有证据的问题和验证边界，不修改代码。
+使用 multi-center-code-review 审查当前未提交变更，按适用规则编号给出有证据的问题及验证边界，不改代码。
 ```
 
-开发规范在写代码时使用，不需要等到 Review。仅提出审查请求不会自动修改代码；指定模块之外的存量代码不会因安装规范而被重构。开发与审查共用一份 [完整 Java 开发规范](multi-center-code-review/references/standards.md)。
+## 文件如何保持简单
 
-## 项目中会增加什么
+AGENTS.md 只保留工作约束和导航。开发与审查共用参考文件；Claude/WorkBuddy 入口只转到主 Skill，不复制整套规则。默认仅当前工具，Codex/Cursor 共 7 个安装文件；全部兼容为 13 个，详情见安装说明。参考工程仅按需取用，不随规则安装复制到业务项目。
 
-- 根 AGENTS.md：合并 [开发基线](rules.md)，保留原有内容。
-- `.agents/skills/`：开发和审查两个 Skill，共享完整规范。
-- CLAUDE.md 与 `.claude/skills/`：Claude Code 的规则导入及技能入口。
-- `.codebuddy/CODEBUDDY.md` 与 `.codebuddy/skills/`：WorkBuddy/CodeBuddy 的规则及技能入口。
-- 一份安装状态：记录受管内容的哈希，保护后续更新。
+项目补充放 AGENTS.md 的受管区块外。受管内容以哈希记录；重复安装不重复追加，更新遇手工修改会保留并报告冲突。1.0.0/2.0.0 用户均可要求智能体更新，不再运行旧 Python 安装器。
 
-Codex/Cursor 使用 AGENTS.md 和 `.agents/skills/`。兼容入口由智能体按 [安装说明](INSTALL.md) 生成，业务规范只维护一份；项目已有明确业务契约和规则优先。
+主规范只有一个来源，分发 ZIP 与源码同步。维护范围是入口、安装说明、两个 Skill 的参考文档及 examples/reference-service；打包排除 target、缓存、临时验证文件和 ZIP 自身。
 
-安装完成后新建项目会话，让智能体说明实际读取的规范和技能。工具版本、信任设置及组织策略可能影响自动发现；必要时显式让它读取 AGENTS.md 与主 Skill。文件检查通过不等于所有客户端已实测加载，也不能替代编译、测试及人工评审。
+## 已验证到哪一步
 
-## 更新与已有项目
+- 参考工程完成 Maven 编译/打包、Checkstyle 和实际 HTTP 场景验证，明细见工程 README。
+- 静态检查只覆盖少量可机械判断的格式规则；权限、幂等、事务等仍需行为验证和审查。
+- 没有数据库、写入、MQ、真实认证或跨中台链路；不能据此宣称中台框架已具备生产能力。
+- 多工具入口与引用可检查，但客户端自动发现受版本、项目信任和组织策略影响。安装后在当前工具新建会话核验；未完成四种客户端逐一实测或模型对照评测，评测方案见初始化指南。
 
-把安装提示词中的“安装”改为“更新到最新版”即可。相同内容重复接入不重复追加；更新先核对受管内容，手工改过的部分保留并报告冲突。项目补充放在受管区块外，团队基线修改到本包。
+规范参考阿里、Google、AWS、Microsoft 官方资料，采用边界见完整规范第 20 节；工程化实践参考 HumanLayer、Spec Kit 等，保留本团队 Query/VO 和权限约定，不整套照搬第三方框架。
 
-1.0.0 用户也通过智能体更新，原安装状态与规则区块可识别。2.0.0 已移除 Python 安装器，不需要继续执行旧命令；更新会补齐日常开发 Skill。安装不会自动提交 Git，团队可按自身评审流程纳入版本管理。
-
-## 维护内容
-
-```text
-java-team-standards/
-├── README.md
-├── INSTALL.md
-├── rules.md
-├── java-team-development/SKILL.md
-└── multi-center-code-review/
-    ├── SKILL.md
-    └── references/standards.md
-```
-
-只维护上述六个文件。独立 ZIP 是它们的分发副本，内部保留 `java-team-standards/` 顶层目录。更新源码时让智能体同步打包并核对内容；不包含测试、缓存、旧安装脚本或 ZIP 自身。
-
-规范参考阿里、Google、AWS、Microsoft 的官方资料，采用范围和链接见完整规范第 20 节；没有捆绑第三方项目源码或整本开发手册。
-
-入口参考：[Codex Skills](https://developers.openai.com/codex/skills)、[Claude Code 记忆与导入](https://code.claude.com/docs/en/memory)、[Cursor Skills](https://cursor.com/docs/skills)、[WorkBuddy 项目配置](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Project)。客户端加载仍需在使用环境核验。
+入口依据：[Codex Skills](https://developers.openai.com/codex/skills)、[Claude Code 记忆](https://code.claude.com/docs/en/memory)、[Cursor Skills](https://cursor.com/docs/skills)、[WorkBuddy 项目配置](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Project)。
