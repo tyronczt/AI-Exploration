@@ -103,3 +103,17 @@ AI Agent Skill，结合统一的小天 Agent 形象，提供知识全景图、�
 下载一个完整技能目录即可使用全部能力；实际生成需要宿主具备相应的图像或视频工具。安装与使用方式见 [技能 README](xiaotian-visual/README.md)。
 
 📂 [xiaotian-visual/](https://github.com/tyronczt/AI-Exploration/tree/main/xiaotian-visual)
+
+### 10. Java 团队规范与多中台代码审查
+
+面向 Java / Spring 多中台开发的团队规范包，包含项目级 AGENTS.md 规则、代码审查 Skill 与详细规范。通过一个安装器生成 Codex、Claude Code、Cursor、WorkBuddy/CodeBuddy 的项目入口。
+
+**使用方式**：[仅下载规范包 ZIP](https://raw.githubusercontent.com/tyronczt/AI-Exploration/main/java-team-standards/java-team-standards.zip)，解压后执行；无需克隆整个仓库。
+
+```bash
+python java-team-standards/install.py --target "目标项目根目录"
+```
+
+需要 Python 3.10+。支持安装预览、按工具选择与显式更新，保留项目已有规则；完整命令和兼容边界见 [安装说明](java-team-standards/README.md)。
+
+📂 [java-team-standards/](https://github.com/tyronczt/AI-Exploration/tree/main/java-team-standards)
