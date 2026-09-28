@@ -100,7 +100,7 @@ AI Agent Skill，结合统一的小天 Agent 形象，提供知识全景图、�
 
 **技术栈**：SKILL.md + 四类能力指南 + 共用角色规范与图像参考
 
-下载一个完整技能目录即可使用全部能力；实际生成需要宿主具备相应的图像或视频工具。安装与使用方式见 [技能 README](xiaotian-visual/README.md)。
+内含 6 张九宫格、54 个动作条目和 10 个技术场景提示词，可按编号引用修复 bug、网络检查、接口联调与发布等程序员动作。下载完整目录即可取得全部能力与素材；实际生成需要宿主具备图像或视频工具。详见 [技能 README](xiaotian-visual/README.md) 与 [动作提示词库](xiaotian-visual/references/action-prompts.md)。
 
 📂 [xiaotian-visual/](https://github.com/tyronczt/AI-Exploration/tree/main/xiaotian-visual)
 
