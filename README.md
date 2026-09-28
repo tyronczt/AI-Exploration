@@ -104,16 +104,19 @@ AI Agent Skill，结合统一的小天 Agent 形象，提供知识全景图、�
 
 📂 [xiaotian-visual/](https://github.com/tyronczt/AI-Exploration/tree/main/xiaotian-visual)
 
-### 10. Java 团队规范与多中台代码审查
+### 10. Java 团队开发规范与多中台代码审查
 
-面向 Java / Spring 多中台开发的团队规范包，包含项目级 AGENTS.md 规则、代码审查 Skill 与详细规范。通过一个安装器生成 Codex、Claude Code、Cursor、WorkBuddy/CodeBuddy 的项目入口。
+用于日常 Java/Spring 开发、缺陷修复及代码审查的团队规范包。AGENTS.md 提供开发基线，java-team-development 指导编码实现，multi-center-code-review 执行审查；共同覆盖接口、分层、SQL、权限、事务和跨中台协作。
 
-**使用方式**：[仅下载规范包 ZIP](https://raw.githubusercontent.com/tyronczt/AI-Exploration/main/java-team-standards/java-team-standards.zip)，解压后执行；无需克隆整个仓库。
+在目标代码项目中，把这段话发给 Codex、Claude Code、Cursor 或 WorkBuddy/CodeBuddy：
 
-```bash
-python java-team-standards/install.py --target "目标项目根目录"
+```text
+请读取 https://raw.githubusercontent.com/tyronczt/AI-Exploration/main/java-team-standards/INSTALL.md，
+按说明将 Java 团队开发规范、开发 Skill 和审查 Skill 安装到当前项目。
+直接完成文件接入与验证，保留已有规则和未提交修改；有冲突时报告，不覆盖。
+不修改业务代码，不提交或推送，不要让我手动运行安装脚本。
 ```
 
-需要 Python 3.10+。支持安装预览、按工具选择与显式更新，保留项目已有规则；完整命令和兼容边界见 [安装说明](java-team-standards/README.md)。
+无需安装 Python、Node.js 或 Git。也可 [仅下载规范包 ZIP](https://raw.githubusercontent.com/tyronczt/AI-Exploration/main/java-team-standards/java-team-standards.zip)，解压后交给智能体读取 INSTALL.md；无需克隆整个仓库。详见 [接入与使用说明](java-team-standards/README.md)。
 
 📂 [java-team-standards/](https://github.com/tyronczt/AI-Exploration/tree/main/java-team-standards)
