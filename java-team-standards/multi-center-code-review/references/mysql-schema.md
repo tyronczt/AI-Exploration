@@ -1,6 +1,6 @@
 # MySQL 建表与结构变更规范
 
-版本：2.3.0。核验日期：2026-09-29。适用于 Java/Spring 项目的 MySQL 新表设计、DDL 生成、结构变更及审查；开发与审查共用本文，规则编号 **DDL-001**。
+版本：2.3.1。核验日期：2026-09-29。适用于 Java/Spring 项目的 MySQL 新表设计、DDL 生成、结构变更及审查；开发与审查共用本文，规则编号 **DDL-001**。
 
 这是团队建模约定，不是所有 MySQL 项目的唯一做法。**必须**项用于防止数据错误；**默认**项用于统一新表，偏离时记录理由、替代保护和验证。存量项目已确认的字段名、主键策略和业务契约优先，不因采用本规范批量改表。阅读规范不授权执行 DDL。
 
@@ -97,9 +97,10 @@ IP 转换函数与返回格式以 [MySQL 网络地址函数](https://dev.mysql.c
 | `create_time` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)` | 记录入库时间，不替代业务发生时间 |
 | `update_time` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | 可修改记录的最近数据库变更时间；不可变流水可只保留 create_time |
 | `created_by` / `updated_by` | 与身份平台主体标识一致 | 需要操作人审计的管理表；系统任务说明服务身份，不填虚构用户 0 |
-| `version` | `BIGINT NOT NULL DEFAULT 0` | 仅需乐观锁时增加，更新必须带旧版本并递增；加列不代表锁已生效 |
 | `tenant_id` / `merchant_id` | 与真实主体类型一致 | 仅有对应隔离需求时增加；必要唯一键、SQL 和权限包含该范围 |
 | `deleted` | `TINYINT NOT NULL DEFAULT 0 COMMENT '是否删除：0未删除，1已删除'` | 仅采用逻辑删除的可管理主数据；不是全表必备字段，具体规则见 4.1 |
+
+公共字段清单与建表模板不提供 `version` 列，不因采用本规范自动生成乐观锁字段。并发保护仍按业务使用原子条件更新、行锁或已确认的既有机制；存量版本字段及其读写逻辑不随规范更新删除。
 
 新表创建、更新时间默认统一为 `create_time`、`update_time`，不混用 `created_at`/`updated_at`、`gmt_create` 等命名。存量项目已有约定优先；获准改名时同步 Entity、Mapper/resultMap、排序索引、字段字典和迁移文件，不能只替换 DDL。应用填充与数据库默认值选择明确责任方，不让两套时钟争夺更新时间。采用 UTC 时，数据库连接、JDBC 和应用同时配置并验证；业务账期另按确定时区切分。TIMESTAMP 可用于已有方案，但需核验会话时区转换及取值范围，不机械替换。
 
