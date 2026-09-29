@@ -1,0 +1,321 @@
+# MySQL 建表与结构变更规范
+
+版本：2.2.1。核验日期：2026-09-29。适用于 Java/Spring 项目的 MySQL 新表设计、DDL 生成、结构变更及审查；开发与审查共用本文，规则编号 **DDL-001**。
+
+这是团队建模约定，不是所有 MySQL 项目的唯一做法。**必须**项用于防止数据错误；**默认**项用于统一新表，偏离时记录理由、替代保护和验证。存量项目已确认的字段名、主键策略和业务契约优先，不因采用本规范批量改表。阅读规范不授权执行 DDL。
+
+导航：[设计输入](#1-先确定表为什么存在) · [命名](#2-命名与注释) · [字段](#3-字段类型与默认值) · [公共字段](#4-公共字段按实际语义选用) · [字符集](#5-字符集与排序规则) · [索引](#6-主键唯一键与查询索引) · [约束](#7-约束的职责和使用边界) · [版本](#8-mysql-版本兼容) · [模板](#9-建表模板与只读预检) · [变更](#10-初始化迁移与回退) · [验收](#11-交付与审查清单) · [资料取舍](#12-外部资料核验与采纳边界)。
+
+## 1. 先确定表为什么存在
+
+生成 SQL 前先读取目标版本、相关 Entity/Mapper、已有同类表的 `SHOW CREATE TABLE` 或迁移文件；只看本次涉及的表。没有数据库时列出尚未核验的环境条件，不把方案中的版本当作实例版本。
+
+每张表先给出以下设计信息，简单表可用一行表格，复杂表再展开：
+
+| 内容 | 必须回答 |
+| --- | --- |
+| 职责与所有者 | 保存什么事实，哪个服务唯一负责写入，为什么不能复用现有表 |
+| 业务边界 | 一条记录代表什么；主单、执行尝试、通知记录是否属于不同生命周期 |
+| 标识与隔离 | 内部主键、业务号、外部业务号分别是什么；唯一范围是否包含租户/商户/操作类型 |
+| 不变量 | 哪些字段不可空、哪些组合唯一、金额范围、状态流转及重复请求行为 |
+| 访问路径 | 按业务号查询、主体分页、状态任务等实际 WHERE/ORDER BY 与对应索引 |
+| 容量与保留 | 预计行数/增长、主要写入热点、大字段大小、归档及删除要求 |
+| 技术基线 | MySQL 精确版本、引擎、字符集/collation、时区、SQL mode、ID 生成策略 |
+
+逻辑模型不直接等于物理表清单。按本期需求实现，不为“以后也许需要”建立空配置表、万能扩展表或完整中台表群。跨服务主档保存稳定引用和必要的历史快照，不复制第二套可写主档。
+
+### 1.1 关系、冗余与冷热数据
+
+- 一列保存一种可定义的业务值。需要按成员过滤、计数或约束的一对多/多对多关系用明细/关系表表达，不用 `id1,id2,id3` 字符串、`item_1/item_2` 重复列或任意 JSON 数组代替关系。若 JSON 本身就是不参与关联的外部快照，按第 3 节处理。
+- 关系表明确两端引用和重复关系规则；同一对对象只能关联一次时用主体范围内的组合唯一键。有反向查询再评估反向索引，不能假设 `(left_id, right_id)` 同时高效支持仅按 right_id 查询。
+- 冗余分成两类：**历史快照**用于还原当时名称、费率或版本，不随主档重算；**当前值副本**用于加速读取，必须说明权威来源、更新方式、允许延迟和修复办法。禁止把冗余值当第二个可写主档。
+- 高并发短记录与低频大正文可按实际行宽/访问频率拆分；拆分时列明一对一唯一性、事务写入、缺失记录和归档处理。不因字段数超过 30 就自动拆表，也不把所有字段塞进一个万能表。
+
+以上为本团队建模要求；[阿里 P3C 建表规约](https://github.com/alibaba/p3c/blob/master/p3c-gitbook/MySQL数据库/建表规约.md)的冗余建议作为评审线索，具体一致性责任按本项目定义。
+
+## 2. 命名与注释
+
+- 表、列、索引使用英文小写加下划线，禁止拼音、空格、保留字和无业务含义的 `table1`、`field1`。标识符不超过 MySQL 的 64 字符限制；团队默认控制在 50 字符内，为后缀留空间。
+- 表名默认 `业务域_业务对象`，例如 `pay_order`、`pay_refund_order`。项目已有统一前缀时沿用，不混用 `t_`、`tb_`、无前缀三套风格，不在普通业务表名塞入环境或日期。
+- 内部主键用 `id`，关联内部主键用 `xxx_id`，业务单号用 `xxx_no`，稳定分类编码用 `xxx_code`。同一标识跨表保持类型、长度、符号位和 collation 一致；外部单号即使当前全是数字，也不能据此改成数值类型。
+- 索引：主键 `PRIMARY KEY`；业务唯一键 `uk_<表简称>_<业务含义>`；普通索引 `idx_<表简称>_<查询用途>`；获准的 CHECK/外键分别用 `ck_`/`fk_`，名称包含表简称，避免库内重名。
+- **每张表、每个字段都必须写 COMMENT**。表注释说明保存的业务事实；字段说明含义，状态列列出值，金额/比例列写单位和尺度，时间列写语义和时区，引用列写来源及关联标识。不得用“状态”“金额”“扩展”几个字敷衍。
+- 注释不放密钥、个人信息或易过期的负责人姓名；完整状态流转表在设计文档维护，字段注释与代码枚举保持一致。
+
+库名、表名和 SQL 表别名保持相同大小写，跨 Windows/Linux 验证 `lower_case_table_names`；不要把标识符大小写规则与字段值的 collation 混为一谈。MySQL 列名并不随操作系统变成大小写敏感；新表统一小写是团队可读性约定。MySQL 8 的 `lower_case_table_names` 在实例初始化时确定，不能为兼容一个表名直接修改运行实例。依据：[标识符大小写](https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html)。
+
+## 3. 字段类型与默认值
+
+| 场景 | 新表默认与要求 | 禁止或需要说明的做法 |
+| --- | --- | --- |
+| 内部主键 | `BIGINT`，映射 Java `Long`；选择自增或项目既有分布式 ID，整表统一 | 不默认引入新 ID 服务；不把随机字符串作为所有表的聚簇主键 |
+| 无符号整数 | 只有范围与全链路映射已确认时用 `UNSIGNED` | `BIGINT UNSIGNED` 上半区超过 Java Long 上限，不能假设无损映射 |
+| 业务号/外部号 | `VARCHAR(n)`，n 来自协议上限；不可空，有明确字符集和比较语义 | 不统一设为 255；不转数值丢掉前导零；不截断后入库 |
+| 金额/额度/手续费 | `DECIMAL(p,s)` + Java `BigDecimal`；明确币种、最大值、最小单位和舍入阶段 | 禁止 FLOAT/DOUBLE；禁止所有金额默认 0 掩盖缺失 |
+| 整数最小货币单位 | 已有协议明确按分等整数单位时可用 `BIGINT` + Long，字段/注释写单位 | 不能在同一列混用元与分；乘除、累计和溢出需核验 |
+| 费率/比例 | `DECIMAL(p,s)`，明确是比值还是百分数，例如 0.006 表示 0.6% | 不使用浮点数，不把“6”同时解释为千分之六和百分之六 |
+| 内部状态 | 默认 `TINYINT`/`SMALLINT` + Java 枚举编码，注释列值；稳定字符串状态可沿用 | 不混用数字/文字；不把 MySQL ENUM/SET 作为默认业务状态实现 |
+| 布尔 | `TINYINT NOT NULL`，说明 0/1；Java 属性按项目 ORM 映射命名 | TINYINT 自身不会拒绝 2；不能把 BOOL/TINYINT(1) 当布尔约束 |
+| 时刻 | 默认 `DATETIME(3)`，Java `LocalDateTime` 配合明确时区策略 | DATETIME 不保存时区；不能与带偏移的时间无约定互转 |
+| 日期/账期 | `DATE`；账期切分依据及业务时区单独说明 | 不用 VARCHAR 存标准日期，不将更新时间当交易时间 |
+| 名称/备注 | 有实际长度上限的 `VARCHAR(n)`；长正文才用 TEXT | 不为每个字段预留几千字符，不无依据统一 LONGTEXT |
+| JSON/大字段 | JSON 仅保存有 schema/版本和大小限制的非核心扩展/快照；高频字段独立建列 | 不把金额、状态、幂等号和关联关系藏在 JSON；不默认存完整敏感报文 |
+
+`DECIMAL(18,2)` 只有在业务确认两位小数和容量足够时才适用；不能当所有币种、积分或费率的通用模板。输入超过尺度时按契约校验/舍入，不能依赖数据库隐式截断；累计上限按精度重新计算。
+
+必填字段 `NOT NULL`，是否有 DEFAULT 按语义决定。必须由调用方提供的主体、业务号、金额可 **NOT NULL 且无默认值**，暴露漏传；计数器可默认 0。未知/尚未发生用 NULL，如 `paid_at DEFAULT NULL`；禁止用 0、空串或 `0000-00-00` 假装存在。空字符串与 NULL 的契约必须明确。不要机械要求“所有字段非空且都有默认值”。
+
+`INT(11)`/`BIGINT(20)` 不是数值容量，默认写 `INT`/`BIGINT`，不使用显示宽度、ZEROFILL。布尔、状态的合法值仍需应用校验，按版本可补充 CHECK。
+
+### 3.1 容易选错的业务字段
+
+| 场景 | 设计要求 |
+| --- | --- |
+| 手机号、邮编、证件号 | 是标识而非运算值，按协议选择字符类型，保留国家码和前导零；敏感内容的权限、加密和检索策略另行确认 |
+| IPv4/IPv6 | 新需求先确认是否支持 IPv6；仅明确 IPv4 时才用 UNSIGNED INT。二进制统一方案可用 VARBINARY(16) 配合 INET6_ATON/INET6_NTOA，明确 IPv4 与映射地址的归一策略及 Java byte[] 映射；文本方案按所接受格式定长度 |
+| 固定协议码/摘要 | 真正固定长度且无尾空格业务语义时考虑 CHAR；定长二进制摘要考虑 BINARY。长度接近不等于固定，不能机械替换 VARCHAR |
+| 布尔与 ORM | 新布尔列默认 is_xxx，Java 属性如 deleted；显式检查 MyBatis/resultMap 或现有命名转换，不把 isDeleted、deleted、is_deleted 默认视为同一契约 |
+| 图片、文件、敏感报文 | 默认保存稳定对象标识、必要摘要/元数据；大文件不直接塞进业务热点行。数据库与对象存储不共享本地事务，上传失败、孤儿对象和下载权限需有处理责任 |
+
+IP 转换函数与返回格式以 [MySQL 网络地址函数](https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_inet6-aton)为准；格式不合法应拒绝，不能把转换返回 NULL 当作合法空地址。敏感字段不因“需要审计”就默认保存完整原文。
+
+### 3.2 长度、行宽与严格模式
+
+- `VARCHAR(n)` 的 n 是字符数，索引/行大小限制按字节衡量；把协议上限、实际典型长度和最大编码字节一起写进设计。不默认把所有字段设成 255、2700 或 5000，也不把空表能创建作为容量证明。
+- 区分三个预算：MySQL 逻辑行定义上限、InnoDB 页内记录限制、索引键长度。逻辑行大小通常受 65,535 字节限制；16KB 页的 InnoDB 页内记录约受半页限制，大可变列可能页外存储。不能把“65KB 行上限”当成“索引允许 64KB”。[InnoDB 限制](https://dev.mysql.com/doc/refman/8.0/en/innodb-limits.html)
+- DYNAMIC 对长可变列可采用页外存储，和 COMPACT 的行为不同；TEXT 并非必然低效或禁止使用，但拆分、查询投影、大小上限应有依据。不要复制旧文章的固定溢出阈值来预测所有行格式。[行格式](https://dev.mysql.com/doc/refman/8.0/en/innodb-row-format.html)
+- MySQL 5.6.4 起的新时间存储格式中，DATETIME 非小数部分为 5 字节，TIMESTAMP 为 4 字节；小数精度另占 0～3 字节。不能沿用“DATETIME 永远 8 字节，所以一律用 TIMESTAMP”的结论；范围、时区与精度才是选型依据。[存储要求](https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html)
+- 新项目的 InnoDB 写连接默认采用包含 `STRICT_TRANS_TABLES` 或等效严格模式的已确认配置，并在真实应用连接核验。否则 NOT NULL 无默认值、超长或越界输入可能被调整后仅产生 warning。禁止为让初始化通过清空 sql_mode；也不能靠 INSERT IGNORE 吞掉约束错误。[严格模式](https://dev.mysql.com/doc/refman/8.0/en/sql-mode.html#sql-mode-strict)
+
+严格模式不是完整业务校验：小数舍入、允许字符、布尔范围、业务状态与跨字段语义仍由用例负责。数据库约束失败要转换成可定位的业务/数据错误，禁止把底层 SQL、连接串和完整报文直接返回客户端。
+
+## 4. 公共字段按实际语义选用
+
+| 字段 | 默认定义 | 适用边界 |
+| --- | --- | --- |
+| `id` | `BIGINT NOT NULL`，主键 | 自增时加 AUTO_INCREMENT；项目生成 ID 时不加 |
+| `created_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)` | 记录入库时间，不替代业务发生时间 |
+| `updated_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | 可修改记录的最近数据库变更时间；不可变流水可只保留 created_at |
+| `created_by` / `updated_by` | 与身份平台主体标识一致 | 需要操作人审计的管理表；系统任务说明服务身份，不填虚构用户 0 |
+| `version` | `BIGINT NOT NULL DEFAULT 0` | 仅需乐观锁时增加，更新必须带旧版本并递增；加列不代表锁已生效 |
+| `tenant_id` / `merchant_id` | 与真实主体类型一致 | 仅有对应隔离需求时增加；必要唯一键、SQL 和权限包含该范围 |
+| `is_deleted` | `TINYINT NOT NULL DEFAULT 0`，0 正常/1 删除 | 仅采用逻辑删除的可管理主数据；不是全表必备字段 |
+
+同项目不混用 `create_time`、`created_at`、`gmt_create` 三套命名，已有约定优先。应用填充与数据库默认值选择明确责任方，不让两套时钟争夺更新时间。采用 UTC 时，数据库连接、JDBC 和应用同时配置并验证；业务账期另按确定时区切分。TIMESTAMP 可用于已有方案，但需核验会话时区转换及取值范围，不机械替换。
+
+支付/退款/账务流水/结算凭证/审计证据默认保留，不通过通用逻辑删除隐藏事实。业务撤销用状态或反向业务记录表达。明确保留期和归档权限，不能从“不可普通删除”推导出无限保存敏感数据。
+
+## 5. 字符集与排序规则
+
+- 默认 InnoDB、utf8mb4；建表显式写 ENGINE、DEFAULT CHARSET、COLLATE、COMMENT，不依赖环境隐式默认值。
+- collation 必须是已确认项目选择。**不要凭经验固定写死 utf8mb4_general_ci，也不要见 MySQL 8 就自动改成 utf8mb4_0900_ai_ci。** 先确认目标实例支持范围、现有列以及大小写/重音/尾空格的业务语义。
+- 需要大小写敏感的单号或 token，不能沿用大小写不敏感的唯一比较。ASCII 协议号可选 `ascii_bin`，Unicode 编号可选合适的 `_bin`；逐字节语义可用 VARBINARY，需同时调整 Java 映射和输入校验。
+- `_bin` 不必然代表尾空格有区别；PAD SPACE/NO PAD 会影响唯一性。协议不允许空格时应拒绝非法输入，不能自行 trim 或大小写转换改变外部标识。字符型与二进制比较的差异见 [MySQL 官方说明](https://dev.mysql.com/doc/refman/8.0/en/charset-binary-collations.html)。
+- 结构继承、JOIN、订正脚本中的字符串变量/CAST 比较先核验 `SHOW FULL COLUMNS FROM <目标表> LIKE '<目标列>'` 及 `@@collation_connection`，相同列当前任务只查一次。源列、中间表和比较表达式统一到已确认的目标字符集/collation；禁止为解决 1267 随意 ALTER 全表。
+
+## 6. 主键、唯一键与查询索引
+
+1. 每张业务表有明确主键，默认单列 BIGINT；已确认的复合主键/自然键方案可保留。自增值可有空洞，不保证业务发生或事务提交顺序。
+2. 主键与业务唯一性分开设计。比如平台支付号全局唯一，商户请求号在商户内唯一，则分别设置 `UNIQUE(pay_order_no)`、`UNIQUE(merchant_id, merchant_order_no)`；平台是否真有全局发号能力必须有依据。
+3. **幂等键组成字段必须 NOT NULL**；MySQL 唯一索引允许多个 NULL，不能依靠含空值的唯一键防重。应用先查后插不能代替唯一键。唯一键冲突后核验原记录、同号异参及结果，不把所有 DuplicateKeyException 都当成功。[MySQL UNIQUE 索引](https://dev.mysql.com/doc/refman/8.0/en/create-index.html)
+4. 一个索引必须对应实际查询或唯一约束。组合列序按等值、范围和排序需求设计，不能只按“区分度最高排最前”机械排列；低基数状态可以参加任务联合索引，不默认单独给状态/删除标志建索引。
+5. 主体列表如 `WHERE merchant_id = ? ORDER BY created_at DESC, id DESC LIMIT ?`，评估 `(merchant_id, created_at, id)`；任务列表如 `WHERE status = ? AND next_retry_at <= ? ORDER BY next_retry_at, id`，评估 `(status, next_retry_at, id)`。多状态 IN 与排序可能改变计划，实际 EXPLAIN 确认。
+6. 不重复建立被主键/唯一键或现有联合索引覆盖且无收益的索引；索引数、宽度和写放大随容量评估，不生搬“最多五个”作绝对规则。
+7. utf8mb4 最多按每字符 4 字节估算索引宽度，联合索引一起计算，并核验实际版本、页大小、行格式的限制。不用缩短业务号或唯一索引只取前缀的方式掩盖超限；前缀唯一性不等于完整业务号唯一性。
+8. 分区、分库分表只在已有容量/维护需求证明必要时采用；同时核验全局唯一性、查询路由、归档和恢复，不为预测流量提前实现。
+
+**逻辑删除与唯一键陷阱**：`UNIQUE(biz_no, is_deleted)` 只允许同一业务号各一条正常/已删除记录，第二次删除重建会冲突。先确定业务号能否复用；永久不能复用就保留 `UNIQUE(biz_no)`。确需复用时选择经验证的活动记录唯一设计或归档方案，不机械追加删除标志。生成列参与唯一键仅用于已确认不变量，记录 NULL 语义和版本条件，不给每张表自动增加“活动/成功”生成列。
+
+### 6.1 主键宽度、隐含主键与索引预算
+
+InnoDB 的二级索引记录包含主键列，过宽主键的成本会传到各个二级索引。主键应短、稳定，业务代码不修改已有主键；选择自增或有序分布式 ID 时同时核验写入热点、范围和恢复策略，不能宣称递增就完全没有页分裂。[聚簇与二级索引](https://dev.mysql.com/doc/refman/8.0/en/innodb-index-types.html)
+
+对 `PRIMARY KEY(id)`、普通 BTREE 升序索引 `(a)`，InnoDB 会把主键纳入索引扩展，优化器可利用它。**不要同时创建 `(a)` 与 `(a,id)`，只因后者“多了主键”就认为必然更快。** 本文分页模板显式列 id 是为了表达排序设计，并不要求在已有 `(merchant_id,created_at)` 外再建一份；先核验其扩展索引是否已满足查询。联合主键顺序、ASC/DESC 混排、唯一性和优化器配置不同时重新评估；`UNIQUE(a)` 与 `UNIQUE(a,id)` 的业务约束不同，不能按普通索引等价推导。依据：[索引扩展](https://dev.mysql.com/doc/refman/8.0/en/index-extensions.html)。
+
+MySQL 8.0、16KB 页、DYNAMIC/COMPRESSED 行格式下，索引键长度上限为 3072 字节；COMPACT/REDUNDANT 的相关上限为 767 字节，小页大小还会收紧限制。5.7 需额外核验 large prefix 等实际配置。作为粗估，两个 utf8mb4 VARCHAR(400) 的完整联合键仅字符上限就达 3200 字节，不能照搬上述 3072 字节环境。MySQL 8.0 的 InnoDB 最多 64 个二级索引、单个联合索引最多 16 列；这些是引擎上限，绝不是建议建满。[限制依据](https://dev.mysql.com/doc/refman/8.0/en/innodb-limits.html)
+
+### 6.2 查询驱动的索引验收
+
+- 为每个候选索引记录“查询条件/参数类型、排序、返回列、估计扫描量、写入成本”。仅表有索引或 EXPLAIN 的 type 好看不能证明合格；核对实际采用的 key、访问范围和是否排序/回表。
+- 对覆盖索引先看实际 SELECT 列和隐含主键；不要为消除一次回表把长正文和高频更新字段全部塞进索引。普通前缀索引不能完整覆盖被截断列，也不能替代业务号的完整唯一性。
+- 绑定类型与列类型匹配，避免对索引列做隐式转换。条件文本先后顺序不等于联合索引列序；出现范围条件也不能一概声称后续列完全没用，它们可能仍参与索引条件下推或覆盖，依实际计划判断。[索引条件下推](https://dev.mysql.com/doc/refman/8.0/en/index-condition-pushdown-optimization.html)
+- 深分页先确认业务是否允许按上一页实际排序键继续读取，游标带上唯一排序补充键。不能把 `OFFSET 10000` 直接改成 `id > 10000`：偏移量不是业务主键。
+- 大表默认先用普通 EXPLAIN；`EXPLAIN ANALYZE` 会实际运行受支持的语句，不能当无成本只读预检。在获准环境、确定查询有界后再测，5.7 不支持该语法。[EXPLAIN 语义](https://dev.mysql.com/doc/refman/8.0/en/explain.html#explain-analyze)
+- 定时任务、回填和归档也属于访问路径；设计能稳定推进的游标与索引。按日期分区前特别核验唯一性：MySQL 分区表达式用到的列必须包含在每个唯一键（含主键）中。将交易时间加进支付号唯一键会把全局唯一放宽为组合唯一，不能为了建表成功破坏幂等。[分区与唯一键](https://dev.mysql.com/doc/refman/8.0/en/partitioning-limitations-partitioning-keys-unique-keys.html)
+
+## 7. 约束的职责和使用边界
+
+**团队默认：业务规则由应用用例负责，数据库保留必要的主键、唯一键、非空及经过验证的行级约束。微服务业务表默认不建物理外键，不使用级联删除，不用触发器/存储过程承载业务流程。** 这是本团队维护边界，并不是 MySQL 不支持这些能力。
+
+| 能力 | 默认做法 | 例外必须说明 |
+| --- | --- | --- |
+| 逻辑关联 | 保存关联 ID/业务号；应用在事务内校验归属和存在性，关键记录限制删除 | 并发删除/写入如何保护，孤儿如何发现及处理；不能只做无锁先查后写 |
+| 物理外键 | 不跨服务数据库建立；同一服务的新表默认逻辑关联 | 项目明确采用时，写入/删除顺序、锁、索引、迁移及故障恢复；已有外键不自动删除 |
+| 级联删除 | 不用于资金、订单、审批及审计事实 | 非关键从属数据确需级联时列明删除影响与验证，不能靠关闭 foreign_key_checks 绕过问题 |
+| CHECK | 8.0.16+ 可补充金额范围、行内字段关系等静态约束 | 精确表达式、NULL 语义和真实拒绝场景；不能校验跨行合计、远程事实或完整状态机 |
+| 触发器/存储过程 | 不自动生成；尤其不为兼容 5.7 按表批量模拟 CHECK | 多写入方无法收敛等具体依据、权限/复制/发布影响、可观测性、异常和回退验证 |
+
+不建外键不等于放弃一致性：同库关联的写入和禁止删除需共享事务/锁定规则；跨服务保留稳定引用和已确认快照，用契约、事件或核对机制处理变化。采用外键也不能替代租户/商户归属校验。
+
+涉及余额、额度、退款预算时，校验要落在原子条件更新和短事务中，并检查影响行数；比如“本次申请 > 0，已退 + 已预占 + 本次申请 <= 已实付”必须在竞争的同一预算记录上原子检查，不能先 SUM 明细后无锁插入。幂等登记、预算预占与本地意图按业务同事务提交。成功、失败释放、UNKNOWN 保留与查证恢复分别定义；补偿沿原操作号执行，不用触发器代替整个支付流程。详见 CON-001、TX-001、IDEM-001 及完整规范支付专项。
+
+## 8. MySQL 版本兼容
+
+| 项目 | MySQL 5.7 | MySQL 8 | 交付要求 |
+| --- | --- | --- | --- |
+| CHECK | 不能依赖其执行；旧语法可被解析但忽略 | 8.0.16 起支持执行，NOT ENFORCED 不提供保护 | 两版都要应用校验和必要条件写入；8 版约束做增强，不能默默丢掉业务保护 |
+| collation | 不支持 utf8mb4_0900 系列 | 支持该系列，但不强制选用 | 明确每版选择；比较语义必须符合相同契约 |
+| CTE/窗口函数 | 不支持 | 支持 | 5.7 预检用派生表/聚合/UNION ALL，不混入 WITH |
+| JSON 默认值/表达式索引 | 不按 8 的能力写法生成 | 具体能力受小版本影响 | 最小兼容模板不用 JSON 默认值或函数索引；需要时单列版本及验证 |
+| DDL 恢复 | 不宣称整组可事务回滚 | 支持的原子 DDL 也不等于多语句事务 | 失败即停，按实际完成对象核对及恢复，不能承诺 BEGIN 包住整个脚本 |
+
+CHECK 的起始版本和 NULL 结果见 [MySQL CHECK 文档](https://dev.mysql.com/doc/refman/8.0/en/create-table-check-constraints.html)；原子 DDL 与事务的区别见 [MySQL 原子 DDL 文档](https://dev.mysql.com/doc/refman/8.0/en/atomic-ddl.html)。不要仅写“支持 MySQL 8”，必须列出已确认/已实测小版本。
+
+同时交付两版时，表名、列语义、业务唯一键和查询索引保持一致，差异清单说明每条约束由哪一层执行。只在一版上建表成功，不能报告两版都验证通过。目标实例版本与方案不符时先报告差异；只有版本选型或兼容方案已获确认才继续依赖该决定的操作。
+
+环境基线还应记录 `lower_case_table_names`、`innodb_page_size`、实际行格式和应用连接的 sql_mode、字符集/排序规则、时区；迁移工具、JDBC 驱动和连接池初始化配置一起核验。只对服务端做版本检查不足以证明所有客户端行为一致。兼容 MySQL 协议的数据库按其自身文档与实例验证，不从“MySQL 兼容”推导出全部锁、DDL 和排序语义一致。
+
+## 9. 建表模板与只读预检
+
+以下是**字段、命名和索引示例，不是完整支付初始化脚本**。假设商户内部 ID 为 Long、平台号全局唯一、商户请求号在商户内唯一；金额为 CNY 元且两位小数，业务不接受零金额。这里明确选择 utf8mb4_unicode_ci，ASCII 单号用 ascii_bin，协议限定为非空 ASCII 字母/数字/下划线/连字符且禁止空格。实际项目不同则先改设计，不能直接套用。
+
+先由客户端选择目标数据库，执行只读环境与同名对象预检（MySQL 5.7/8 通用）：
+
+```sql
+SELECT DATABASE() AS target_schema,
+       VERSION() AS mysql_version,
+       @@sql_mode AS sql_mode,
+       @@session.time_zone AS session_time_zone,
+       @@global.time_zone AS global_time_zone,
+       @@character_set_database AS database_charset,
+       @@collation_database AS database_collation,
+       @@collation_connection AS connection_collation,
+       @@lower_case_table_names AS lower_case_table_names,
+       @@innodb_page_size AS innodb_page_size,
+       COUNT(t.TABLE_NAME) AS conflicting_object_count,
+       MAX(t.TABLE_NAME) AS conflicting_object_sample
+FROM information_schema.TABLES AS t
+WHERE t.TABLE_SCHEMA = DATABASE()
+  AND t.TABLE_NAME = 'pay_order';
+```
+
+这是精确到目标库和单个目标表名的元数据查询，不扫描全库结构。目标库为空/不符或冲突数非 0 时停止建表。全新表没有存量行，数据影响记为 0、行样例不适用；冲突存在时不能将元数据对象数冒充数据行数，改读该表 `SHOW CREATE TABLE` 并按第 10 节评估实际数据。多表初始化需覆盖全部拟建对象及同名视图/其他相关对象，返回冲突总数和至多 20 个名称样例。
+
+取得明确的 DDL 执行授权、通过预检并确认上述示例假设后，建表形式如下：
+
+```sql
+CREATE TABLE pay_order (
+    id BIGINT NOT NULL COMMENT '内部主键，应用生成雪花ID，不代表交易发生顺序',
+    pay_order_no VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL
+        COMMENT '平台支付单号，全局唯一；仅允许字母数字下划线连字符，区分大小写',
+    merchant_id BIGINT NOT NULL COMMENT '商户内部标识，来源于已认证商户关系',
+    merchant_order_no VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL
+        COMMENT '商户请求单号，商户内唯一；字符规则同平台支付单号',
+    amount DECIMAL(18,2) NOT NULL COMMENT '申请支付金额，单位元，币种CNY，必须大于0',
+    currency CHAR(3) CHARACTER SET ascii COLLATE ascii_bin NOT NULL
+        COMMENT '币种代码，本例仅允许CNY，由应用明确传入',
+    status TINYINT NOT NULL DEFAULT 0
+        COMMENT '支付状态：0待受理，10处理中，20成功，30失败，40结果未知，50已关闭',
+    paid_at DATETIME(3) DEFAULT NULL COMMENT '权威支付成功时间，UTC；未确认成功为NULL',
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+        COMMENT '记录创建时间，UTC，连接时区须统一',
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
+        COMMENT '记录最近修改时间，UTC，不作为交易时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_pay_order_no (pay_order_no),
+    UNIQUE KEY uk_pay_order_merchant_request (merchant_id, merchant_order_no),
+    KEY idx_pay_order_merchant_created (merchant_id, created_at, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='支付意图记录，保存商户请求及确认结果；教学结构示例';
+```
+
+本例 `pay_order.id` 使用应用生成的雪花 ID，采用有符号 `BIGINT` 映射 Java `Long`，插入时显式传入，不使用 `AUTO_INCREMENT`。复用项目既有生成器，核验多实例 workerId 唯一、时钟回拨及重启处理；主键唯一不能替代业务幂等唯一键。
+
+这是 5.7/8 共用的结构示例，无外键、触发器、逻辑删除和无用途的 version 列。应用必须校验金额、币种、状态、字符规则及同号异参，状态修改使用旧状态条件并检查影响行数。此表不包含支付执行、退款预算、证据及通知等完整模型，不能据此宣称业务已可运行。
+
+8.0.16+ 若要数据库增强校验，在**其独立版本 CREATE TABLE 内**补充以下表约束并调整逗号；不要在已上线表上直接追加而省略存量预检：
+
+```sql
+CONSTRAINT ck_pay_order_amount CHECK (amount > 0),
+CONSTRAINT ck_pay_order_currency CHECK (currency = 'CNY'),
+CONSTRAINT ck_pay_order_status CHECK (status IN (0, 10, 20, 30, 40, 50))
+```
+
+这些片段不是可独立执行的 ALTER 脚本。CHECK 不校验状态转换是否合法，也不验证“成功”的外部证据；必须仍保留用例校验和条件写入。5.7 版不生成无效 CHECK，也不自动生成替代触发器。
+
+执行后逐表使用 `SHOW CREATE TABLE pay_order`、`SHOW INDEX FROM pay_order` 比对列、注释、引擎、collation、索引和约束，并检查每条 DDL 的 warning。SHOW 语句无法并入上述汇总 SELECT，故作为结构核对单独执行。
+
+## 10. 初始化、迁移与回退
+
+- 首次初始化与增量迁移分开，SQL 文件标目标版本、用途、执行顺序、前置版本和校验方式；按项目既有迁移工具编号，没有工具时可用 `业务-mysql版本-用途-yyyyMMdd.sql`。已执行的版本化迁移不重写，修正另建增量文件。
+- 不用 `DROP TABLE IF EXISTS` 后重建。默认首次建表遇同名对象即停；`CREATE TABLE IF NOT EXISTS` 不会核对结构，不能把跳过已有表当成升级成功。
+- CREATE/ALTER/加唯一键/改非空/类型或 collation 前，先提供只读预检：同一候选范围的影响行数、LIMIT 20 主键与关键字段样例，NULL、重复、长度/精度超限、目标比较规则下冲突。新表按第 9 节核验对象冲突；种子 INSERT 另检候选及唯一键冲突。
+- 统计先评估执行计划与数据规模，必要时按确定的分片/范围分批核对；抽样没发现问题不能代替完整约束校验。生产排查保持只读，DDL 执行走已授权变更流程，不复用只读分析连接写入。
+- 结构优先 `SHOW CREATE TABLE`，字符串比较前 `SHOW FULL COLUMNS ... LIKE ...` 与 `@@collation_connection`；不扫描 information_schema 全库。统计尽量合并为有界汇总，结构 SHOW 和成本过高的检查可分开并说明。
+- 大表变更评估重建、metadata lock、磁盘、复制延迟和业务写入影响；ONLINE/INPLACE/INSTANT 的支持随版本和操作变化，不承诺“在线就完全无锁”。不要默认引入新迁移工具。
+- 兼容发布优先先扩展、兼容读写、回填并核对、切换、最后移除旧结构。非空、唯一性和新枚举先查旧数据及旧应用，新旧版本并行时保留必要兼容窗口。
+- MySQL DDL 不能通过外层事务让整组建表一起回滚。执行失败即停，记录已完成对象及语句，不自动 DROP 清场，不重新全量初始化。应用回退前确认旧版本能读新数据；数据库恢复走已核验备份/前向修复方案，不能把删库重建称为回滚。
+- 临时/中间表名加 `yyyyMMdd`，显式继承源列 collation；交付中包含指向该确切表名的清理 SQL 及保留条件，清理仍需授权。不要给普通业务表机械加日期。
+
+### 10.1 变更计划必须能判断何时停止
+
+结构变更和大版本升级都要在变更单中确定：观察指标、可接受阈值、暂停/终止条件、负责人以及可用回退窗口。指标按实际业务选择，至少关注错误率/延迟、锁等待、复制延迟和磁盘余量；不要复制别家公司固定行数或秒数。
+
+在项目确有双版本支持或迁移需求时，隔离 CI/预发分别覆盖旧库与目标库：应用真实 SQL、字段/时间/布尔映射、迁移工具、连接会话配置及关键查询计划。使用接近真实分布的负载验证后再按获准范围灰度；回填采用稳定游标与有界批次，按复制延迟和业务负载节流，不能在持锁事务里 sleep。
+
+此处借鉴 [GitHub MySQL 8.0 升级原文](https://github.blog/engineering/upgrading-github-com-to-mysql-8-0/)的双版本测试、分阶段发布、可观测性与回退经验。文章是特定环境的工程案例，不把其反向复制方案当作普遍支持的降级路径；不得直接用旧 MySQL 二进制打开新版本数据目录。应用回退、DDL 前向修复、备份恢复及数据库版本回退分别列出可行条件。
+
+不在运行时靠 ORM 自动建表/自动更新结构替代受审迁移。应用账号只保留实际业务所需权限，DDL 权限交由独立变更身份；开发测试能自动建表不代表生产同样配置。
+
+## 11. 交付与审查清单
+
+DDL 交付至少包含：**表职责清单、字段字典、访问路径与索引依据、目标版本及差异、SQL、只读预检、结构后检、执行/恢复步骤和验证边界**。简单单表可放同一文档，不为凑目录拆成多份空模板。
+
+- [ ] 表是本期需要的业务事实；写入方唯一，关联、快照和保留责任明确。
+- [ ] 表/列/索引命名统一；每个表/字段 COMMENT 完整，金额单位、状态值、时间语义准确。
+- [ ] ID 与 Java 映射无溢出；业务号保留前导零，长度有协议依据；没有 FLOAT/DOUBLE 金额。
+- [ ] NOT NULL、DEFAULT、NULL 语义逐字段确认；无无意义的空串/0/零日期兜底。
+- [ ] ENGINE、字符集、collation 显式确定；大小写及尾空格符合唯一性契约。
+- [ ] 主键、业务唯一键、幂等作用域明确；索引对应真实过滤、排序和范围。
+- [ ] 不滥加审计、删除、version、JSON 字段；逻辑删除与业务号复用冲突已处理。
+- [ ] 外键、级联、触发器及生成列不自动堆叠；例外有依据及替代方案说明。
+- [ ] 5.7/8 差异不会使业务不变量失效；CHECK 不替代非空、状态机或并发条件。
+- [ ] 新表对象冲突/存量数据预检完成；执行与回退边界明确，不用 IF NOT EXISTS 掩盖漂移。
+- [ ] 关系与冗余有事实来源和同步/快照语义；冷热拆分、IPv6、二进制字段与 ORM 映射适用时已核验。
+- [ ] 行宽与索引字节预算符合实际页大小/行格式；没有重复建设隐含主键索引或改变业务唯一性的分区键。
+- [ ] 严格模式、大小写及连接配置在应用环境一致；变更有观察指标、停止条件和经过评估的回退窗口。
+
+实际建表实现的最小验证，在获准的隔离 MySQL 实例中完成：正常值、必填缺失、边界金额/长度、同主体重复与跨主体合法重复、同号异参、大小写/尾空格、重复删除重建（适用时），以及竞争状态/预算和事务失败回滚。8 版测试非法值确被 CHECK 拒绝；5.7 版明确数据库自身缺少该保护，验证全部应用写入口和权限边界。索引用接近实际基数的数据执行 EXPLAIN，不拿空表计划当性能证明。
+
+仅改规范时检查引用、安装清单、分发包一致性即可，不连接业务数据库。只做静态检查时写“未在目标 MySQL 实例执行”；仅 MySQL 5.7 实测时不能写“已通过 MySQL 8 验证”。审查按真实影响分级，项目尚未采纳的默认风格只作建议，不借规范升级自动整改既有表。
+
+其他技术依据：[整数类型与范围](https://dev.mysql.com/doc/refman/8.0/en/integer-types.html)、[日期时间类型](https://dev.mysql.com/doc/refman/8.0/en/datetime.html)、[在线 DDL 的操作边界](https://dev.mysql.com/doc/refman/8.0/en/innodb-online-ddl-operations.html)。团队默认命名、外键/触发器边界及字段选择是本文约定，不冒充 MySQL 官方强制规则。
+
+## 12. 外部资料核验与采纳边界
+
+2026-09-29 检索 GitHub、Linux.do、X 与技术博客。下列指定资料均已读取正文；掘金、X、Linux.do 在网页抓取不足时通过浏览器读取。博客和讨论用于发现问题，技术结论以对应版本的 MySQL 官方说明核对，本文不复制整篇文章或将他人的“强制”标签直接变成本团队规则。
+
+| 资料 | 本次使用方式 | 保留或修正的边界 |
+| --- | --- | --- |
+| [guanguans：MySQL 数据库设计规范](https://github.com/guanguans/notes/blob/master/MySQL/MySQL数据库设计规范.md) | 作为命名、字段、容量和变更的检查目录 | 历史存储字节数、索引长度和固定阈值重新核验；物理外键要求不覆盖本团队边界 |
+| [sqlfans：MySQL 开发使用规范](https://wiki.sqlfans.cn/mysql/mysql-std-using.html) | 补充冷热分离、地址字段、容量预算及变更检查 | 不采纳固定字段/索引/行数上限作为通用性能结论，不禁止一切列级字符集例外 |
+| [阿里 P3C 建表规约](https://github.com/alibaba/p3c/blob/master/p3c-gitbook/MySQL数据库/建表规约.md)、[索引规约](https://github.com/alibaba/p3c/blob/master/p3c-gitbook/MySQL数据库/索引规约.md) | 回到团队手册原始仓库核对命名、冗余及业务唯一性建议 | 自增/UNSIGNED/公共字段按本团队既定规则；VARCHAR 前缀索引不能机械套用到唯一业务号 |
+| [掘金：阿里巴巴 Mysql 规范解读](https://juejin.cn/post/7272674088778891324) | 阅读用户指定解读，回溯 P3C，并补充 is_xxx 与 Java 属性映射检查 | 作为解读线索，不把历史 iBATIS 示例和固定 JOIN 数量当当前统一技术限制 |
+| [Linux.do：mysql 索引求解](https://linux.do/t/topic/2074857) | 从 `(a)` 与 `(a,id)` 的争议引出 6.1，结论按官方索引扩展文档核验 | 不采用回帖中“(a,id) 等于 (id)”或 WHERE 文本顺序决定索引的说法 |
+| [X：Barret 李靖的升级经验讨论](https://x.com/Barret_China/status/1734132549767843964) | 作为 GitHub 升级原文入口，补充 10.1 的发布与恢复边界 | 不是建表条文来源；帖子开头提 5.6，所链 GitHub 本次升级原文讨论的是 5.7 → 8.0，以原文为准 |
+| [GitHub Engineering：Upgrading GitHub.com to MySQL 8.0](https://github.blog/engineering/upgrading-github-com-to-mysql-8-0/) | 采纳双版本验证、统一客户端配置、灰度观察及回退窗口思路 | 不照搬其集群规模、工具清单或非普遍支持的反向复制方案 |
+
+### 12.1 不直接照搬的常见建议
+
+| 常见说法 | 本规范的处理 |
+| --- | --- |
+| 所有列 NOT NULL DEFAULT 0/空串 | 必填与未知分开；无默认值的拒绝行为还依赖严格模式，见 3.2 |
+| 固定超过若干百万行/若干 GB 就分表，单表最多 30 列或 5 个索引 | 作为评审提醒，不作为自动拆分阈值；依据行宽、热点、负载、归档窗口和维护成本判断 |
+| DATETIME 总是 8 字节，索引键可到 64KB | 属于版本过时或不同限制混淆，见 3.2、6.1 的官方依据 |
+| VARCHAR 都做前缀索引，选择性高的列永远排最前 | 先保业务唯一性、过滤与排序；前缀和列序用真实查询验证 |
+| 有 (a,b) 就自动删除 (a) | 先排除 UNIQUE、排序方向、前缀长度及实际访问成本差异，再判断冗余；不自动删索引 |
+| BIGINT UNSIGNED 可直接映射 Long，IP 一律 INT | 检查数值边界和 IPv6；不以当前样例代替协议完整范围 |
+| NOT NULL/CHECK/外键存在就说明业务一致 | 分别核验空值、行内约束、引用、归属、并发和恢复，不能互相替代 |
+| ONLINE DDL 无锁，版本切回去就能回滚 | 检查 metadata lock、实际算法与新数据兼容；应用、结构、实例恢复分开设计 |
+
+文档是针对本团队的综合设计，不是任一外部文章的摘要。后续补充资料也须注明可读状态、适用版本、采用位置和未采纳原因；技术条件有变化时先复核官方依据，不通过增加绝对禁令掩盖未理解的差异。

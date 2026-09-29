@@ -1,6 +1,6 @@
 # Java 团队开发规范与多中台代码审查
 
-用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.1.0**。业务请求参数超过 3 个使用 POST JSON，3 个及以内的简单只读查询可用 GET；分页按参数数量判断，不一律要求 POST。Query、DTO、VO 统一使用普通 class + Lombok，采用标准访问器（只读对象不强加 setter），并显式声明 Serializable 与各自的序列化版本号；JSON 和实际 RPC 协议分别验证。类、字段、手写方法及构造方法补充业务注释，覆盖 Controller、Service、Repository。开发与审查共用规则及验收条件，详见下方入口。
+用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.2.1**。MySQL 建表规范已补充外部资料核验，开发、审查和安装共用一份来源。业务请求参数超过 3 个使用 POST JSON，3 个及以内的简单只读查询可用 GET；分页按参数数量判断，不一律要求 POST。Query、DTO、VO 统一使用普通 class + Lombok，采用标准访问器（只读对象不强加 setter），并显式声明 Serializable 与各自的序列化版本号；JSON 和实际 RPC 协议分别验证。类、字段、手写方法及构造方法补充业务注释，覆盖 Controller、Service、Repository。开发与审查共用规则及验收条件，详见下方入口。
 
 ## 同事只需发一段话
 
@@ -25,7 +25,8 @@
 | 还没有真实模块 | [初始化决策与验收](java-team-development/references/initialization.md) | 技术栈、契约、权限和检查命令的决策模板；未决项明确保留 |
 | 想看能运行的代码 | [最小参考工程](examples/reference-service/README.md) | Java 21 / Spring Boot 3，Query/DTO/VO、分页、校验、错误、资源权限 |
 | 日常编码 | [开发 Skill](java-team-development/SKILL.md) | 按任务选择规则、落实实现并验证 |
-| 查具体标准 | [13 条可执行规则](multi-center-code-review/references/practical-rules.md) | 规则编号、适用条件、正反例、验收与例外 |
+| 查具体标准 | [14 条可执行规则](multi-center-code-review/references/practical-rules.md) | 规则编号、适用条件、正反例、验收与例外 |
+| MySQL 建表、生成 DDL 或改表 | [MySQL 建表规范](multi-center-code-review/references/mysql-schema.md) | 表字段、注释、类型、索引、约束、5.7/8 差异、模板与变更验收 |
 | 代码审查 | [审查 Skill](multi-center-code-review/SKILL.md) | 真实行号、触发条件、证据、影响与最小修正方向 |
 | 设计或高风险业务 | [完整规范](multi-center-code-review/references/standards.md) | 分层、事实归属、事务、幂等、SQL、安全和业务专项 |
 
@@ -53,9 +54,11 @@
 
 ## 文件如何保持简单
 
-AGENTS.md 只保留工作约束和导航。开发与审查共用参考文件；Claude/WorkBuddy 入口只转到主 Skill，不复制整套规则。默认仅当前工具，Codex/Cursor 共 7 个安装文件；全部兼容为 13 个，详情见安装说明。参考工程仅按需取用，不随规则安装复制到业务项目。
+AGENTS.md 只保留工作约束和导航。开发与审查共用参考文件；Claude/WorkBuddy 入口只转到主 Skill，不复制整套规则。默认仅当前工具，Codex/Cursor 共 8 个安装文件；全部兼容为 14 个，详情见安装说明。参考工程仅按需取用，不随规则安装复制到业务项目。
 
 项目补充放 AGENTS.md 的受管区块外。受管内容以哈希记录；重复安装不重复追加，更新遇手工修改会保留并报告冲突。1.0.0/2.0.0 用户均可要求智能体更新，不再运行旧 Python 安装器。
+
+建表前先按 DDL-001 确认表职责、字段语义和访问路径，再生成 SQL；默认不建物理外键、不用级联删除或触发器承载业务，例外按专项规范记录。新规则不自动修改存量表。2.2.1 补充关系/冗余设计、IPv6 与 ORM 映射、行宽/索引字节预算、隐含主键索引、严格模式及升级发布要求；[资料与采纳边界](multi-center-code-review/references/mysql-schema.md#12-外部资料核验与采纳边界)列出 GitHub、Linux.do、X 和指定博客的取舍。
 
 主规范只有一个来源，分发 ZIP 与源码同步。维护范围是入口、安装说明、两个 Skill 的参考文档及 examples/reference-service；打包排除 target、缓存、临时验证文件和 ZIP 自身。
 

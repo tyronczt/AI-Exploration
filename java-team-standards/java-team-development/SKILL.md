@@ -1,6 +1,6 @@
 ---
 name: java-team-development
-description: 按团队规范初始化 Java/Spring 工程、实现接口、修复缺陷和开展限定重构。初始化形成工程决策，开发按规则编号和样例实施并验证；仅要求审查时使用 multi-center-code-review，不自动改代码。
+description: 按团队规范初始化 Java/Spring 工程、设计 MySQL 表与生成 DDL、实现接口、修复缺陷和开展限定重构。初始化形成工程决策，开发按规则编号和样例实施并验证；仅要求审查时使用 multi-center-code-review，不自动改代码。
 ---
 
 # Java 团队开发
@@ -11,6 +11,7 @@ description: 按团队规范初始化 Java/Spring 工程、实现接口、修复
 
 - **初始化**：读取 [初始化决策与验收](references/initialization.md)，区分已确认、建议和待定。用户只要方案时交付方案；明确要求建工程时实现已确认的最小范围，不预造多个中台。
 - **已有项目开发**：读取覆盖目标路径的 AGENTS.md、实际构建配置及相关现有实现；沿入口与调用方定位修改点，不全库扫描。
+- **MySQL 表设计/DDL**：先读共用 [MySQL 建表规范](../multi-center-code-review/references/mysql-schema.md)（DDL-001），输出表职责、字段和索引依据，再生成目标版本 SQL、只读预检及后检；执行遵循已有授权范围。不能从技术方案直接机械生成整套物理表。
 - **纯审查**：使用审查 Skill；不要借审查要求自动整改。
 
 ## 实施
@@ -25,6 +26,7 @@ description: 按团队规范初始化 Java/Spring 工程、实现接口、修复
 | --- | --- | --- |
 | 初始化、构建 | INIT-001、CHECK-001；初始化指南 | 3、15～16 |
 | Web 接口 | WEB-001、WEB-002、SERIAL-001、ERR-001、AUTH-001 | 4～6、13 |
+| MySQL 建表、初始化 SQL、结构变更 | DDL-001；[建表规范](../multi-center-code-review/references/mysql-schema.md) | 10.3、对应业务专项 |
 | SQL、状态与并发 | SQL-001、TX-001、CON-001 | 7～10 |
 | 重放、消息、远程副作用 | IDEM-001、REMOTE-001、TX-001 | 12、对应业务专项 |
 | 日志和异常 | OBS-001、ERR-001 | 14 |
