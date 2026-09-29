@@ -33,6 +33,7 @@ description: 审查 Java/Spring 多中台的指定代码、Git 变更或 PR/MR�
 | Controller、Query/DTO/VO、异常 | 3～6、13 |
 | 状态、幂等、并发、事务、远程调用 | 7～9，追加对应 19.x |
 | MySQL 表设计、建表/迁移脚本 | DDL-001、10.3；[MySQL 建表规范](references/mysql-schema.md) |
+| 逻辑删除、回收站、恢复 | DDL-001、SQL-001、AUTH-001、TX-001；[逻辑删除规范](references/mysql-schema.md#41-逻辑删除字段读写与恢复)，核验过滤、并发、唯一性、权限及审计 |
 | SQL、缓存、配置、文件 | 10～11、13 |
 | 消息、任务、审计、观测 | 12～14 |
 | 构建、测试、审查、发布 | 15～18 |

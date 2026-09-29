@@ -28,6 +28,7 @@ description: 按团队规范初始化 Java/Spring 工程、设计 MySQL 表与�
 | Web 接口 | WEB-001、WEB-002、SERIAL-001、ERR-001、AUTH-001 | 4～6、13 |
 | MySQL 建表、初始化 SQL、结构变更 | DDL-001；[建表规范](../multi-center-code-review/references/mysql-schema.md) | 10.3、对应业务专项 |
 | SQL、状态与并发 | SQL-001、TX-001、CON-001 | 7～10 |
+| 逻辑删除、回收站、恢复 | DDL-001、SQL-001、AUTH-001、TX-001；[逻辑删除规范](../multi-center-code-review/references/mysql-schema.md#41-逻辑删除字段读写与恢复) | 10.3；按表职责决定是否采用 deleted |
 | 重放、消息、远程副作用 | IDEM-001、REMOTE-001、TX-001 | 12、对应业务专项 |
 | 日志和异常 | OBS-001、ERR-001 | 14 |
 
