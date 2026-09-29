@@ -1,6 +1,6 @@
 # Java 团队开发规范与多中台代码审查
 
-用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.2.3**。MySQL 建表规范已补充外部资料核验，开发、审查和安装共用一份来源。业务请求参数超过 3 个使用 POST JSON，3 个及以内的简单只读查询可用 GET；分页按参数数量判断，不一律要求 POST。Query、DTO、VO 统一使用普通 class + Lombok，采用标准访问器（只读对象不强加 setter），并显式声明 Serializable 与各自的序列化版本号；JSON 和实际 RPC 协议分别验证。类、字段、手写方法及构造方法补充业务注释，覆盖 Controller、Service、Repository。开发与审查共用规则及验收条件，详见下方入口。
+用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.3.0**。MySQL 建表规范已补充外部资料核验，开发、审查和安装共用一份来源。业务请求参数超过 3 个使用 POST JSON，3 个及以内的简单只读查询可用 GET；分页按参数数量判断，不一律要求 POST。Query、DTO、VO 统一使用普通 class + Lombok，采用标准访问器（只读对象不强加 setter），并显式声明 Serializable 与各自的序列化版本号；JSON 和实际 RPC 协议分别验证。类、字段、手写方法及构造方法补充业务注释，覆盖 Controller、Service、Repository。开发与审查共用规则及验收条件，详见下方入口。
 
 ## 同事只需发一段话
 
@@ -25,8 +25,9 @@
 | 还没有真实模块 | [初始化决策与验收](java-team-development/references/initialization.md) | 技术栈、契约、权限和检查命令的决策模板；未决项明确保留 |
 | 想看能运行的代码 | [最小参考工程](examples/reference-service/README.md) | Java 21 / Spring Boot 3，Query/DTO/VO、分页、校验、错误、资源权限 |
 | 日常编码 | [开发 Skill](java-team-development/SKILL.md) | 按任务选择规则、落实实现并验证 |
-| 查具体标准 | [14 条可执行规则](multi-center-code-review/references/practical-rules.md) | 规则编号、适用条件、正反例、验收与例外 |
+| 查具体标准 | [16 条可执行规则](multi-center-code-review/references/practical-rules.md) | 规则编号、适用条件、正反例、验收与例外 |
 | MySQL 建表、生成 DDL 或改表 | [MySQL 建表规范](multi-center-code-review/references/mysql-schema.md) | 表字段、注释、类型、索引、约束、5.7/8 差异、模板与变更验收 |
+| 模块边界、业务扩展、状态机与验证 | [Java 项目实践](multi-center-code-review/references/java-project-practices.md) | COLA、Modulith、Petclinic 源码依据，适用条件、反例及验收 |
 | 代码审查 | [审查 Skill](multi-center-code-review/SKILL.md) | 真实行号、触发条件、证据、影响与最小修正方向 |
 | 设计或高风险业务 | [完整规范](multi-center-code-review/references/standards.md) | 分层、事实归属、事务、幂等、SQL、安全和业务专项 |
 
@@ -54,7 +55,7 @@
 
 ## 文件如何保持简单
 
-AGENTS.md 只保留工作约束和导航。开发与审查共用参考文件；Claude/WorkBuddy 入口只转到主 Skill，不复制整套规则。默认仅当前工具，Codex/Cursor 共 8 个安装文件；全部兼容为 14 个，详情见安装说明。参考工程仅按需取用，不随规则安装复制到业务项目。
+AGENTS.md 只保留工作约束和导航。开发与审查共用参考文件；Claude/WorkBuddy 入口只转到主 Skill，不复制整套规则。默认仅当前工具，Codex/Cursor 共 9 个安装文件；全部兼容为 15 个，详情见安装说明。参考工程仅按需取用，不随规则安装复制到业务项目。
 
 项目补充放 AGENTS.md 的受管区块外。受管内容以哈希记录；重复安装不重复追加，更新遇手工修改会保留并报告冲突。1.0.0/2.0.0 用户均可要求智能体更新，不再运行旧 Python 安装器。
 
@@ -65,6 +66,8 @@ AGENTS.md 只保留工作约束和导航。开发与审查共用参考文件；C
 2.2.2 按支付表设计反馈修正规范与模板：新内部 ID 使用应用雪花 ID、不自增；公共时间列统一 create_time/update_time；字符列默认继承表级 utf8mb4_general_ci，取消无协议依据的 ASCII/bin 批量设置。现金支付示例沿用 BIGINT 整数分，保留存量主键与金额契约；增加数据库比较与应用幂等判断一致性的验收。更新规范不自动迁移任何业务表。
 
 2.2.3 补齐 [逻辑删除规范](multi-center-code-review/references/mysql-schema.md#41-逻辑删除字段读写与恢复)：适用管理表统一 deleted（0/1），明确 MyBatis-Plus 映射、自写 SQL/关联/统计过滤、删除与恢复权限、并发保护、唯一键复用、审计与缓存同步。存量字段不自动改名，支付、退款及审计事实不机械加删除标志。
+
+2.3.0 对照 COLA、Spring Modulith、Spring Petclinic 的固定提交补充 ARCH-001/EXT-001：模块公开契约与有效门禁、策略匹配与回退、状态机/事件的持久化边界、分层测试和构建验证。只采纳适合团队的实践，源码差异和未采纳项见新参考文档；未改参考工程的依赖、架构或既有 Web/数据库契约。
 
 ## 已验证到哪一步
 

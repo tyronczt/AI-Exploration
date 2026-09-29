@@ -1,6 +1,6 @@
 # 交给智能体执行的项目安装说明
 
-版本：2.2.3。目标是同时接入**日常 Java 开发规范、开发 Skill、多中台审查 Skill**。使用智能体已有的下载、文件读写和平台原生命令完成，不要求用户安装 Python、Node.js、Git 或运行安装脚本。
+版本：2.3.0。目标是同时接入**日常 Java 开发规范、开发 Skill、多中台审查 Skill**。使用智能体已有的下载、文件读写和平台原生命令完成，不要求用户安装 Python、Node.js、Git 或运行安装脚本。
 
 仅在用户要求安装或更新本规范包时执行本文；浏览文档不构成写入授权。目标默认是用户正在操作的代码项目，不能把下载目录或本规范仓库当作目标。多个项目无法判断时只确认目标目录；目标与工具已明确时直接完成，不重复索取确认。
 
@@ -19,6 +19,7 @@ multi-center-code-review/SKILL.md
 multi-center-code-review/references/standards.md
 multi-center-code-review/references/practical-rules.md
 multi-center-code-review/references/mysql-schema.md
+multi-center-code-review/references/java-project-practices.md
 ```
 
 直接下载正文，不把 GitHub 网页 HTML 当 Markdown。使用 ZIP 时先查看条目，只提取上述文件及 README.md 到临时目录，拒绝绝对路径、`..`、符号链接及包外路径；不执行包内代码。不需要克隆仓库。所有必要来源完整取得后才修改目标；无网络或无写入工具时说明缺少的能力，不能宣称已安装。
@@ -36,6 +37,7 @@ multi-center-code-review/references/mysql-schema.md
 | java-team-development/references/initialization.md | .agents/skills/java-team-development/references/initialization.md | 完整复制 |
 | multi-center-code-review/references/practical-rules.md | .agents/skills/multi-center-code-review/references/practical-rules.md | 完整复制 |
 | multi-center-code-review/references/mysql-schema.md | .agents/skills/multi-center-code-review/references/mysql-schema.md | 完整复制 |
+| multi-center-code-review/references/java-project-practices.md | .agents/skills/multi-center-code-review/references/java-project-practices.md | 完整复制 |
 | multi-center-code-review/SKILL.md | .agents/skills/multi-center-code-review/SKILL.md | 完整复制 |
 | multi-center-code-review/references/standards.md | .agents/skills/multi-center-code-review/references/standards.md | 完整复制 |
 
@@ -75,7 +77,7 @@ description: <对应主 Skill 的 description>
 
 继续使用旧版状态文件 `.agents/skills/multi-center-code-review/.install-state.json`，兼容 1.0.0 安装结果。`entries` 为目标项目相对路径到记录的映射：`{"kind":"block或file","sha256":"小写SHA-256"}`。`block` 计算从 begin 标记首字节至 end 标记末字节（不含之后换行）的 UTF-8 字节哈希；`file` 计算完整文件字节哈希。可使用 PowerShell、sha256sum、shasum 或现有工具；不可凭模型猜测哈希。
 
-写入成功后把实际内容的哈希存回相应 entries，保留其他旧条目；`version` 写 `2.2.3`，有来源提交 SHA 时另记 `sourceCommit`。记录只能用于核对，不能决定额外操作路径。不单独生成另一个安装状态文件。同版同内容重复接入不改文件或状态。
+写入成功后把实际内容的哈希存回相应 entries，保留其他旧条目；`version` 写 `2.3.0`，有来源提交 SHA 时另记 `sourceCommit`。记录只能用于核对，不能决定额外操作路径。不单独生成另一个安装状态文件。同版同内容重复接入不改文件或状态。
 
 写入前保存将修改文件的原始内容，临时备份放目标项目外；每次写入前复查没有并发变化。写入失败时只恢复本次写过且仍与本次结果一致的文件，不覆盖别人的新编辑，报告未恢复项；最后写状态文件。文件工具无法保证多文件原子性，不能声称安装是数据库式事务。
 
@@ -85,12 +87,14 @@ description: <对应主 Skill 的 description>
 
 2.2.3 将新逻辑删除字段默认命名对齐为 deleted（0 未删除/1 已删除），补充建表规范第 4.1 节及开发/审查入口；按既有哈希校验更新规则区块和 Skill 文件。保留目标项目已经确认的 is_deleted/del_flag 等列及映射，不随安装改表、改 Java 或启用全局逻辑删除配置。
 
+2.3.0 新增 java-project-practices.md，共用 ARCH-001/EXT-001 及状态、事件、验证实践。旧安装无此文件时创建，已有不同内容且无可信哈希记录时按冲突处理；不能借更新安装 COLA/Modulith 依赖或改造业务模块。
+
 旧版用户可以直接要求智能体更新。包已取消 install.py，旧的脚本命令不再作为新版入口；不要继续运行旧脚本把入口降回 1.0.0。
 
 ## 4. 安装验收
 
-全部四类工具共 14 个文件（3 个规则入口、6 个主 Skill/参考文件、4 个薄入口、1 个状态文件）；仅 Codex/Cursor 为 8 个，仅 Claude Code 或 WorkBuddy/CodeBuddy 为 11 个。逐个确认实际内容、受管区块唯一、所有主入口及相对引用可读、状态哈希准确，检查原有区块外内容未变。整个安装不修改 Java、POM、数据库或项目依赖，不提交/推送。
+全部四类工具共 15 个文件（3 个规则入口、7 个主 Skill/参考文件、4 个薄入口、1 个状态文件）；仅 Codex/Cursor 为 9 个，仅 Claude Code 或 WorkBuddy/CodeBuddy 为 12 个。逐个确认实际内容、受管区块唯一、所有主入口及相对引用可读、状态哈希准确，检查原有区块外内容未变。整个安装不修改 Java、POM、数据库或项目依赖，不提交/推送。
 
-在当前会话实际读取 AGENTS.md、开发 Skill、审查 Skill 及规范目录，分别说明日常开发如何遵守 Query/VO、权限、事务、SQL 和 DDL-001 建表规则，审查如何基于证据报告问题。给出写入文件和检查结果；不虚构业务代码作为安装验收，也不为安装运行 Maven。
+在当前会话实际读取 AGENTS.md、开发 Skill、审查 Skill 及规范目录，分别说明日常开发如何遵守 Query/VO、权限、事务、SQL、DDL-001 建表规则及适用的 ARCH-001/EXT-001，审查如何基于证据报告问题。给出写入文件和检查结果；不虚构业务代码作为安装验收，也不为安装运行 Maven。
 
 规则/技能的自动发现取决于客户端版本、项目信任和组织策略。提示使用者新建项目会话检查可见性；可显式要求智能体读取 AGENTS.md 和相应主 Skill。文件及引用检查通过，不等于每种客户端都已实际加载或所有代码都会自动合规。

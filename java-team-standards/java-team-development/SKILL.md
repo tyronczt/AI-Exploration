@@ -25,11 +25,12 @@ description: 按团队规范初始化 Java/Spring 工程、设计 MySQL 表与�
 | 任务 | 先读取的规则 | 完整规范补充 |
 | --- | --- | --- |
 | 初始化、构建 | INIT-001、CHECK-001；初始化指南 | 3、15～16 |
+| 模块边界、复杂用例、策略扩展 | ARCH-001、EXT-001；[Java 项目实践](../multi-center-code-review/references/java-project-practices.md) | 3、7、12；不按开源模板批量拆层或引依赖 |
 | Web 接口 | WEB-001、WEB-002、SERIAL-001、ERR-001、AUTH-001 | 4～6、13 |
 | MySQL 建表、初始化 SQL、结构变更 | DDL-001；[建表规范](../multi-center-code-review/references/mysql-schema.md) | 10.3、对应业务专项 |
 | SQL、状态与并发 | SQL-001、TX-001、CON-001 | 7～10 |
 | 逻辑删除、回收站、恢复 | DDL-001、SQL-001、AUTH-001、TX-001；[逻辑删除规范](../multi-center-code-review/references/mysql-schema.md#41-逻辑删除字段读写与恢复) | 10.3；按表职责决定是否采用 deleted |
-| 重放、消息、远程副作用 | IDEM-001、REMOTE-001、TX-001 | 12、对应业务专项 |
+| 重放、消息、远程副作用 | IDEM-001、REMOTE-001、TX-001；[状态与事件边界](../multi-center-code-review/references/java-project-practices.md#4-状态机与事件不替代持久化保护) | 12、对应业务专项 |
 | 日志和异常 | OBS-001、ERR-001 | 14 |
 
 规则适用性由实际行为决定，不仅看文件目录；分页、授权和错误契约以目标项目确认版本为准。不要混用不同 Spring Boot、校验包、ORM 或数据库方言。
