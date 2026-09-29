@@ -11,7 +11,7 @@ description: 按团队规范初始化 Java/Spring 工程、设计 MySQL 表与�
 
 - **初始化**：读取 [初始化决策与验收](references/initialization.md)，区分已确认、建议和待定。用户只要方案时交付方案；明确要求建工程时实现已确认的最小范围，不预造多个中台。
 - **已有项目开发**：读取覆盖目标路径的 AGENTS.md、实际构建配置及相关现有实现；沿入口与调用方定位修改点，不全库扫描。
-- **MySQL 表设计/DDL**：先读共用 [MySQL 建表规范](../multi-center-code-review/references/mysql-schema.md)（DDL-001），输出表职责、字段和索引依据，再生成目标版本 SQL、只读预检及后检；执行遵循已有授权范围。不能从技术方案直接机械生成整套物理表。
+- **MySQL 表设计/DDL**：先读共用 [MySQL 建表规范](../multi-center-code-review/references/mysql-schema.md)（DDL-001），输出表职责、字段和索引依据，再生成目标版本 SQL、只读预检及后检；执行遵循已有授权范围。新内部 ID 用应用雪花 ID、不自增，公共时间列用 create_time/update_time，字符列默认继承表级 utf8mb4_general_ci；已有主键、金额单位及项目比较契约优先，不凭字段名批量加 ASCII/bin。不能从技术方案直接机械生成整套物理表。
 - **纯审查**：使用审查 Skill；不要借审查要求自动整改。
 
 ## 实施

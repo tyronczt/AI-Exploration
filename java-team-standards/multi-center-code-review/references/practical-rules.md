@@ -1,6 +1,6 @@
 # 可执行规则：编码与审查共用
 
-版本 2.2.1。这里把已有规范转换为可检查的最小规则；完整依据见 [系统与多中台规范](standards.md)。示例类型/方法是局部示意，除参考工程外不代表能直接编译。规则由项目采纳后生效，已确认业务契约优先；无法从源码确认的政策列为待核实。
+版本 2.2.2。这里把已有规范转换为可检查的最小规则；完整依据见 [系统与多中台规范](standards.md)。示例类型/方法是局部示意，除参考工程外不代表能直接编译。规则由项目采纳后生效，已确认业务契约优先；无法从源码确认的政策列为待核实。
 
 | 编号 | 适用场景 | 主要验收方式 |
 | --- | --- | --- |
@@ -104,7 +104,7 @@ return new PageVO<>(filterForCaller(repository.findAll()), repository.countAll()
 
 // 正例：先按可信主体限制数据，再计数和分页；乘法先升为 long 防溢出。
 long offset = ((long) query.getPageNo() - 1) * query.getPageSize();
-// SQL 场景：items 和 count 共用企业及业务过滤条件，ORDER BY created_at DESC, id DESC。
+// SQL 场景：items 和 count 共用企业及业务过滤条件，ORDER BY create_time DESC, id DESC。
 ```
 
 **验收**：先满足认证及适用的 CSRF 前置条件，再检查绑定和业务行为；默认值以项目契约为准，不能直接把示例数值视为生产要求。
@@ -159,12 +159,12 @@ long offset = ((long) query.getPageNo() - 1) * query.getPageSize();
 **适用**：查询、导出与排查。**要求**：参数绑定、显式字段、数据范围、稳定排序；大表先对限定查询做 EXPLAIN，索引依实际过滤/排序和基数评估。
 
 ```sql
--- 反例：SELECT * FROM organization ORDER BY created_at DESC;
+-- 反例：SELECT * FROM organization ORDER BY create_time DESC;
 -- 正例：仅作结构示意；执行前确认库、表、字段和绑定值。
-SELECT id, display_name, created_at
+SELECT id, display_name, create_time
 FROM organization
 WHERE enterprise_id = :trusted_enterprise_id
-ORDER BY created_at DESC, id DESC
+ORDER BY create_time DESC, id DESC
 LIMIT 20;
 ```
 
@@ -176,8 +176,8 @@ LIMIT 20;
 
 **适用**：MySQL 表设计、CREATE/ALTER、初始化或迁移脚本。**要求**：先读取 [MySQL 建表规范](mysql-schema.md)，按已确认版本和现有约定输出表职责、字段字典、唯一性与索引依据，再生成 SQL。每表每列 COMMENT 必须说明业务含义，金额单位、时间语义、状态取值准确；默认不建物理外键、不用级联删除或业务触发器，例外记录依据及验证。
 
-- 反例：把逻辑表清单直接转成物理表；业务号全用 VARCHAR(255)、金额用 DOUBLE、注释只有“状态”；为了兼容 5.7 给每张表加触发器，或仅保留不生效的 CHECK。
-- 正例：按真实主体范围设置非空业务唯一键，使用明确单位的 DECIMAL/整数最小单位、适当公共列及与查询对应的索引；5.7 使用应用校验、原子条件写入和必要唯一约束，8.0.16+ 的 CHECK 仅作行级增强。
+- 反例：把逻辑表清单直接转成物理表；业务号全用 VARCHAR(255)、金额用 DOUBLE、注释只有“状态”；新内部 ID 仍用 AUTO_INCREMENT，或按 id/no/ref 字段名批量加 ascii_bin；为了兼容 5.7 给每张表加触发器，或仅保留不生效的 CHECK。
+- 正例：新内部 ID 用 BIGINT/Java Long 雪花 ID，不自增；公共时间列 create_time/update_time，字符串默认继承表级 utf8mb4_general_ci，列级例外有契约依据。按真实主体范围设置非空业务唯一键，保持既有金额单位、主键和比较契约，核验大小写/尾空格下应用与数据库幂等判断一致；5.7 使用应用校验、原子条件写入和必要唯一约束，8.0.16+ 的 CHECK 仅作行级增强。
 - 验收：核对大小写/尾空格及 NULL 唯一性、逻辑删除后业务号复用、ID 映射、对象冲突及存量预检；同时核对行宽/索引字节预算、隐含主键索引、严格模式与应用连接配置；外部经验值按建表规范第 12 节的适用边界处理。实际建表在获准隔离实例核验 SHOW CREATE TABLE/索引、非法值、并发与回滚。只做文档或静态检查时明确未执行 DDL，不能宣称两版 MySQL 均通过。
 - 例外：目标项目已经确认的命名、ID、外键等约定优先，说明差异和替代保护；不据通用模板自动重建存量表。只要求方案/SQL 不等于授权执行，初始化冲突不自动删除清场。
 
