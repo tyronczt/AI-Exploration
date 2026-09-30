@@ -13,7 +13,7 @@ $skillFiles = @(
     'java-team-development/SKILL.md', 'java-team-development/references/initialization.md',
     'multi-center-code-review/SKILL.md', 'multi-center-code-review/references/standards.md',
     'multi-center-code-review/references/practical-rules.md', 'multi-center-code-review/references/mysql-schema.md',
-    'multi-center-code-review/references/java-project-practices.md'
+    'multi-center-code-review/references/java-project-practices.md', 'multi-center-code-review/references/redis-standards.md'
 )
 $sources = @('README.md', 'INSTALL.md', 'rules.md', 'evaluations/README.md', 'scripts/check-package.ps1') + $skillFiles
 $exampleRoot = Join-Path $packageRoot 'examples/reference-service'
@@ -53,6 +53,8 @@ foreach ($relative in $sources) {
 }
 $version = [regex]::Match($documents['INSTALL.md'], '(?m)^版本：([0-9]+\.[0-9]+\.[0-9]+)').Groups[1].Value
 if (-not $version) { throw 'INSTALL.md 未声明版本。' }
+$installStateVersion = [regex]::Match($documents['INSTALL.md'], '`version` 写 `([0-9]+\.[0-9]+\.[0-9]+)`').Groups[1].Value
+if ($installStateVersion -ne $version) { throw '安装状态示例的 version 与当前包版本不同。' }
 $versionFiles = @('INSTALL.md', 'evaluations/README.md') + @($skillFiles | Where-Object { $_ -match 'references/(?!initialization)' })
 foreach ($relative in $versionFiles) {
     $declared = [regex]::Match($documents[$relative], '(?m)^版本[^0-9\r\n]*([0-9]+\.[0-9]+\.[0-9]+)').Groups[1].Value

@@ -1,6 +1,6 @@
 ---
 name: java-team-development
-description: 按团队规范初始化 Java/Spring 工程、设计 MySQL 表与生成 DDL、实现接口、修复缺陷和开展限定重构。初始化形成工程决策，开发按规则编号和样例实施并验证；仅要求审查时使用 multi-center-code-review，不自动改代码。
+description: 按团队规范初始化 Java/Spring 工程、核对开发进度并推进已确认工作、落实 Java 基础与常用场景验收、设计 MySQL 表与生成 DDL、实现前后端接口及 Redis 能力、修复缺陷和开展限定重构。按规则实施并验证；仅要求审查时使用 multi-center-code-review，不自动改代码。
 ---
 
 # Java 团队开发
@@ -11,11 +11,14 @@ description: 按团队规范初始化 Java/Spring 工程、设计 MySQL 表与�
 
 - **初始化**：读取 [初始化决策与验收](references/initialization.md)，区分已确认、建议和待定。用户只要方案时交付方案；明确要求建工程时实现已确认的最小范围，不预造多个中台。
 - **已有项目开发**：读取覆盖目标路径的 AGENTS.md、实际构建配置及相关现有实现；沿入口与调用方定位修改点，不全库扫描。
+- **进度梳理与继续开发**：按 REQ-001、CHECK-001 读取 [进度推进实践](../multi-center-code-review/references/java-project-practices.md#7-对照工程推进进度与逐点确认)。对照文档、实际调用链和当前验证记录，把已实现、可独立继续、需确认、已确认暂缓及未验收分开；先完成已授权的确定工作，待确认项拆到一个字段、接口或政策问题，不因单点未定停下全部工作。
 - **需求与验收**：新增或改变业务行为时按 REQ-001 对应需求、修改点和验收；小需求用简短说明，复杂需求复用已有需求/任务文档，不固定生成三套文档。
 - **缺陷修复**：按 BUG-001 先建立失败证据、定位根因，再最小修复并用原断言复验；无法复现时说明条件与验证边界，不靠连续试改宣称解决。
 - **配置与部署边界**：按 CONFIG-001 核验实际绑定、校验、单位和部署覆盖；改安全链或管理端点时追加 AUTH-001、OBS-001，不为检查新增中间件。
+- **目录归属与包移动**：用户明确要求整理时按 ARCH-001 读取 [包移动验收](../multi-center-code-review/references/java-project-practices.md#8-按业务归属整理包与资源)。保留已有分层和业务行为，同步引用、扫描、XML、测试及文档，用干净构建和实际装配检查防止旧 class 掩盖遗漏；小模块不预建空子包。
 - **MySQL 表设计/DDL**：先读共用 [MySQL 建表规范](../multi-center-code-review/references/mysql-schema.md)（DDL-001），输出表职责、字段和索引依据，再生成目标版本 SQL、只读预检及后检；执行遵循已有授权范围。新内部 ID 用应用雪花 ID、不自增，公共时间列用 create_time/update_time，字符列默认继承表级 utf8mb4_general_ci；已有主键、金额单位及项目比较契约优先，不凭字段名批量加 ASCII/bin。不能从技术方案直接机械生成整套物理表。
 - **纯审查**：使用审查 Skill；不要借审查要求自动整改。
+- **规范维护与外部借鉴**：用户要求更新本包时读取 [目录检索与采纳](../multi-center-code-review/references/standards.md#207-skills-目录检索原始核验与采纳)，将检索线索回溯到固定原始源码及对应官方文档，只补当前缺口与验收；目录预览不构成安装或云操作授权。
 
 ## 实施
 
@@ -30,13 +33,20 @@ description: 按团队规范初始化 Java/Spring 工程、设计 MySQL 表与�
 | 新增/改变业务行为、复杂需求拆解 | REQ-001、CHECK-001 | 1.3、16～17；已确认需求优先，不自行批准业务政策 |
 | 缺陷修复、性能回归 | BUG-001、对应业务规则 | 16.3；先复现或记录无法复现的条件 |
 | 配置绑定、profile、环境变量、安全链及管理端点 | CONFIG-001；AUTH-001、OBS-001 按实际行为追加 | 11.2、13～14；只检查本次涉及的配置和暴露范围 |
-| 初始化、构建 | INIT-001、CHECK-001；初始化指南 | 3、15～16 |
+| 文档进度核对、参照旧工程、继续已确认任务 | REQ-001、CHECK-001；Java 项目实践第 7 节 | 1.3、16～17；旧代码不替代正式政策或真实联调 |
+| 包和 Mapper 资源按业务归属整理 | ARCH-001、SERIAL-001、CHECK-001；Java 项目实践第 8 节 | 3.2、3.5；核验移动前后行为及实际装配 |
+| 初始化、构建及 Maven 依赖 | INIT-001、CHECK-001；初始化指南 | 3.6、15～16；依赖树、有效 POM、插件真实执行及打包启动 |
+| 值、金额、对象、日期、集合/数组、排序、分支与资源 | JAVA-001；[Java 基础细则](../multi-center-code-review/references/standards.md#51-值对象和常量) | 5.1～5.5；按正常/边界断言，已定金额政策优先 |
+| 执行器、取消、中断、ThreadLocal、锁和定时任务 | CHECK-001；按副作用追加 CON-001、TX-001、IDEM-001 | 8.2、16.5；实际线程/任务生命周期及故障路径 |
 | 模块边界、复杂用例、策略扩展 | ARCH-001、EXT-001；[Java 项目实践](../multi-center-code-review/references/java-project-practices.md) | 3、7、12；不按开源模板批量拆层或引依赖 |
-| Web 接口 | WEB-001、WEB-002、SERIAL-001、ERR-001、AUTH-001 | 4～6、13 |
+| Web 接口与前后端联调 | WEB-001、WEB-002、WEB-003、SERIAL-001、ERR-001、AUTH-001 | 4～6、13；实际报文、JS 精度/时区和适用传输边界 |
 | MySQL 建表、初始化 SQL、结构变更 | DDL-001；[建表规范](../multi-center-code-review/references/mysql-schema.md) | 10.3、对应业务专项 |
-| SQL、状态与并发 | SQL-001、TX-001、CON-001 | 7～10 |
+| SQL、聚合/ORM、状态与并发 | SQL-001、TX-001、CON-001 | 7～10、16.5；NULL/统计口径、映射、更新策略与影响行数 |
+| Redis Key/缓存、客户端、命令/脚本、锁、Stream 及部署 | REDIS-001；[Redis 专项规范](../multi-center-code-review/references/redis-standards.md)，按行为追加 CON-001、IDEM-001、SERIAL-001、CONFIG-001 等 | 11.1；按专项相关章节核验版本、生命周期、有界操作和恢复，不自动新增 Redis |
+| 事务、缓存或异步方法及调用入口 | CHECK-001；涉及事务追加 TX-001 | 8.1；核验代理模式及实际入口，不仅看注解或方法可见性 |
+| 集合返回值、Stream 收集 API 调整 | CHECK-001 | 15.1；保留可变性与顺序/null 契约，追踪实际修改调用方 |
 | 逻辑删除、回收站、恢复 | DDL-001、SQL-001、AUTH-001、TX-001；[逻辑删除规范](../multi-center-code-review/references/mysql-schema.md#41-逻辑删除字段读写与恢复) | 10.3；按表职责决定是否采用 deleted |
 | 重放、消息、远程副作用 | IDEM-001、REMOTE-001、TX-001；[状态与事件边界](../multi-center-code-review/references/java-project-practices.md#4-状态机与事件不替代持久化保护) | 12、对应业务专项 |
-| 日志和异常 | OBS-001、ERR-001 | 14 |
+| 日志和异常、JVM/运行交付 | OBS-001、ERR-001、CHECK-001 | 14.1、16.5、18.1；惰性日志、容量/留存和实际资源边界 |
 
 规则适用性由实际行为决定，不仅看文件目录；分页、授权和错误契约以目标项目确认版本为准。不要混用不同 Spring Boot、校验包、ORM 或数据库方言。

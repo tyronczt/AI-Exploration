@@ -1,6 +1,6 @@
 # Java 团队开发规范与多中台代码审查
 
-用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.4.0**。MySQL 建表规范已补充外部资料核验，开发、审查和安装共用一份来源。业务请求参数超过 3 个使用 POST JSON，3 个及以内的简单只读查询可用 GET；分页按参数数量判断，不一律要求 POST。Query、DTO、VO 统一使用普通 class + Lombok，采用标准访问器（只读对象不强加 setter），并显式声明 Serializable 与各自的序列化版本号；JSON 和实际 RPC 协议分别验证。类、字段、手写方法及构造方法补充业务注释，覆盖 Controller、Service、Repository。开发与审查共用规则及验收条件，详见下方入口。
+用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.6.0**。Java 基础、常用场景和前后端接口提供具体输入与验收断言；MySQL 与 Redis 专项均有外部资料核验，开发、审查和安装共用一份来源。业务请求参数超过 3 个使用 POST JSON，3 个及以内的简单只读查询可用 GET；分页按参数数量判断，不一律要求 POST。Query、DTO、VO 统一使用普通 class + Lombok，采用标准访问器（只读对象不强加 setter），并显式声明 Serializable 与各自的序列化版本号；JSON 和实际 RPC 协议分别验证。类、字段、手写方法及构造方法补充业务注释，覆盖 Controller、Service、Repository。开发与审查共用规则及验收条件，详见下方入口。
 
 ## 同事只需发一段话
 
@@ -25,12 +25,19 @@
 | 还没有真实模块 | [初始化决策与验收](java-team-development/references/initialization.md) | 技术栈、契约、权限和检查命令的决策模板；未决项明确保留 |
 | 想看能运行的代码 | [最小参考工程](examples/reference-service/README.md) | Java 21 / Spring Boot 3，Query/DTO/VO、分页、校验、错误、资源权限 |
 | 日常编码 | [开发 Skill](java-team-development/SKILL.md) | 按任务选择规则、落实实现并验证 |
-| 查具体标准 | [19 条可执行规则](multi-center-code-review/references/practical-rules.md) | 规则编号、适用条件、正反例、验收与例外 |
+| 查具体标准 | [22 条可执行规则](multi-center-code-review/references/practical-rules.md) | 规则编号、适用条件、正反例、验收与例外 |
+| Java 基础边界 | [基础细则与验收](multi-center-code-review/references/standards.md#51-值对象和常量) | JAVA-001：值、精确数值、日期、集合/数组、排序、分支和资源 |
+| 前后端接口/联调 | [字段与传输规约](multi-center-code-review/references/standards.md#64-前后端-json-与字段契约) | WEB-003：精度/时间、空值、HTTP、大小、缓存、跳转与真实报文验收 |
+| 常用场景验收 | [场景矩阵](multi-center-code-review/references/standards.md#165-常用场景的具体验收) | Maven、执行器/中断/上下文/调度、SQL/ORM、日志、测试及 JVM |
 | MySQL 建表、生成 DDL 或改表 | [MySQL 建表规范](multi-center-code-review/references/mysql-schema.md) | 表字段、注释、类型、索引、约束、5.7/8 差异、模板与变更验收 |
+| Redis 缓存、客户端、命令、锁、Stream 与运行配置 | [Redis 专项规范](multi-center-code-review/references/redis-standards.md) | Key/容量、TTL/一致性、协议与默认清理、租约、ACK/重投、集群/持久化、运维边界及固定来源 |
 | 模块边界、业务扩展、状态机与验证 | [Java 项目实践](multi-center-code-review/references/java-project-practices.md) | COLA、Modulith、Petclinic 源码依据，适用条件、反例及验收 |
+| 根据文档推进已有工程、参照旧实现 | [进度与逐点确认](multi-center-code-review/references/java-project-practices.md#7-对照工程推进进度与逐点确认) | 核对实际完成层次，先做已确认任务，缺口细化到单点并保留暂缓决定 |
+| 平铺文件按业务归属整理 | [包移动验收](multi-center-code-review/references/java-project-practices.md#8-按业务归属整理包与资源) | 保留分层与行为，同步扫描/XML/引用，干净构建及装配检查 |
 | 代码审查 | [审查 Skill](multi-center-code-review/SKILL.md) | 真实行号、触发条件、证据、影响与最小修正方向 |
 | 设计或高风险业务 | [完整规范](multi-center-code-review/references/standards.md) | 分层、事实归属、事务、幂等、SQL、安全和业务专项 |
 | 维护与评测规范包 | [固定评测材料](evaluations/README.md)、[包检查脚本](scripts/check-package.ps1) | 分开验证模型、代码和客户端发现；检查版本、引用与 ZIP 同步 |
+| 从 Skills 目录研究类似规范 | [检索、核验与采纳](multi-center-code-review/references/standards.md#207-skills-目录检索原始核验与采纳) | 阿里云 Skills、SkillsMP、skills.sh 的定位，固定原始来源及未采纳理由 |
 
 初始化示例提示：
 
@@ -54,9 +61,16 @@
 使用 multi-center-code-review 审查当前未提交变更，按适用规则编号给出有证据的问题及验证边界，不改代码。
 ```
 
+```text
+使用 java-team-development，根据指定技术文档、实际代码与当前验证核对进度。
+先完成已确认且可独立实施的工作；待确认项按编号逐点列明依据、所需答案与阻断能力。
+已确认暂缓的事项保留状态，旧代码的占位和历史默认值不作为正式协议依据。
+回填本轮进度及验证边界，不提交或推送。
+```
+
 ## 文件如何保持简单
 
-AGENTS.md 只保留工作约束和导航。开发与审查共用参考文件；Claude/WorkBuddy 入口只转到主 Skill，不复制整套规则。默认仅当前工具，Codex/Cursor 共 9 个安装文件；全部兼容为 15 个，详情见安装说明。参考工程仅按需取用，不随规则安装复制到业务项目。
+AGENTS.md 只保留工作约束和导航。开发与审查共用参考文件；Claude/WorkBuddy 入口只转到主 Skill，不复制整套规则。默认仅当前工具，Codex/Cursor 共 10 个安装文件；全部兼容为 16 个，详情见安装说明。参考工程仅按需取用，不随规则安装复制到业务项目。
 
 项目补充放 AGENTS.md 的受管区块外。受管内容以哈希记录；重复安装不重复追加，更新遇手工修改会保留并报告冲突。1.0.0/2.0.0 用户均可要求智能体更新，不再运行旧 Python 安装器。
 
@@ -74,6 +88,14 @@ AGENTS.md 只保留工作约束和导航。开发与审查共用参考文件；C
 
 2.4.0 对照 Spec Kit、Superpowers、Spring Boot Skills 和 ECC 的固定源码，新增 REQ-001（需求与验收对应）、BUG-001（根因修复与同断言复验）、CONFIG-001（实际绑定、校验及部署覆盖）；按变更行为补充 CORS、管理端点与探针检查。审查保留逐文件覆盖记录和按需读取，安装固定来源并记录提交或制品哈希。[采纳与取舍](multi-center-code-review/references/standards.md#205-skill-工作流研究与采纳边界)说明来源与边界。
 
+2.4.1 总结“梳理开发进度并完成无待确认项”的工程反馈，完善 REQ-001、ARCH-001、REMOTE-001、CHECK-001：进度对照代码与当轮验证、确认清单单点化、旧实现采纳边界，以及包/Mapper XML 移动的装配和兼容验收。不增加规则编号或安装文件，保留 19 条规则；反馈摘要及历史验证边界见 [Java 项目实践第 7.4 节](multi-center-code-review/references/java-project-practices.md#74-本轮反馈来源与验证边界)。
+
+2.4.2 结合阿里云 Skills、SkillsMP 及 skills.sh 的目录研究，读取两项相似 Skill 的固定源码，并以 Spring 6.2/JDK 21 文档核验：区分规则强度与风险等级，补齐代理/自调用及集合可变性验收。记录来源去重、未核验和未采纳项，新增 E14/E15 固定评审材料（未执行）；仍为 19 条规则、相同安装映射，不引入云依赖或修改参考工程。详见 [采纳记录](multi-center-code-review/references/standards.md#207-skills-目录检索原始核验与采纳)。
+
+2.5.0 新增 REDIS-001 与共用 [Redis 专项](multi-center-code-review/references/redis-standards.md)，从 GitHub 固定源码、X/Twitter 工程原文及 Redis/Spring/阿里云等官方资料补齐命名/容量、TTL 与一致性、客户端、扫描/脚本、租约/迟到写入、Stream ACK/恢复及运行边界。共 20 条规则、37 个分发文件；安装增加 1 个参考文件，Codex/Cursor 10 个、全部工具 16 个。来源与未采纳项见专项第 11 节；E16/E17 材料未执行，参考工程未接入 Redis。
+
+2.6.0 对照嵩山版补充 Java 基础细则、常用场景验收和前后端接口规约，新增 JAVA-001、WEB-003，共 22 条规则、仍为 37 个分发文件及原安装映射。细则和输入/断言位于完整规范 3.6、5.1～5.5、6.4～6.6、8.2、10.4、14.1、16.5、18.1；Redis 3.1 追加计数/限流/一次性凭据。JDK/HTTP 等现代适配与未照搬条款见 [20.9 采纳记录](multi-center-code-review/references/standards.md#209-嵩山版缺口补充与现代适配)。E18～E20 是固定对照材料，未执行模型评测；参考工程代码、依赖和部署不变，不能将新增规约视为全场景已验收。
+
 维护者使用 PowerShell 7.2 或更高版本，在仓库根目录运行以下命令；默认只读检查，只有显式指定 -Rebuild 才更新分发 ZIP，不修改业务工程：
 
 ```powershell
@@ -86,6 +108,7 @@ pwsh -NoProfile -File java-team-standards/scripts/check-package.ps1 -SelfTest
 
 ## 已验证到哪一步
 
+- 2.6.0 维护校验：包版本/22 条规则/37 个文件、引用与安装映射、ZIP 字节和损坏副本自检通过；两个 Skill 格式校验通过。E18 及关联 JDK 边界 30 条断言、E19 的 JS 材料 26 条断言通过；E20 仅核对 XML/材料一致性。未执行新增模型对照、MySQL/MyBatis、Redis、网关或浏览器验收。
 - 参考工程完成 Maven 编译/打包、Checkstyle 和实际 HTTP 场景验证，明细见工程 README。
 - 静态检查只覆盖少量可机械判断的格式规则；权限、幂等、事务等仍需行为验证和审查。
 - 没有数据库、写入、MQ、真实认证或跨中台链路；不能据此宣称中台框架已具备生产能力。

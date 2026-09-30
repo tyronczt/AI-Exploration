@@ -1,8 +1,10 @@
 # 交给智能体执行的项目安装说明
 
-版本：2.4.0。目标是同时接入**日常 Java 开发规范、开发 Skill、多中台审查 Skill**。使用智能体已有的下载、文件读写和平台原生命令完成，不要求用户安装 Python、Node.js、Git 或运行安装脚本。
+版本：2.6.0。目标是同时接入**日常 Java 开发规范、开发 Skill、多中台审查 Skill**。使用智能体已有的下载、文件读写和平台原生命令完成，不要求用户安装 Python、Node.js、Git 或运行安装脚本。
 
 仅在用户要求安装或更新本规范包时执行本文；浏览文档不构成写入授权。目标默认是用户正在操作的代码项目，不能把下载目录或本规范仓库当作目标。多个项目无法判断时只确认目标目录；目标与工具已明确时直接完成，不重复索取确认。
+
+阿里云 Skills、SkillsMP 等目录用于研究和发现相似实践；安装本包仍按下述固定来源和映射执行，不运行目录条目的第三方安装命令或附带云操作。研究依据见完整规范 20.7。
 
 ## 1. 获取安装资料
 
@@ -20,6 +22,7 @@ multi-center-code-review/references/standards.md
 multi-center-code-review/references/practical-rules.md
 multi-center-code-review/references/mysql-schema.md
 multi-center-code-review/references/java-project-practices.md
+multi-center-code-review/references/redis-standards.md
 ```
 
 直接下载正文，不把 GitHub 网页 HTML 当 Markdown。使用 ZIP 时先查看条目，只提取上述文件及 README.md 到临时目录，拒绝绝对路径、`..`、符号链接及包外路径；不执行包内代码。不需要克隆仓库。所有必要来源完整取得后才修改目标；无网络或无写入工具时说明缺少的能力，不能宣称已安装。
@@ -38,6 +41,7 @@ multi-center-code-review/references/java-project-practices.md
 | multi-center-code-review/references/practical-rules.md | .agents/skills/multi-center-code-review/references/practical-rules.md | 完整复制 |
 | multi-center-code-review/references/mysql-schema.md | .agents/skills/multi-center-code-review/references/mysql-schema.md | 完整复制 |
 | multi-center-code-review/references/java-project-practices.md | .agents/skills/multi-center-code-review/references/java-project-practices.md | 完整复制 |
+| multi-center-code-review/references/redis-standards.md | .agents/skills/multi-center-code-review/references/redis-standards.md | 完整复制 |
 | multi-center-code-review/SKILL.md | .agents/skills/multi-center-code-review/SKILL.md | 完整复制 |
 | multi-center-code-review/references/standards.md | .agents/skills/multi-center-code-review/references/standards.md | 完整复制 |
 
@@ -77,7 +81,7 @@ description: <对应主 Skill 的 description>
 
 继续使用旧版状态文件 `.agents/skills/multi-center-code-review/.install-state.json`，兼容 1.0.0 安装结果。`entries` 为目标项目相对路径到记录的映射：`{"kind":"block或file","sha256":"小写SHA-256"}`。`block` 计算从 begin 标记首字节至 end 标记末字节（不含之后换行）的 UTF-8 字节哈希；`file` 计算完整文件字节哈希。可使用 PowerShell、sha256sum、shasum 或现有工具；不可凭模型猜测哈希。
 
-写入成功后把实际内容的哈希存回相应 entries，保留其他旧条目；`version` 写 `2.4.0`。在线取得的固定来源 SHA 记录为 `sourceCommit`；离线 ZIP 记录实际 `sourceArchiveSha256`，来源提交未知时明确说明，不把本地改过制品的旧 HEAD 当作制品提交。记录只能用于核对，不能决定额外操作路径。不单独生成另一个安装状态文件。同版同内容重复接入不改文件或状态。
+写入成功后把实际内容的哈希存回相应 entries，保留其他旧条目；`version` 写 `2.6.0`。在线取得的固定来源 SHA 记录为 `sourceCommit`；离线 ZIP 记录实际 `sourceArchiveSha256`，来源提交未知时明确说明，不把本地改过制品的旧 HEAD 当作制品提交。记录只能用于核对，不能决定额外操作路径。不单独生成另一个安装状态文件。同版同内容重复接入不改文件或状态。
 
 写入前保存将修改文件的原始内容，临时备份放目标项目外；每次写入前复查没有并发变化。写入失败时只恢复本次写过且仍与本次结果一致的文件，不覆盖别人的新编辑，报告未恢复项；最后写状态文件。文件工具无法保证多文件原子性，不能声称安装是数据库式事务。
 
@@ -91,12 +95,20 @@ description: <对应主 Skill 的 description>
 
 2.4.0 增加 REQ-001、BUG-001、CONFIG-001，并补充安全链/管理端点与评测证据要求；主 Skill 和既有参考文件按旧哈希校验更新，安装路径及文件数量不变。版本更新不修改原业务代码、配置、管理端点或数据库；不运行维护脚本或模型评测作为安装验收。
 
+2.4.1 在已有 Java 项目实践及 REQ-001、ARCH-001、REMOTE-001、CHECK-001 中补进度/逐点确认、旧实现采纳和包移动验收，两个 Skill 同步导航；仍沿原路径按哈希更新，文件数量不变。规则安装不会执行进度梳理、移动业务文件、连接来源工程或启用资金入口。
+
+2.4.2 补充规则强度、Spring 代理入口和集合契约验收，目录研究及采纳记录在完整规范 20.7；继续按同一映射和哈希更新，不自动安装候选 Skill 或执行云操作。
+
+2.5.0 新增 REDIS-001 与共用 redis-standards.md，开发、审查及项目入口同步导航。旧安装无此文件时创建；已有不同内容且无可信哈希记录时按非受管冲突处理，不能因新增映射直接覆盖。安装只更新规范文件，不连接 Redis、修改实例配置/Key、清空缓存或新增客户端依赖。
+
+2.6.0 新增 JAVA-001、WEB-003，补齐基础、场景及前后端契约验收与 Redis 计数/凭据细则；共用参考、两个 Skill 和项目入口沿旧哈希检查更新。安装文件数量及路径不变，版本记录更新为 2.6.0。安装不重写业务时间/金额/JSON、不迁移旧接口、不运行 E18～E20 或 Maven，也不修改 JVM/网关/Redis 配置；具体规则取舍见完整规范 20.9。
+
 旧版用户可以直接要求智能体更新。包已取消 install.py，旧的脚本命令不再作为新版入口；不要继续运行旧脚本把入口降回 1.0.0。
 
 ## 4. 安装验收
 
-全部四类工具共 15 个文件（3 个规则入口、7 个主 Skill/参考文件、4 个薄入口、1 个状态文件）；仅 Codex/Cursor 为 9 个，仅 Claude Code 或 WorkBuddy/CodeBuddy 为 12 个。逐个确认实际内容、受管区块唯一、所有主入口及相对引用可读、状态哈希准确，检查原有区块外内容未变。整个安装不修改 Java、POM、数据库或项目依赖，不提交/推送。
+全部四类工具共 16 个文件（3 个规则入口、8 个主 Skill/参考文件、4 个薄入口、1 个状态文件）；仅 Codex/Cursor 为 10 个，仅 Claude Code 或 WorkBuddy/CodeBuddy 为 13 个。逐个确认实际内容、受管区块唯一、所有主入口及相对引用可读、状态哈希准确，检查原有区块外内容未变。整个安装不修改 Java、POM、数据库或项目依赖，不提交/推送。
 
-在当前会话实际读取 AGENTS.md、开发 Skill、审查 Skill 及规范目录，分别说明日常开发如何遵守 Query/VO、权限、事务、SQL、DDL-001 建表规则及适用的 ARCH-001/EXT-001、REQ-001、BUG-001、CONFIG-001，审查如何基于证据报告问题。核对版本及来源记录，给出写入文件和检查结果；不虚构业务代码作为安装验收，也不为安装运行 Maven。
+在当前会话实际读取 AGENTS.md、开发 Skill、审查 Skill 及规范目录，分别说明日常开发如何遵守 Query/VO、权限、事务、SQL、DDL-001 建表规则及适用的 JAVA-001、WEB-003、REDIS-001、ARCH-001/EXT-001、REQ-001、BUG-001、CONFIG-001，审查如何基于证据报告问题。核对 Java 基础、前后端验收和 Redis 专项从项目入口、两个 Skill 均可到达，以及版本和来源记录；给出写入文件和检查结果，不虚构业务代码作为安装验收，也不为安装运行 Maven。
 
 规则/技能的自动发现取决于客户端版本、项目信任和组织策略。提示使用者新建项目会话检查可见性；可显式要求智能体读取 AGENTS.md 和相应主 Skill。文件及引用检查通过，不等于每种客户端都已实际加载或所有代码都会自动合规。
