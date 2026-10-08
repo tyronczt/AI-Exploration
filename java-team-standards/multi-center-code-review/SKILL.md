@@ -39,7 +39,7 @@ description: 审查 Java/Spring 多中台的指定代码、Git 变更或 PR/MR�
 | 进度结论、待确认项与旧工程迁移 | REQ-001、REMOTE-001、CHECK-001；[进度与逐点确认](references/java-project-practices.md#7-对照工程推进进度与逐点确认)，核验依据、阻断范围及暂缓状态 |
 | 包移动、Mapper/XML 资源归类 | ARCH-001、SERIAL-001、CHECK-001；[包移动验收](references/java-project-practices.md#8-按业务归属整理包与资源)，检查扫描、字符串类名及干净构建 |
 | 缺陷修复、性能回归 | BUG-001、对应业务规则；16.3，检查修复前后证据及相关调用方 |
-| 配置绑定、profile、环境变量 | CONFIG-001；11.2，核验部署覆盖及实际生效方式 |
+| 配置绑定、profile、前后端连接及环境变量 | CONFIG-001、AUTH-001；11.2/11.2.1，核验部署覆盖、地址/Origin 联动与秘密边界 |
 | 公共模块、DDD 与跨中台调用 | ARCH-001、2～3、6～9、12、18；[Java 项目实践](references/java-project-practices.md) |
 | 策略扩展、默认回退、状态机 | EXT-001、CON-001、TX-001；Java 项目实践第 3～4 节，检查实际路由与持久化行为 |
 | 值、对象、金额、日期、集合/数组、排序、分支和资源 | JAVA-001；5.1～5.5，结合边界输入与真实调用方，不能仅凭 API 名字报错 |
@@ -51,7 +51,8 @@ description: 审查 Java/Spring 多中台的指定代码、Git 变更或 PR/MR�
 | SQL 聚合/ORM、缓存、文件、安全链及管理端点 | SQL-001、AUTH-001、SERIAL-001、OBS-001 按实际行为选择；10～11、13～14、16.5 |
 | Redis Key/TTL、CacheWriter、客户端、扫描/脚本、锁、Stream 及运行配置 | REDIS-001；[Redis 专项规范](references/redis-standards.md) 的相关章节；按行为追加 CON-001、IDEM-001、TX-001、SERIAL-001、CONFIG-001 等，追踪实际命令与失败窗口 |
 | 消息、任务、审计、观测 | IDEM-001、REMOTE-001、TX-001、AUTH-001、OBS-001 按实际行为选择；12～14 |
-| Maven 依赖、构建、测试、审查、JVM 与发布 | INIT-001、CHECK-001；3.6、14.1、15～18，检查实际生命周期与运行资源 |
+| 初始化组合、模板或接口生成 | INIT-001、WEB-003、CHECK-001 按实际行为选择；3.7～3.8、6.7，核验支持范围、手改保护、恢复及实际消费方 |
+| Maven 依赖、构建、测试、审查、JVM 与发布 | INIT-001、CHECK-001；3.6、14.1、15～18/16.6，检查实际制品、版本/范围证据与运行资源 |
 | 用户组织 / 订单审批库存 | 19.1 / 19.2 |
 | 精确计量 / 账户 / 支付 / 结算对账 | 19.3 / 19.4 / 19.5 / 19.6 |
 | 新中台或职责待确认 | 2、19.7 |

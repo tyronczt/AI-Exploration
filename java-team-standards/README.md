@@ -1,6 +1,6 @@
 # Java 团队开发规范与多中台代码审查
 
-用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.6.0**。Java 基础、常用场景和前后端接口提供具体输入与验收断言；MySQL 与 Redis 专项均有外部资料核验，开发、审查和安装共用一份来源。业务请求参数超过 3 个使用 POST JSON，3 个及以内的简单只读查询可用 GET；分页按参数数量判断，不一律要求 POST。Query、DTO、VO 统一使用普通 class + Lombok，采用标准访问器（只读对象不强加 setter），并显式声明 Serializable 与各自的序列化版本号；JSON 和实际 RPC 协议分别验证。类、字段、手写方法及构造方法补充业务注释，覆盖 Controller、Service、Repository。开发与审查共用规则及验收条件，详见下方入口。
+用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.7.0**。Java 基础、常用场景和前后端接口提供具体输入与验收断言；MySQL 与 Redis 专项均有外部资料核验，开发、审查和安装共用一份来源。业务请求参数超过 3 个使用 POST JSON，3 个及以内的简单只读查询可用 GET；分页按参数数量判断，不一律要求 POST。Query、DTO、VO 统一使用普通 class + Lombok，采用标准访问器（只读对象不强加 setter），并显式声明 Serializable 与各自的序列化版本号；JSON 和实际 RPC 协议分别验证。类、字段、手写方法及构造方法补充业务注释，覆盖 Controller、Service、Repository。开发与审查共用规则及验收条件，详见下方入口。
 
 ## 同事只需发一段话
 
@@ -28,6 +28,7 @@
 | 查具体标准 | [22 条可执行规则](multi-center-code-review/references/practical-rules.md) | 规则编号、适用条件、正反例、验收与例外 |
 | Java 基础边界 | [基础细则与验收](multi-center-code-review/references/standards.md#51-值对象和常量) | JAVA-001：值、精确数值、日期、集合/数组、排序、分支和资源 |
 | 前后端接口/联调 | [字段与传输规约](multi-center-code-review/references/standards.md#64-前后端-json-与字段契约) | WEB-003：精度/时间、空值、HTTP、大小、缓存、跳转与真实报文验收 |
+| 工程组合、模板更新与能力证据 | [组合约束](multi-center-code-review/references/standards.md#37-技术栈组合与生成结果一致)、[模板保护](multi-center-code-review/references/standards.md#38-工程模板的基线更新与恢复)、[验证等级](multi-center-code-review/references/standards.md#166-能力证据等级与交付制品) | INIT-001/CHECK-001：条件性组合、生成基线/恢复和版本/范围绑定 |
 | 常用场景验收 | [场景矩阵](multi-center-code-review/references/standards.md#165-常用场景的具体验收) | Maven、执行器/中断/上下文/调度、SQL/ORM、日志、测试及 JVM |
 | MySQL 建表、生成 DDL 或改表 | [MySQL 建表规范](multi-center-code-review/references/mysql-schema.md) | 表字段、注释、类型、索引、约束、5.7/8 差异、模板与变更验收 |
 | Redis 缓存、客户端、命令、锁、Stream 与运行配置 | [Redis 专项规范](multi-center-code-review/references/redis-standards.md) | Key/容量、TTL/一致性、协议与默认清理、租约、ACK/重投、集群/持久化、运维边界及固定来源 |
@@ -106,8 +107,11 @@ pwsh -NoProfile -File java-team-standards/scripts/check-package.ps1 -SelfTest
 
 脚本检查当前版本、规则编号、相对引用及 ZIP 条目/内容；-SelfTest 在临时 ZIP 副本中验证内容损坏会被拒绝，不改变正式制品。不运行模型或 Java。固定评测的代码断言、误报判断和客户端发现须另外执行并留证据。
 
+2.7.0 对照 Better-Fullstack 固定提交补充技术栈组合、工程模板更新保护、接口代码生成、前后端连接配置及能力证据等级。沿现有 22 条规则补强，使用生成器/浏览器时才追加相关验收；不引入新依赖、不改变参考工程或安装映射。[来源与不采纳项](multi-center-code-review/references/standards.md#2010-better-fullstack-工程生成与验收研究)保留上游支持限制和验证边界；新增 E21～E23 固定材料，模型评测未执行。
+
 ## 已验证到哪一步
 
+- 2.7.0 维护校验（2026-10-08）：包版本/22 条规则/37 个分发文件、引用与安装映射、ZIP 字节和损坏副本自检通过；两个 Skill 格式校验及 Git 差异检查通过。E21～E23 为固定评审材料，未执行模型或生成工程运行验证。
 - 2.6.0 维护校验：包版本/22 条规则/37 个文件、引用与安装映射、ZIP 字节和损坏副本自检通过；两个 Skill 格式校验通过。E18 及关联 JDK 边界 30 条断言、E19 的 JS 材料 26 条断言通过；E20 仅核对 XML/材料一致性。未执行新增模型对照、MySQL/MyBatis、Redis、网关或浏览器验收。
 - 参考工程完成 Maven 编译/打包、Checkstyle 和实际 HTTP 场景验证，明细见工程 README。
 - 静态检查只覆盖少量可机械判断的格式规则；权限、幂等、事务等仍需行为验证和审查。
