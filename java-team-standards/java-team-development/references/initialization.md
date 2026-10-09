@@ -14,10 +14,10 @@
 | 模块与扩展 | 公开契约、内部实现、允许依赖与写入责任；是否存在真实多策略及匹配/回退政策。读取 [Java 项目实践](../../multi-center-code-review/references/java-project-practices.md)，不因 COLA 示例生成空层或自动升级依赖 |
 | 数据访问 | 数据库、ORM、迁移工具；未决定时不引入依赖或生成空 Mapper |
 | MySQL 表结构 | 精确版本、ID 策略、引擎/字符集/collation、时间约定、表职责及字段/索引；生成 DDL 前读取 [DDL-001 建表规范](../../multi-center-code-review/references/mysql-schema.md)，不自动堆叠外键或触发器 |
-| Web 契约 | 普通 class + Lombok、Query/DTO/VO 位置；业务请求参数超过 3 个用 POST JSON，3 个及以内的简单只读查询可用 GET；参数计数及复杂结构按完整规范 6.2；响应包装、HTTP 状态与错误码 |
+| Web 契约 | 目标已确认的 class/record、访问器和 Query/DTO/VO 位置；标量入口、输入转换的真实需求；HTTP 方法和绑定按业务语义及目标契约，明确是否采纳完整规范 6.2 的参数数量约定；响应基础类型/VO、统一包装、HTTP 状态与错误码 |
 | 前后端线上的协议 | 已采用代码生成时按完整规范 6.7 记录契约权威输入、生成器版本/命令和实际消费方；WEB-003 的 UTF-8/媒体类型、字段类型与空值、ID/金额精度、日期/时区、枚举演进、请求上限、缓存/跳转；实际报文与 JS/浏览器验收见完整规范 6.4～6.6 |
-| 序列化契约 | Serializable/UID 团队约定；实际 JSON/RPC/缓存/消息序列化器、构造绑定、泛型与新旧读取策略 |
-| 分页 | 页码起点、默认值、字段缺失/null 与缺失请求体策略、上限、越界策略、总数口径、稳定排序；验收见 WEB-002 |
+| 序列化契约 | 是否采纳 Serializable/UID 团队约定或实际使用 Java 对象流；纯 JSON 不机械添加。记录实际 JSON/RPC/缓存/消息序列化器、构造绑定、泛型和新旧读取策略 |
+| 分页 | 目标分页 VO 或 ORM 无关公共分页包装；页码、默认值、缺失/null 与请求体策略、上限、越界、total 口径及稳定排序；不直接暴露内部分页 DTO/ORM 对象，验收见 WEB-002 |
 | 权限 | 身份来源、动作权限、资源归属、适用的 CSRF，以及查不到与无权访问的返回政策；不直接照搬教学认证配置 |
 | 配置与部署边界 | 配置注册/校验、单位、profile/环境变量覆盖、重启及轮换；有前端时追加完整规范 11.2.1 的 API 地址/端口/代理/Origin 联动与公开/秘密边界，按 CONFIG-001、AUTH-001、OBS-001 |
 | 副作用 | 哪些操作写事实；事务、幂等键、重复结果和失败恢复的责任方 |
@@ -38,7 +38,7 @@
 
 这是 Java 21 + Spring Boot 3.5.16 + Maven 的单模块、只读组织查询示例。它演示 Query → DTO → VO、分页、校验、统一错误和动作/资源权限；组织仅为教学对象，不预设真实中台职责。
 
-示例分页保留已确认的 `POST /api/reference/organizations/page` JSON 契约，演示请求体绑定和 CSRF；当前仅有两个分页参数，不表示分页必须 POST。新接口按业务参数数量选择；详情使用 GET。示例契约：响应 `code/message/data`；成功码 `OK`；分页 `pageNo` 从 1 开始，默认 20 条，上限 100，超限拒绝，按创建时间降序再按 ID 降序；列表 `items/total/pageNo/pageSize`。这些是示例已定值，新项目须单独采用或调整。
+示例分页保留已确认的 `POST /api/reference/organizations/page` JSON 契约，演示请求体绑定和 CSRF；当前仅两个分页参数，不表示分页必须 POST，也不要求其他工程采用该参数阈值。新接口先按业务语义和目标已采纳契约选择；示例详情用 GET。示例响应 code/message/data，成功码 OK，pageNo 从 1 开始、默认 20、上限 100、超限拒绝，按创建时间及 ID 降序；列表 items/total/pageNo/pageSize。这些是示例已定值，新项目须单独采用或调整。
 
 身份采用环境变量密码和 Spring Security HTTP Basic，仅绑定本机。正式系统应接入已确认身份服务；内存数据不证明 SQL、事务、持久化幂等或生产认证已完成。
 

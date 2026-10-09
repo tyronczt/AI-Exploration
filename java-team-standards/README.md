@@ -1,6 +1,6 @@
 # Java 团队开发规范与多中台代码审查
 
-用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.7.0**。Java 基础、常用场景和前后端接口提供具体输入与验收断言；MySQL 与 Redis 专项均有外部资料核验，开发、审查和安装共用一份来源。业务请求参数超过 3 个使用 POST JSON，3 个及以内的简单只读查询可用 GET；分页按参数数量判断，不一律要求 POST。Query、DTO、VO 统一使用普通 class + Lombok，采用标准访问器（只读对象不强加 setter），并显式声明 Serializable 与各自的序列化版本号；JSON 和实际 RPC 协议分别验证。类、字段、手写方法及构造方法补充业务注释，覆盖 Controller、Service、Repository。开发与审查共用规则及验收条件，详见下方入口。
+用于 Java/Spring 项目初始化、日常开发和代码审查。支付只是业务场景之一；规范同样覆盖用户、组织、订单、库存、配置和任务。版本 **2.8.0**，共 22 条可执行规则。目标项目已确认的对象形式、HTTP 方法、序列化、注释和表结构约定优先；本包给出条件、反例和验收，不因示例强改 record/class、增加无用途 DTO 或包装。MySQL、Redis 与模块化工程实践按实际采用范围读取；参数校验、授权、幂等、事务及契约兼容仍须满足。规则与参考均在包内，不要求访问作者本机目录或私有工程。
 
 ## 同事只需发一段话
 
@@ -29,6 +29,7 @@
 | Java 基础边界 | [基础细则与验收](multi-center-code-review/references/standards.md#51-值对象和常量) | JAVA-001：值、精确数值、日期、集合/数组、排序、分支和资源 |
 | 前后端接口/联调 | [字段与传输规约](multi-center-code-review/references/standards.md#64-前后端-json-与字段契约) | WEB-003：精度/时间、空值、HTTP、大小、缓存、跳转与真实报文验收 |
 | 工程组合、模板更新与能力证据 | [组合约束](multi-center-code-review/references/standards.md#37-技术栈组合与生成结果一致)、[模板保护](multi-center-code-review/references/standards.md#38-工程模板的基线更新与恢复)、[验证等级](multi-center-code-review/references/standards.md#166-能力证据等级与交付制品) | INIT-001/CHECK-001：条件性组合、生成基线/恢复和版本/范围绑定 |
+| 工程适配、公共组件与门禁 | [多中台工程实践](multi-center-code-review/references/java-project-practices.md#9-多中台工程规则与公共组件) | 目标形式优先、已有组件的事务/身份协议、模块登记及实际构建覆盖 |
 | 常用场景验收 | [场景矩阵](multi-center-code-review/references/standards.md#165-常用场景的具体验收) | Maven、执行器/中断/上下文/调度、SQL/ORM、日志、测试及 JVM |
 | MySQL 建表、生成 DDL 或改表 | [MySQL 建表规范](multi-center-code-review/references/mysql-schema.md) | 表字段、注释、类型、索引、约束、5.7/8 差异、模板与变更验收 |
 | Redis 缓存、客户端、命令、锁、Stream 与运行配置 | [Redis 专项规范](multi-center-code-review/references/redis-standards.md) | Key/容量、TTL/一致性、协议与默认清理、租约、ACK/重投、集群/持久化、运维边界及固定来源 |
@@ -53,8 +54,8 @@
 
 ```text
 按项目规范使用 java-team-development，为组织列表增加名称筛选。
-复用现有结构，按接口定义的业务参数数量选择 HTTP 方法并评估既有契约兼容性；
-保留 Query/DTO/VO 边界，补齐字段及方法注释。
+复用现有结构，按业务语义和项目已采纳约定选择 HTTP 方法，评估既有契约兼容性；
+保留目标已确认的 Web/内部对象边界、对象形式和分页包装，准确说明业务及关键边界；
 核验绑定校验、资源范围、total 口径和适用的 CSRF，完成实际验证。
 ```
 
@@ -105,11 +106,15 @@ pwsh -NoProfile -File java-team-standards/scripts/check-package.ps1 -Rebuild
 pwsh -NoProfile -File java-team-standards/scripts/check-package.ps1 -SelfTest
 ```
 
-脚本检查当前版本、规则编号、相对引用及 ZIP 条目/内容；-SelfTest 在临时 ZIP 副本中验证内容损坏会被拒绝，不改变正式制品。不运行模型或 Java。固定评测的代码断言、误报判断和客户端发现须另外执行并留证据。
+脚本检查当前版本、规则编号、相对引用及 ZIP 条目/内容；文本以 UTF-8/LF 打包和比较，避免 Windows 检出换行与 GitHub 原始文件不同。-SelfTest 在临时 ZIP 副本中验证内容损坏会被拒绝，不改变正式制品。不运行模型或 Java。固定评测的代码断言、误报判断和客户端发现须另外执行并留证据。
 
 2.7.0 对照 Better-Fullstack 固定提交补充技术栈组合、工程模板更新保护、接口代码生成、前后端连接配置及能力证据等级。沿现有 22 条规则补强，使用生成器/浏览器时才追加相关验收；不引入新依赖、不改变参考工程或安装映射。[来源与不采纳项](multi-center-code-review/references/standards.md#2010-better-fullstack-工程生成与验收研究)保留上游支持限制和验证边界；新增 E21～E23 固定材料，模型评测未执行。
 
+2.8.0 补齐工程适配、公共组件、领域调用与架构/契约门禁实践；把 class/record、Serializable、参数数量、分页包装和注释形式改为按目标采纳条件执行。保留安全、一致性及各工程专项决策；公开包正文自足，不依赖作者本机或私有工程。仍为 22 条规则、37 个分发文件，不改变参考工程、依赖或安装映射。
+
 ## 已验证到哪一步
+
+- 2.8.0 维护校验（2026-10-09）：版本、22 条规则、37 个分发文件、引用与安装映射、ZIP 字节及损坏副本自检通过；两个 Skill 格式、限定场景规则复核、公开源码与 ZIP 路径/内网来源检查通过。未执行模型对照、Java 或外部系统集成验收。
 
 - 2.7.0 维护校验（2026-10-08）：包版本/22 条规则/37 个分发文件、引用与安装映射、ZIP 字节和损坏副本自检通过；两个 Skill 格式校验及 Git 差异检查通过。E21～E23 为固定评审材料，未执行模型或生成工程运行验证。
 - 2.6.0 维护校验：包版本/22 条规则/37 个文件、引用与安装映射、ZIP 字节和损坏副本自检通过；两个 Skill 格式校验通过。E18 及关联 JDK 边界 30 条断言、E19 的 JS 材料 26 条断言通过；E20 仅核对 XML/材料一致性。未执行新增模型对照、MySQL/MyBatis、Redis、网关或浏览器验收。
@@ -118,6 +123,6 @@ pwsh -NoProfile -File java-team-standards/scripts/check-package.ps1 -SelfTest
 - 没有数据库、写入、MQ、真实认证或跨中台链路；不能据此宣称中台框架已具备生产能力。
 - 多工具入口与引用可检查，但客户端自动发现受版本、项目信任和组织策略影响。安装后在当前工具新建会话核验；未完成四种客户端逐一实测或模型对照评测，评测方案见初始化指南。
 
-规范参考阿里、Google、AWS、Microsoft 官方资料，采用边界见完整规范第 20 节；工程化实践参考 HumanLayer、Spec Kit 等，保留本团队 Query/VO 和权限约定，不整套照搬第三方框架。
+规范参考阿里、Google、AWS、Microsoft 官方资料，采用边界见完整规范第 20 节；工程化实践参考 HumanLayer、Spec Kit 等。沿目标已确认的对象与接口契约保留权限及一致性要求，不整套照搬第三方框架。
 
 入口依据：[Codex Skills](https://developers.openai.com/codex/skills)、[Claude Code 记忆](https://code.claude.com/docs/en/memory)、[Cursor Skills](https://cursor.com/docs/skills)、[WorkBuddy 项目配置](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Project)。

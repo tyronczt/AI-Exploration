@@ -44,6 +44,13 @@ function Assert-PackagePath([string]$path) {
     }
 }
 
+function Get-PackageBytes([string]$path) {
+    $encoding = [Text.UTF8Encoding]::new($false, $true)
+    $content = $encoding.GetString([IO.File]::ReadAllBytes($path))
+    $content = $content.Replace(([string][char]13 + [char]10), [string][char]10)
+    return ,($encoding.GetBytes($content))
+}
+
 $documents = @{}
 foreach ($relative in $sources) {
     $path = Join-Path $packageRoot $relative
@@ -124,7 +131,9 @@ function Test-Archive([string]$path) {
             $stream = $zip.GetEntry($prefix + $relative).Open()
             try { $entryHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) }
             finally { $stream.Dispose() }
-            if ($entryHash -ne (Get-FileHash -LiteralPath (Join-Path $packageRoot $relative) -Algorithm SHA256).Hash) {
+            [byte[]]$sourceBytes = Get-PackageBytes (Join-Path $packageRoot $relative)
+            $sourceHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($sourceBytes))
+            if ($entryHash -ne $sourceHash) {
                 throw "ZIP 内容不同：$relative"
             }
         }
@@ -138,8 +147,11 @@ if ($Rebuild) {
         $zip = [IO.Compression.ZipFile]::Open($temporaryArchive, [IO.Compression.ZipArchiveMode]::Create)
         try {
             foreach ($relative in $sources) {
-                [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip,
-                    (Join-Path $packageRoot $relative), ($prefix + $relative), [IO.Compression.CompressionLevel]::Optimal)
+                $stream = $zip.CreateEntry(($prefix + $relative), [IO.Compression.CompressionLevel]::Optimal).Open()
+                try {
+                    [byte[]]$sourceBytes = Get-PackageBytes (Join-Path $packageRoot $relative)
+                    $stream.Write($sourceBytes, 0, $sourceBytes.Length)
+                } finally { $stream.Dispose() }
             }
         } finally { $zip.Dispose() }
         Test-Archive $temporaryArchive

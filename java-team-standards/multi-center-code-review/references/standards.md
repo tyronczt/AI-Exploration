@@ -1,8 +1,10 @@
 # 系统与多中台 Java 开发规范
 
-版本：v2.7.0 可复用团队基线。来源版本日期：2026-10-08。
+版本：v2.8.0 可复用团队基线。来源版本日期：2026-10-08。
 
 采用前与目标项目的既有规范及业务契约核对。账户、支付、结算等是适用场景示例，不意味着目标项目必须具备这些中台。
+
+目标工程已确认的对象形式、访问器、序列化方式、HTTP 方法、响应/分页包装、注释格式及表结构约定优先于本包默认。未采纳的形式规则不能据此判违规，参数校验、授权、并发与兼容性仍须满足。按包内 [工程适配](java-project-practices.md#9-多中台工程规则与公共组件) 核对目标当前依据；不依赖作者的本机目录或私有资料，不移植其他工程的专项决策。
 
 适用范围：系统内各业务中台、业务应用、管理后台、对外接口和后台任务的 Java 服务。适用人员：开发、代码审查、测试及运维人员。
 
@@ -175,7 +177,7 @@
 | Web 请求 | XxxQuery，含新增、修改和查询，放 query 包 | OrganizationUpdateQuery |
 | Web 响应 | XxxVO，放 vo 包 | OrganizationDetailVO |
 | 内部传输 | XxxDTO | OrganizationUpdateDTO |
-| 持久化对象 | XxxDO，限持久层使用 | OrganizationDO |
+| 持久化对象 | XxxDO，供本领域数据访问及已允许的 CRUD 应用服务使用，不进入 Web 或跨领域协议 | OrganizationDO |
 | 转换类 | 统一 Converter 后缀 | OrganizationWebConverter |
 
 禁止 data1、flag2、commonHandle、巨型 CommonUtils 等模糊命名。状态字段不得只用 boolean 表达包含多种中间态的业务过程。
@@ -189,23 +191,23 @@
 - if/else/循环必须有花括号；优先清晰的前置校验，避免深层嵌套。
 - 禁止通配符 import，删除无用 import；格式整理不夹带无关功能修改。
 - 使用构造器注入；依赖字段优先 final。单例服务不保存请求级可变状态。
-- Query、DTO、VO 统一使用普通 class + Lombok，不默认采用 record；访问器采用 getXxx/setXxx，不启用 fluent 风格。
-- 请求 Query 使用 @Getter/@Setter 和无参构造，字段默认值与 null/空值策略显式定义；必要时手写 setter 做默认值归一化，合法性仍由 @Valid 校验。
-- 只读 DTO/VO 使用 @Getter、final 字段与构造方法；无额外逻辑时可用 @AllArgsConstructor，需要参数校验或集合防御性复制时保留显式构造方法。需要反序列化的内部 DTO 按真实协议提供可绑定 JavaBean 或显式 creator/property 映射，不能为绑定强行破坏只读状态或绕过构造校验。
+- Query、DTO、VO 优先沿用目标已确认的 class/record 与访问器，不因采用本规范切换形式。采用 class + Lombok 基线时使用普通 class、getXxx/setXxx，不启用 fluent；record 的绑定、校验、不可变性和真实协议另行核验，不能据 Demo 强制所有类型改 record。
+- 采用 class + Lombok 基线的请求 Query 使用 @Getter/@Setter 和无参构造，字段默认值与 null/空值策略显式定义；必要时手写 setter 做默认值归一化，合法性仍由 @Valid 校验。record 或显式 creator 按目标真实绑定路径验证，不为统一形式增加 setter。
+- class + Lombok 的只读 DTO/VO 使用 @Getter、final 字段与构造方法；无额外逻辑可用 @AllArgsConstructor，需要校验或防御性复制时保留显式构造。record 沿目标不可变性约定；反序列化 DTO 按真实协议提供可绑定属性或 creator/property，不能为绑定破坏只读状态或绕过校验。
 - 不统一套用 @Data：避免无意生成敏感字段 toString、可变 equals/hashCode 或越权 setter；领域聚合不开放任意状态修改。只有确需值比较时才生成并检查 equals/hashCode，不能假设 class 自动拥有 record 的值语义。
 
 Google 默认使用 2 空格、100 字符；团队保留阿里手册的 4 空格、120 字符，同时借鉴命名、导入和花括号等规则。IDE 与构建不得混用相互冲突的格式化配置。[Google Java Style](https://google.github.io/styleguide/javaguide.html)
 
 ### 4.3 注释
 
-- 新增或修改的类和字段必须有准确业务注释，Query、DTO、VO 尤其要说明传输契约；不为补注释批量改动无关历史代码。
+- 新增或修改的类、字段按目标已采纳规则补充准确业务说明，Query/DTO/VO 明确非显然的传输契约；目标要求逐项注释时继续执行。不复述显然名称，不为补模板批量改无关历史代码；状态、金额、时间及空值语义仍须明确。
 - 状态注明可选值，金额和数量注明单位，展示字段注明来源及映射，时间注明时区。
 - 可空字段说明 null 语义，不默认解释为零、失败或“不限制”。
-- 手写方法和构造方法使用 Javadoc；按实际签名补 @param、@return，主要业务拒绝或校验异常补 @throws。Service、Controller、Repository 不能只有类注释；私有权限、转换、默认值处理等方法也说明职责与边界。
+- 注释先说明公开契约、业务不变量和关键权限/事务/恢复边界。目标已采纳完整 Javadoc 时，手写方法及构造方法按实际签名补 @param/@return 和实际异常的 @throws，覆盖 Service、Controller、Repository 及私有边界方法；未采纳时不机械补标签或为简单辅助方法复述代码。
 - 方法说明写清业务目的、参数来源与前置条件、返回值及空结果语义；涉及权限、分页、状态、副作用或重试时说明相应约束。只读方法不虚构事务或补偿能力；异步操作说明查询及完成语义。
 - Lombok 生成的访问器与构造方法不额外手写重复注释，语义写在字段和类上；覆盖方法可继承接口契约，但新增限制或副作用必须补充。禁止用“查询数据”“处理逻辑”等空话代替方法契约。
-- Controller 注释覆盖 HTTP 方法、完整路径、绑定方式及主要错误；Service 注释覆盖业务前置条件、动作权限、资源范围、排序/分页和空结果；Repository 注释说明查询范围与结果语义，不把数据访问写成已经完成业务授权。
-- @throws 只写本方法实际抛出或传播的异常；框架绑定、安全过滤链等错误写在接口契约中，不伪装为方法直接抛出。修改行为时同步注释，OpenAPI 注解不替代源码业务说明。
+- 接口说明覆盖 HTTP 方法、完整路径、绑定及主要错误；Service 说明业务前置条件、权限、资源范围、分页和空结果；Repository 说明查询语义，不把数据访问写成完成授权。沿目标使用源码说明或 OpenAPI，关键业务原因不能只靠生成文档表达。
+- 使用 @throws 时只写实际抛出或传播的异常；框架绑定、安全链错误写在接口契约中。修改行为同步源码和 OpenAPI；未采纳完整 Javadoc 的项目不因缺少模板标签报违规。
 - 复杂注释说明业务原因，不复述 getter/setter；TODO 包含问题与处理条件，必要安全检查不能无限延期。
 
 ## 5. Java 基础与异常处理
@@ -276,11 +278,11 @@ Google 默认使用 2 空格、100 字符；团队保留阿里手册的 4 空格
 
 ### 6.1 对象边界
 
-Web Query → Controller/Converter → 内部 DTO → 应用用例 → 所需领域模型与持久化对象。响应沿内部 DTO → Web VO 转换。
+Web Query → Controller 校验与纯转换 → 应用用例 → 所需领域模型与持久化对象；输入可用内部 DTO，也可在简单用例中拆为已校验业务参数，不为完整链路增加无用途转换类。业务对象响应由内部结果映射为 Web VO。
 
-- Controller 仅接收 Query、返回 VO 或统一响应包裹的 VO；禁止直接使用 DTO、BO、DO、Entity 或 ORM 分页对象作 Web 出入参。
+- 业务对象请求使用 Query，业务对象响应使用 VO 或其统一包装；目标已确认的简单标量绑定和基础类型响应可保留。禁止直接使用内部 DTO、BO、DO、Entity 或 ORM 分页对象作 Web 契约；成功 Boolean 不能掩盖失败或未完成。
 - 请求统一 Query 后缀，新增和修改也如此；内部用例对象可按约定采用 Command，不作为 Web 请求类型。
-- 分页使用分页 Query 和分页 VO，内部分页 DTO 不直接暴露。
+- 分页使用目标分页 Query，响应为分页 VO 或 ORM 无关公共分页结构包裹 VO；不暴露内部分页 DTO 或 ORM 页对象，不为更换包装破坏既有契约。
 - 转换使用明确字段映射；禁止把 Query 自动复制到 DO 后整行更新，禁止客户端覆盖认证上下文。
 - Web 与 RPC 均校验契约；网关校验不免除应用服务的资源归属及业务权限检查。
 - 枚举合法性、长度、集合大小、数值边界在入口校验；跨记录不变量在用例或领域层校验。
@@ -327,15 +329,15 @@ expectedVersion 必须落实到条件更新并检查影响行数；仅声明字�
 
 ### 6.2 HTTP 方法与返回契约
 
-- 业务请求参数超过 3 个时，统一使用 POST 和 `@Valid @RequestBody XxxQuery` 接收 JSON；3 个及以内的简单只读查询可使用 GET 和 `@Valid @ModelAttribute XxxQuery`。这是团队接口设计约定，不是 HTTP 协议规定的参数上限；3 个及以内不意味着禁止 POST。
-- 参数按接口契约中客户端可提供的业务字段统计，包含必填、可选、分页、排序和路径业务参数，不按某次请求实际填了几个字段计数。Query 包装不算一个参数；继承字段同样计入。Authorization、CSRF、追踪头及框架注入的 Authentication 不计入业务参数，业务字段不能改放请求头来规避计数。
+- 先按操作语义和目标已确认契约选择 HTTP 方法。本团队“业务请求参数超过 3 个使用 POST + @Valid @RequestBody，3 个及以内简单只读查询可使用 GET + @Valid @ModelAttribute”的数量约定，仅对已采纳它的工程生效；不是 HTTP 参数上限，不据此改其他工程既有 GET/PUT/PATCH/DELETE。
+- 已采纳数量约定时，参数按客户端可提供的业务字段统计，包含必填、可选、分页、排序和路径字段；不按某次填写数量或 Java 形参计数，Query 包装不算一个参数，继承字段计入。Authorization、CSRF、追踪头和框架 Authentication 不计入，业务字段不能移到请求头规避。
 - 嵌套对象按可输入的叶子业务字段统计；集合按一个集合字段计数，不按元素数量计数。复杂嵌套、批量集合或长文本即使不超过 3 个字段，也优先使用 POST JSON，并明确大小上限；不能仅凭字段少就使用 GET。
-- 分页按同一规则判断：`pageNo + pageSize` 为 2 个，增加 `name` 为 3 个，简单只读查询可用 GET；再增加 `status` 为 4 个，使用 POST。以已经定义的筛选条件计数，不为可能出现的未来字段提前强制 POST。
+- 已采纳数量约定的分页按同一规则：pageNo + pageSize 为 2 个，增加 name 为 3 个，简单只读可 GET；再增加 status 为 4 个用 POST。未采纳时沿目标方法和绑定契约；不为未来字段提前强制 POST。
 - GET 不触发业务状态变化，不依赖 JSON 请求体；POST 查询也保持业务只读。认证主体来自框架安全上下文，不放进 Query 作为客户端可修改属性。创建、修改、删除等操作仍按业务语义和既有契约选择方法，不能因参数少而改用 GET。
 - POST 查询明确空对象、字段缺失/null、缺失/非法请求体、默认值与校验语义；错误媒体类型返回 415，JSON 解析或约束失败返回 400。嵌套对象和集合同步限制规模并落实级联校验；分页验收见 WEB-002。不得依赖通用客户端按 GET 的缓存/重试语义处理 POST。
 - 从 GET 改 POST 时同步调用方、接口文档、验证和安全配置；已有公开契约先评估兼容性。采用 Cookie 或 HTTP Basic 等浏览器会自动附带的凭证时保留适用的 CSRF 保护，不能只为让 POST 调通而全局关闭。
 - POST 不自动保护敏感信息；URL、请求体和日志均按实际字段做访问控制与脱敏。创建、修改及其他有副作用操作按业务语义和既有契约选择方法。
-- Controller 的 Javadoc 写清方法与完整路径、参数来源、默认值、权限、返回及主要错误；关键绑定/转换处解释边界原因。Javadoc 是源码说明，OpenAPI 接口文档注解按项目已采用的工具补充，不为注释单独引入整套依赖。
+- Controller 的接口说明写清方法、路径、参数来源、默认值、权限、返回及主要错误，关键绑定/转换解释边界原因；采用 Javadoc 或 OpenAPI 遵循目标规则，不为注释引入依赖，不因未采用整套 Javadoc 模板报违规。
 
 依据：[HTTP GET 语义](https://www.rfc-editor.org/rfc/rfc9110.html#name-get)、[Spring 6.2 ModelAttribute](https://docs.spring.io/spring-framework/reference/6.2/web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.html)。
 
@@ -356,7 +358,7 @@ expectedVersion 必须落实到条件更新并检查影响行数；仅声明字�
 
 ### 6.3 序列化契约
 
-Query、DTO、VO 采用普通 class + Lombok，同时实现 Serializable；每个类和可序列化子类显式声明自己的 serialVersionUID，当前 Java 21 基线加 @Serial。具体正反例、对象图、泛型、UID 演进和验收遵循 [SERIAL-001](practical-rules.md#serial-001序列化能力和线上的协议分别验证)。已有共享请求基类可复用，但不将 Web Query 和内部 DTO 合并成一个继承体系。
+Query、DTO、VO 的 class/record 形式沿目标约定。已采纳 Serializable 团队约定或真实使用 Java 对象流时，按协议实现接口、显式维护自身 UID，支持的 JDK 加 @Serial；纯 JSON 不机械添加。正反例、对象图、泛型、UID 演进和验收见 [SERIAL-001](practical-rules.md#serial-001序列化能力和线上的协议分别验证)。不把 Web Query 与内部 DTO 合并成一个继承体系。
 
 HTTP JSON、Java 对象流和具体 RPC/缓存/消息序列化器分别记录。JSON 不依赖 Serializable；不能将“加了接口”或“原生往返通过”报告为实际跨服务协议验证完成。UID 控制 Java 对象流类版本，不代替接口版本；新旧版本读取与数据迁移单独评估。
 

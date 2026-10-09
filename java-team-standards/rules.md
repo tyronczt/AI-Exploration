@@ -6,6 +6,8 @@
 
 - 先读覆盖目标路径的项目指令；存在时读取 `.codex/project-memory.md`、`.codex/task-summary.md`、`.codex/decisions.md`，不创建空占位。
 - 技术版本、模块和命令以实际构建文件及已确认工程决策为准；通用示例不代表项目已经采用。
+
+- 本包默认先与目标已确认的对象、接口、序列化、注释和表结构约定核对；跨工程差异及公共组件见包内 [工程适配](.agents/skills/multi-center-code-review/references/java-project-practices.md#9-多中台工程规则与公共组件)。不依赖作者本机或私有来源，不移植其他工程的专项决策。
 - 初始化或 Java 实现：读取 [开发 Skill](.agents/skills/java-team-development/SKILL.md)。
 - 代码审查：读取 [审查 Skill](.agents/skills/multi-center-code-review/SKILL.md)；仅审查时不改代码。
 - 按任务读取 [可执行规则](.agents/skills/multi-center-code-review/references/practical-rules.md)，需要设计依据或业务专项时查 [完整规范](.agents/skills/multi-center-code-review/references/standards.md)。不默认全量加载。
@@ -18,11 +20,11 @@
 - 先复用项目实现、JDK/Spring/已有依赖或配置，再做局部修改；不新增投机抽象、空模块和无依据的中间件。
 - 初始化或调整技术栈按 INIT-001 核对已确认组合、实际依赖和生成产物；使用工程模板更新时再读完整规范 3.8，先列差异并保护本地修改/删除和恢复范围，安装规范不触发生成或升级。
 - 基础值、日期、集合/数组、排序与资源处理按 JAVA-001 读取完整规范第 5 节及 5.5 验收；并发、SQL 聚合/ORM、依赖、日志和运行场景按 16.5 选择相关细则，不只看正常输入或 API 名称。
-- Web 请求使用 query 包的 Query，响应使用 vo 包的 VO；DTO 仅供内部传输。Controller 完成 Query → DTO、DTO → VO，业务与数据访问留在对应层（WEB-001）。
-- Query/DTO/VO 使用普通 class + Lombok 和标准访问器，不默认使用 record 或一律套 @Data；只读对象不为统一形式增加 setter（完整规范 4.2）。
-- 传输类显式实现 Serializable，各自声明 serialVersionUID；支持的 JDK 加 @Serial。JSON 绑定、对象图及实际 RPC/缓存协议分别核验（SERIAL-001）。
-- 类、字段、手写方法及构造方法补充准确业务注释，覆盖 Service、Controller、Repository 和私有辅助方法；注释要求见完整规范 4.3。
-- 业务请求参数超过 3 个使用 POST + @Valid @RequestBody，3 个及以内的简单只读查询可用 GET；按接口定义的业务字段数统计，包含可选项和分页字段，不按 Java 方法形参数量统计。分页不单独强制 POST，复杂结构和计数细则见完整规范 6.2。明确 JSON 默认值、参数边界、稳定排序、统一错误及适用的 CSRF 保护；既有接口变更同步评估调用方兼容性（WEB-002、ERR-001、AUTH-001）。
+- 业务对象请求使用 query 包的 Query，响应使用 vo 包的 VO；允许目标已确认的简单标量、基础类型和 ORM 无关公共分页包装。DTO 仅供内部传输；简单 Query 可拆已校验业务参数，DTO/Converter 有实际用途才增加，业务与数据访问留在对应层（WEB-001）。
+- Query/DTO/VO 沿目标已确认的 class/record、访问器和可变性；采用 class + Lombok 时不统一套 @Data，不为只读对象增加 setter。不因本包示例强改对象形式（完整规范 4.2）。
+- Serializable、serialVersionUID 与 @Serial 按目标已采纳约定或真实 Java 对象流协议执行；纯 JSON 不机械添加。绑定、对象图及实际 RPC/缓存协议分别核验（SERIAL-001）。
+- 按目标已采纳注释规则准确说明业务、字段语义及关键权限/事务边界；要求完整 Javadoc 时继续执行，未采用时不机械补模板或复述代码（完整规范 4.3）。
+- HTTP 方法先按业务语义及目标已确认契约；仅已采纳完整规范 6.2 数量约定时，超过 3 个业务字段使用 POST JSON，3 个及以内简单只读可 GET。分页不单独强制 POST；校验绑定、默认值、参数边界、稳定排序、统一错误、适用的 CSRF 及调用方兼容（WEB-002、ERR-001、AUTH-001）。
 - 参数、动作权限、资源归属按实际业务校验；不能因实现简单省略安全边界。
 - 前后端接口按 WEB-003 读取完整规范 6.4～6.6：明确 JSON 类型、ID/金额精度、日期/时区、空值、HTTP 状态/媒体类型、请求上限、缓存与跳转，核验实际报文和 JS/浏览器行为；已采用代码生成时追加 6.7 的权威输入、重新生成和实际消费方编译；既有公共契约先评估兼容，不靠前端校验替代后端保护。
 - 修改配置按 CONFIG-001 核验实际绑定、校验、单位及部署覆盖；有前端时追加完整规范 11.2.1 的地址/来源联动和公开/秘密边界；改安全链或已接入的管理端点时追加 AUTH-001、OBS-001 的 CORS、访问范围和脱敏检查，不自动新增观测依赖。
